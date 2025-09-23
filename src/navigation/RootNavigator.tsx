@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Import screens (we'll create these next)
 import SplashScreen from '../screens/SplashScreen';
@@ -23,6 +24,8 @@ const Drawer = createDrawerNavigator();
 
 // Main Tab Navigator
 const MainTabNavigator = () => {
+  const insets = useSafeAreaInsets();
+  
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -49,9 +52,10 @@ const MainTabNavigator = () => {
           backgroundColor: '#FFFFFF',
           borderTopWidth: 1,
           borderTopColor: '#E0E0E0',
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
+          paddingBottom: Math.max(insets.bottom, 8),
+          paddingTop: 8,
+          height: Math.max(70 + insets.bottom, 80),
+          paddingHorizontal: 10,
         },
         headerShown: false,
       })}

@@ -162,12 +162,12 @@ const DashboardScreen = () => {
   );
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
         {/* Header */}
         <LinearGradient
           colors={[COLORS.primary, COLORS.secondary]}
-          style={styles.header}
+          style={[styles.header, { paddingTop: insets.top }]}
         >
         <View style={styles.headerContent}>
           <View style={styles.headerLeft}>
@@ -254,7 +254,7 @@ const DashboardScreen = () => {
         </View>
 
         {/* Footer Spacing */}
-        <View style={{ height: insets.bottom + 20 }} />
+        <View style={{ height: Math.max(insets.bottom + 20, 40) }} />
       </ScrollView>
     </View>
   );
@@ -266,9 +266,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F9FA',
   },
   header: {
-    paddingTop: 5,
-    paddingBottom: 12,
-    paddingHorizontal: 12,
+    paddingTop: 15,
+    paddingBottom: 20,
+    paddingHorizontal: 16,
   },
   headerContent: {
     flexDirection: 'row',
@@ -304,29 +304,30 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
   },
   section: {
-    marginTop: 16,
+    marginTop: 20,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: COLORS.textPrimary,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   quickActions: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    gap: 8,
   },
   quickActionItem: {
-    width: (width - 32) / 2,
+    width: (width - 40) / 2,
     backgroundColor: '#FFFFFF',
-    padding: 12,
+    padding: 16,
     borderRadius: 12,
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -352,11 +353,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    gap: 8,
   },
   serviceCard: {
-    width: (width - 42) / 2,
-    height: 130,
-    marginBottom: 12,
+    width: (width - 40) / 2,
+    height: 140,
+    marginBottom: 16,
     borderRadius: 16,
     overflow: 'hidden',
   },
@@ -398,7 +400,7 @@ const styles = StyleSheet.create({
   },
   statusCard: {
     backgroundColor: '#FFFFFF',
-    padding: 14,
+    padding: 16,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -440,7 +442,7 @@ const styles = StyleSheet.create({
   activityItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
+    padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.gray200,
   },
