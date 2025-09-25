@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AuthState, User, LoginCredentials } from '../types';
+import { AuthState, User } from '../types';
+import { loginAsync, registerAsync, logoutAsync, loadUserFromStorageAsync } from './authThunks';
 
 const initialState: AuthState = {
   user: null,
@@ -51,6 +52,56 @@ const authSlice = createSlice({
       state.biometricEnabled = action.payload;
     },
   },
+  extraReducers: (builder) => {
+    // Login
+    builder.addCase(loginAsync.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(loginAsync.fulfilled, (state, action) => {
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+      state.refreshToken = action.payload.refreshToken;
+      state.isAuthenticated = true;
+      state.isLoading = false;
+    });
+    builder.addCase(loginAsync.rejected, (state) => {
+      state.isLoading = false;
+    });
+
+    // Register behaves like login on success
+    builder.addCase(registerAsync.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(registerAsync.fulfilled, (state, action) => {
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+      state.refreshToken = action.payload.refreshToken;
+      state.isAuthenticated = true;
+      state.isLoading = false;
+    });
+    builder.addCase(registerAsync.rejected, (state) => {
+      state.isLoading = false;
+    });
+
+    // Load from storage
+    builder.addCase(loadUserFromStorageAsync.fulfilled, (state, action) => {
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+      state.refreshToken = action.payload.refreshToken;
+      state.isAuthenticated = true;
+    });
+    builder.addCase(loadUserFromStorageAsync.rejected, (state) => {
+      // ignore
+    });
+
+    // Logout
+    builder.addCase(logoutAsync.fulfilled, (state) => {
+      state.user = null;
+      state.token = null;
+      state.refreshToken = null;
+      state.isAuthenticated = false;
+    });
+  }
 });
 
 export const {

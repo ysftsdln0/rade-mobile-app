@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { API_CONFIG, STORAGE_KEYS } from '../constants';
 import { storageService } from './storage';
-import { ApiResponse } from '../types';
+import { ApiResponse, ActivityItem } from '../types';
 
 class ApiService {
   private client: AxiosInstance;
@@ -255,6 +255,12 @@ class ApiService {
 
   async replyToTicket(ticketId: string, message: string): Promise<ApiResponse<any>> {
     const response = await this.client.post(`/support/tickets/${ticketId}/replies`, { message });
+    return response.data;
+  }
+
+  // Activity endpoints
+  async getRecentActivities(): Promise<ApiResponse<ActivityItem[]>> {
+    const response = await this.client.get('/activity/recent');
     return response.data;
   }
 

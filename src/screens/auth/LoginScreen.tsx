@@ -59,7 +59,9 @@ const LoginScreen = () => {
       return;
     }
 
-    // Demo giriş kontrolü
+  // Demo giriş kontrolü
+  // NOT: Backend artık hazır olduğunda bu blok tamamen kaldırılabilir ya da env flag ile koşullu yapılabilir.
+  // Amaç: Backend kapalıyken hızlı erişim.
     if (email.trim().toLowerCase() === 'demo@rade.com' && password === 'demo123') {
       // Demo kullanıcı bilgileri oluştur
       const demoUser = {

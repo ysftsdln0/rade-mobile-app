@@ -140,6 +140,15 @@ export interface PaymentMethod {
   cardType?: string;
 }
 
+// Activity (recent user/system events)
+export interface ActivityItem {
+  id: string;
+  type: string; // e.g., 'ssl' | 'backup' | 'invoice'
+  title: string;
+  context?: string; // domain / server / invoice number
+  createdAt: string; // ISO date
+}
+
 // Support types
 export interface SupportTicket {
   id: string;

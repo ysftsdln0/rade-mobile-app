@@ -27,18 +27,29 @@ export const loginAsync = createAsyncThunk(
   }
 );
 
-// Register thunk
+// Register thunk (stores tokens & user like login)
 export const registerAsync = createAsyncThunk(
   'auth/register',
-  async (userData: RegisterData, { rejectWithValue }) => {
+  async (form: RegisterData, { rejectWithValue }) => {
     try {
-      const response = await apiService.register(userData);
-      
+      // Backend expects: email, password, firstName, lastName, company?, phone?
+      // Strip client-only fields (confirmPassword, acceptTerms)
+      const payload = {
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        email: form.email.trim().toLowerCase(),
+        password: form.password,
+        company: form.company?.trim() || undefined,
+        phone: form.phone?.trim() || undefined,
+      };
+      const response = await apiService.register(payload);
       if (response.success) {
-        return response.data;
-      } else {
-        return rejectWithValue(response.message || 'Registration failed');
+        const { user, token, refreshToken } = response.data;
+        await storageService.setAuthTokens(token, refreshToken);
+        await storageService.setUserData(user);
+        return { user, token, refreshToken };
       }
+      return rejectWithValue(response.message || 'Registration failed');
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Network error occurred');
     }

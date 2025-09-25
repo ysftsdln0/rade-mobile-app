@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAppSelector } from '../../store';
-import { COLORS, APP_CONFIG } from '../../constants';
+import { COLORS } from '../../constants';
+import { apiService } from '../../services/api';
+import { useQuery } from '@tanstack/react-query';
+import { ActivityItem, HostingPackage } from '../../types';
 
 const { width } = Dimensions.get('window');
 
@@ -40,46 +43,65 @@ const DashboardScreen = () => {
   const { user } = useAppSelector((state) => state.auth);
   const insets = useSafeAreaInsets();
 
-  const serviceCards: ServiceCard[] = [
-    {
-      id: '1',
-      title: 'Hosting Paketleri',
-      subtitle: '3 aktif paket',
-      icon: 'server-outline',
-      count: 3,
-      status: 'active',
-      color: COLORS.primary,
-      onPress: () => navigation.navigate('Services', { screen: 'HostingList' }),
+  // Queries
+  const hostingQuery = useQuery({
+    queryKey: ['hostingPackages'],
+    queryFn: async () => {
+      const res = await apiService.getHostingPackages();
+      return res.data as HostingPackage[];
     },
-    {
-      id: '2',
-      title: 'Domain Adları',
-      subtitle: '5 domain',
-      icon: 'globe-outline',
-      count: 5,
-      color: '#9C27B0',
-      onPress: () => navigation.navigate('Services', { screen: 'DomainList' }),
+    enabled: !!user,
+  });
+
+  const activityQuery = useQuery({
+    queryKey: ['recentActivities'],
+    queryFn: async () => {
+      const res = await apiService.getRecentActivities();
+      return res.data as ActivityItem[];
     },
-    {
-      id: '3',
-      title: 'Sunucular',
-      subtitle: '2 VPS aktif',
-      icon: 'hardware-chip-outline',
-      count: 2,
-      status: 'running',
-      color: '#FF9800',
-      onPress: () => navigation.navigate('Services', { screen: 'ServerList' }),
-    },
-    {
-      id: '4',
-      title: 'Destek Biletleri',
-      subtitle: '1 açık bilet',
-      icon: 'headset-outline',
-      count: 1,
-      color: '#795548',
-      onPress: () => navigation.navigate('Support', { screen: 'TicketList' }),
-    },
-  ];
+    enabled: !!user,
+    staleTime: 1000 * 60, // 1 dakika
+  });
+
+  const serviceCards: ServiceCard[] = useMemo(() => {
+    const hostingCount = hostingQuery.data?.length || 0;
+    return [
+      {
+        id: 'hosting',
+        title: 'Hosting Paketleri',
+        subtitle: hostingQuery.isLoading ? 'Yükleniyor...' : `${hostingCount} paket`,
+        icon: 'server-outline',
+        count: hostingCount,
+        status: 'active',
+        color: COLORS.primary,
+        onPress: () => navigation.navigate('Services', { screen: 'HostingList' }),
+      },
+      {
+        id: 'domains',
+        title: 'Domain Adları',
+        subtitle: 'Liste yakında',
+        icon: 'globe-outline',
+        color: '#9C27B0',
+        onPress: () => navigation.navigate('Services', { screen: 'DomainList' }),
+      },
+      {
+        id: 'servers',
+        title: 'Sunucular',
+        subtitle: 'Yakında',
+        icon: 'hardware-chip-outline',
+        color: '#FF9800',
+        onPress: () => navigation.navigate('Services', { screen: 'ServerList' }),
+      },
+      {
+        id: 'tickets',
+        title: 'Destek Biletleri',
+        subtitle: 'Yakında',
+        icon: 'headset-outline',
+        color: '#795548',
+        onPress: () => navigation.navigate('Support', { screen: 'TicketList' }),
+      },
+    ];
+  }, [hostingQuery.data, hostingQuery.isLoading, navigation]);
 
   const quickActions: QuickAction[] = [
     {
@@ -221,35 +243,38 @@ const DashboardScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Son Aktiviteler</Text>
           <View style={styles.activityList}>
-            <View style={styles.activityItem}>
-              <View style={styles.activityIcon}>
-                <Ionicons name="checkmark-circle" size={20} color={COLORS.success} />
+            {activityQuery.isLoading && (
+              <View style={styles.activityItem}>
+                <Text style={styles.activityTitle}>Yükleniyor...</Text>
+              </View>) }
+            {activityQuery.isError && (
+              <View style={styles.activityItem}>
+                <Text style={styles.activityTitle}>Aktiviteler alınamadı</Text>
+              </View>) }
+            {!activityQuery.isLoading && activityQuery.data && activityQuery.data.length === 0 && (
+              <View style={styles.activityItem}>
+                <Text style={styles.activityTitle}>Kayıt yok</Text>
               </View>
-              <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>SSL sertifikası yenilendi</Text>
-                <Text style={styles.activityTime}>example.com • 2 saat önce</Text>
+            )}
+            {activityQuery.data?.map(a => (
+              <View key={a.id} style={styles.activityItem}>
+                <View style={styles.activityIcon}>
+                  <Ionicons name={
+                    a.type === 'ssl' ? 'checkmark-circle' :
+                    a.type === 'backup' ? 'cloud-upload-outline' :
+                    a.type === 'invoice' ? 'card-outline' : 'information-circle-outline'
+                  } size={20} color={
+                    a.type === 'ssl' ? COLORS.success :
+                    a.type === 'backup' ? COLORS.info :
+                    a.type === 'invoice' ? COLORS.warning : COLORS.primary
+                  } />
+                </View>
+                <View style={styles.activityContent}>
+                  <Text style={styles.activityTitle}>{a.title}</Text>
+                  <Text style={styles.activityTime}>{a.context || ''}</Text>
+                </View>
               </View>
-            </View>
-            
-            <View style={styles.activityItem}>
-              <View style={styles.activityIcon}>
-                <Ionicons name="cloud-upload-outline" size={20} color={COLORS.info} />
-              </View>
-              <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>Yedekleme tamamlandı</Text>
-                <Text style={styles.activityTime}>VPS-1 • 1 gün önce</Text>
-              </View>
-            </View>
-            
-            <View style={styles.activityItem}>
-              <View style={styles.activityIcon}>
-                <Ionicons name="card-outline" size={20} color={COLORS.warning} />
-              </View>
-              <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>Ödeme hatırlatması</Text>
-                <Text style={styles.activityTime}>Fatura #12345 • 3 gün önce</Text>
-              </View>
-            </View>
+            ))}
           </View>
         </View>
 
