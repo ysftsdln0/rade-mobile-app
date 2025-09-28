@@ -44,12 +44,13 @@ class ApiService {
             const refreshToken = await storageService.getRefreshToken();
             if (refreshToken) {
               const response = await this.refreshAuthToken(refreshToken);
-              const { token, refreshToken: newRefreshToken } = response.data;
-              
-              await storageService.setAuthTokens(token, newRefreshToken);
-              originalRequest.headers.Authorization = `Bearer ${token}`;
-              
-              return this.client(originalRequest);
+              const { token, refreshToken: newRefreshToken } = response.data || {};
+              // Backward compatibility: if backend returns only token, keep old refreshToken
+              if (token) {
+                await storageService.setAuthTokens(token, newRefreshToken || refreshToken);
+                originalRequest.headers.Authorization = `Bearer ${token}`;
+                return this.client(originalRequest);
+              }
             }
           } catch (refreshError) {
             // Refresh failed, redirect to login

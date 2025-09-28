@@ -100,13 +100,23 @@ export function authRouter(): Router {
   router.post('/refresh', (req: Request, res: Response<ApiResponse<any>>) => {
     const { refreshToken } = req.body || {};
     if (!refreshToken) return res.status(400).json({ success: false, data: null as any, message: 'Missing refresh token' });
-    const record = refreshTokens.find(r => r.token === refreshToken);
-    if (!record) return res.status(401).json({ success: false, data: null as any, message: 'Invalid refresh token' });
-    if (record.expiresAt < Date.now()) return res.status(401).json({ success: false, data: null as any, message: 'Expired refresh token' });
+    const idx = refreshTokens.findIndex(r => r.token === refreshToken);
+    if (idx === -1) return res.status(401).json({ success: false, data: null as any, message: 'Invalid refresh token' });
+    const record = refreshTokens[idx];
+    if (record.expiresAt < Date.now()) {
+      refreshTokens.splice(idx, 1);
+      return res.status(401).json({ success: false, data: null as any, message: 'Expired refresh token' });
+    }
     const user = users.find(u => u.id === record.userId);
-    if (!user) return res.status(401).json({ success: false, data: null as any, message: 'User not found' });
+    if (!user) {
+      refreshTokens.splice(idx, 1);
+      return res.status(401).json({ success: false, data: null as any, message: 'User not found' });
+    }
+    // Rotate refresh token
+    refreshTokens.splice(idx, 1);
+    const newRefreshToken = signRefreshToken(user);
     const token = signAccessToken(user);
-    res.json({ success: true, data: { token } });
+    res.json({ success: true, data: { token, refreshToken: newRefreshToken } });
   });
 
   return router;
