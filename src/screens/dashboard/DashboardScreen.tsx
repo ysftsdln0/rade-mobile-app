@@ -145,7 +145,7 @@ const DashboardScreen = () => {
       activeOpacity={0.7}
     >
       <LinearGradient
-        colors={[item.color, `${item.color}CC`]}
+        colors={[item.color, '#001eff']}
         style={styles.serviceCardGradient}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -188,7 +188,7 @@ const DashboardScreen = () => {
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
         {/* Header */}
         <LinearGradient
-          colors={[COLORS.primary, COLORS.secondary]}
+          colors={[COLORS.primary, '#001eff']}
           style={[styles.header, { paddingTop: insets.top }]}
         >
         <View style={styles.headerContent}>
@@ -207,7 +207,6 @@ const DashboardScreen = () => {
           </View>
         </View>
       </LinearGradient>
-
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Quick Actions */}
         <View style={styles.section}>

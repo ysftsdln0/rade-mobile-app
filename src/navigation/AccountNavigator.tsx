@@ -2,8 +2,7 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
 // Import account screens
-import {
-  AccountMainScreen,
+import { 
   ProfileScreen,
   SecurityScreen,
   NotificationSettingsScreen,
@@ -11,6 +10,7 @@ import {
   InvoiceListScreen,
   PaymentMethodsScreen,
 } from '../screens/PlaceholderScreens';
+import AccountMainScreen from '../screens/account/AccountMainScreen';
 
 const Stack = createStackNavigator();
 
