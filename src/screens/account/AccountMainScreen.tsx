@@ -1,22 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 
 import AppCard from '../../components/common/AppCard';
-import { ListItem } from '../../components/common/ListItem';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { COLORS, SPACING, BORDER_RADIUS, FONT_SIZES } from '../../constants';
 import { apiService } from '../../services/api';
@@ -27,6 +15,12 @@ import { PaymentMethodSummary } from '../../services/external/BillingProvider';
 import { updateProfileAsync, logoutAsync } from '../../store/authThunks';
 import { storageService } from '../../services/storage';
 import { setBiometricEnabled } from '../../store/authSlice';
+import { AccountHeader } from './components/AccountHeader';
+import { MetricsRow } from './components/MetricsRow';
+import { ProfileCard } from './components/ProfileCard';
+import { SecurityCard } from './components/SecurityCard';
+import { BillingSummaryCard } from './components/BillingSummaryCard';
+import { QuickActionsCard } from './components/QuickActionsCard';
 
 const AccountMainScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -104,7 +98,7 @@ const AccountMainScreen: React.FC = () => {
   }, [invoicesQuery.data]);
 
   const defaultPaymentMethod = paymentMethodsQuery.data?.find((method) => method.isDefault);
-  const paymentSummary = paymentMethodsQuery.isLoading
+  const paymentSummaryText = paymentMethodsQuery.isLoading
     ? 'Yükleniyor...'
     : describePaymentMethod(defaultPaymentMethod);
 
@@ -114,6 +108,15 @@ const AccountMainScreen: React.FC = () => {
     const filled = fields.filter((field) => field && field.trim().length > 0).length;
     return Math.round((filled / fields.length) * 100);
   }, [firstName, lastName, phone, company]);
+
+  const lastLoginText = useMemo(() => {
+    if (!formattedLastLogin) return undefined;
+    return `Son giriş: ${formattedLastLogin.date} · ${formattedLastLogin.time}`;
+  }, [formattedLastLogin]);
+
+  const outstandingInvoicesText = invoicesQuery.isLoading
+    ? '...'
+    : outstandingInvoices.toString();
 
   const metrics = useMemo(
     () => [
@@ -157,6 +160,77 @@ const AccountMainScreen: React.FC = () => {
 
   const recentActivities = activityQuery.data ?? [];
   const topActivities = recentActivities.slice(0, 3);
+
+  const quickActions = useMemo(
+    () => [
+      {
+        title: 'Profil detaylarını görüntüle',
+        subtitle: 'Ad, soyad ve iletişim bilgileri',
+        icon: 'person-circle-outline',
+        onPress: () => navigation.navigate('Profile'),
+      },
+      {
+        title: 'Güvenlik ayarları',
+        subtitle: '2FA, cihaz yönetimi ve oturumlar',
+        icon: 'shield-half-outline',
+        onPress: () => navigation.navigate('Security'),
+      },
+      {
+        title: 'Bildirim tercihleri',
+        subtitle: 'Push, e-posta ve SMS ayarları',
+        icon: 'notifications-outline',
+        onPress: () => navigation.navigate('NotificationSettings'),
+      },
+      {
+        title: 'Faturalar & ödemeler',
+        subtitle: 'Fatura geçmişi ve kart yönetimi',
+        icon: 'card-outline',
+        onPress: () => navigation.navigate('InvoiceList'),
+      },
+    ],
+    [navigation]
+  );
+
+  const handleProfileFieldChange = useCallback(
+    (field: 'firstName' | 'lastName' | 'company' | 'phone', value: string) => {
+      switch (field) {
+        case 'firstName':
+          setFirstName(value);
+          break;
+        case 'lastName':
+          setLastName(value);
+          break;
+        case 'company':
+          setCompany(value);
+          break;
+        case 'phone':
+          setPhone(value);
+          break;
+        default:
+          break;
+      }
+    },
+    []
+  );
+
+  const handlePasswordFieldChange = useCallback(
+    (field: 'currentPassword' | 'newPassword' | 'confirmPassword', value: string) => {
+      switch (field) {
+        case 'currentPassword':
+          setCurrentPw(value);
+          break;
+        case 'newPassword':
+          setPw1(value);
+          break;
+        case 'confirmPassword':
+          setPw2(value);
+          break;
+        default:
+          break;
+      }
+    },
+    []
+  );
 
   const saveProfile = async () => {
     try {
@@ -230,315 +304,50 @@ const AccountMainScreen: React.FC = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContent}>
-      <LinearGradient
-        colors={[COLORS.primary, '#001eff']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.headerCard}
-      >
-        <View style={styles.avatarCircle}>
-          <Text style={styles.avatarText}>{initials}</Text>
-        </View>
-        <View style={styles.headerContent}>
-          <Text style={styles.headerName}>{displayName}</Text>
-          <Text style={styles.headerEmail}>{user.email}</Text>
-          {formattedLastLogin ? (
-            <Text style={styles.lastLoginText}>
-              Son giriş: {formattedLastLogin.date} · {formattedLastLogin.time}
-            </Text>
-          ) : null}
-        </View>
-      </LinearGradient>
+      <AccountHeader
+        displayName={displayName}
+        email={user.email}
+        initials={initials}
+        lastLoginText={lastLoginText}
+      />
 
-      <View style={styles.metricsRow}>
-        {metrics.map((item, index) => (
-          <View
-            key={item.id}
-            style={[styles.metricCard, index === metrics.length - 1 && styles.metricCardLast]}
-          >
-            <View style={styles.metricIconCircle}>
-              <Ionicons name={item.icon} size={18} color={COLORS.primary} />
-            </View>
-            <Text style={styles.metricValue}>{item.value}</Text>
-            <Text style={styles.metricLabel}>{item.label}</Text>
-            {item.caption ? <Text style={styles.metricCaption}>{item.caption}</Text> : null}
-          </View>
-        ))}
-      </View>
+      <MetricsRow metrics={metrics} />
 
-      <AppCard style={styles.card}>
-        <View style={styles.cardHeader}>
-          <View>
-            <Text style={styles.cardTitle}>Profil Bilgileri</Text>
-            <Text style={styles.cardSubtitle}>Bilgilerinizi güncel tutun</Text>
-          </View>
-          <View style={styles.completionBadge}>
-            <Ionicons name="sparkles-outline" size={16} color={COLORS.primary} />
-            <Text style={styles.completionText}>{profileCompletion}%</Text>
-          </View>
-        </View>
+      <ProfileCard
+        email={user.email}
+        values={{ firstName, lastName, company, phone }}
+        onChange={handleProfileFieldChange}
+        onSave={saveProfile}
+        saving={savingProfile}
+        completionPercent={profileCompletion}
+      />
 
-        <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${profileCompletion}%` }]} />
-        </View>
+      <SecurityCard
+        biometricEnabled={bioSwitch}
+        onToggleBiometric={toggleBiometric}
+        twoFactorEnabled={twoFactorEnabled}
+        twoFactorLoading={twoFactorLoading}
+        onPressTwoFactor={() => navigation.navigate('Security')}
+        passwordFormVisible={showPasswordForm}
+        onTogglePasswordForm={togglePasswordForm}
+        passwordFields={{
+          currentPassword: currentPw,
+          newPassword: pw1,
+          confirmPassword: pw2,
+        }}
+        onChangePasswordField={handlePasswordFieldChange}
+        onSubmitPassword={changePassword}
+        submittingPassword={changingPassword}
+      />
 
-        <View style={styles.formField}>
-          <Text style={styles.inputLabel}>E-posta</Text>
-          <View style={styles.readonlyField}>
-            <Ionicons name="mail-outline" size={18} color={COLORS.gray500} />
-            <Text style={styles.readonlyValue}>{user.email}</Text>
-          </View>
-        </View>
+      <BillingSummaryCard
+        outstandingInvoices={outstandingInvoicesText}
+        paymentSummary={paymentSummaryText}
+        onPressInvoices={() => navigation.navigate('InvoiceList')}
+        onPressPaymentMethods={() => navigation.navigate('PaymentMethods')}
+      />
 
-        <View style={styles.formField}>
-          <Text style={styles.inputLabel}>Ad</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Ad"
-            placeholderTextColor={COLORS.textDisabled}
-            value={firstName}
-            onChangeText={setFirstName}
-          />
-        </View>
-        <View style={styles.formField}>
-          <Text style={styles.inputLabel}>Soyad</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Soyad"
-            placeholderTextColor={COLORS.textDisabled}
-            value={lastName}
-            onChangeText={setLastName}
-          />
-        </View>
-        <View style={styles.formField}>
-          <Text style={styles.inputLabel}>Şirket</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Şirket (opsiyonel)"
-            placeholderTextColor={COLORS.textDisabled}
-            value={company}
-            onChangeText={setCompany}
-          />
-        </View>
-        <View style={styles.formField}>
-          <Text style={styles.inputLabel}>Telefon</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Telefon"
-            placeholderTextColor={COLORS.textDisabled}
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-          />
-        </View>
-
-        <TouchableOpacity
-          style={[styles.primaryButton, savingProfile && styles.buttonDisabled]}
-          onPress={saveProfile}
-          disabled={savingProfile}
-        >
-          {savingProfile ? (
-            <ActivityIndicator color="#FFF" />
-          ) : (
-            <>
-              <Ionicons name="save-outline" size={18} color="#FFF" style={styles.buttonIcon} />
-              <Text style={styles.primaryButtonText}>Değişiklikleri Kaydet</Text>
-            </>
-          )}
-        </TouchableOpacity>
-      </AppCard>
-
-      <AppCard style={styles.card}>
-        <View style={styles.cardHeader}>
-          <View>
-            <Text style={styles.cardTitle}>Güvenlik</Text>
-            <Text style={styles.cardSubtitle}>Hesabınızı güçlü tutun</Text>
-          </View>
-        </View>
-
-        <View style={styles.securityRow}>
-          <View style={styles.securityIcon}>
-            <Ionicons name="finger-print" size={20} color={COLORS.primary} />
-          </View>
-          <View style={styles.securityInfo}>
-            <Text style={styles.securityTitle}>Biyometrik Giriş</Text>
-            <Text style={styles.securityCaption}>Desteklenen cihazlarda hızlı giriş</Text>
-          </View>
-          <View style={styles.securityAction}>
-            <View
-              style={[
-                styles.statusPill,
-                bioSwitch ? styles.statusPillActive : styles.statusPillInactive,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.statusPillText,
-                  bioSwitch ? styles.statusPillTextActive : styles.statusPillTextInactive,
-                ]}
-              >
-                {bioSwitch ? 'Aktif' : 'Pasif'}
-              </Text>
-            </View>
-            <Switch
-              value={bioSwitch}
-              onValueChange={toggleBiometric}
-              thumbColor={bioSwitch ? COLORS.secondary : COLORS.gray300}
-              trackColor={{ true: '#FFD18A', false: COLORS.gray300 }}
-            />
-          </View>
-        </View>
-
-        <View style={styles.securityRow}>
-          <View style={styles.securityIcon}>
-            <Ionicons name="shield-checkmark-outline" size={20} color={COLORS.primary} />
-          </View>
-          <View style={styles.securityInfo}>
-            <Text style={styles.securityTitle}>İki Adımlı Doğrulama</Text>
-            <Text style={styles.securityCaption}>
-              {twoFactorLoading
-                ? 'Durum kontrol ediliyor...'
-                : twoFactorEnabled
-                ? 'Hesabınız ek güvenlik katmanıyla korunuyor'
-                : 'Ek güvenlik için 2FA’yı etkinleştirin'}
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={styles.securityButton}
-            onPress={() => navigation.navigate('Security')}
-          >
-            <Text style={styles.securityButtonText}>{twoFactorEnabled ? 'Yönet' : 'Kur'}</Text>
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity style={styles.collapseToggle} onPress={togglePasswordForm}>
-          <View style={styles.securityIcon}>
-            <Ionicons name="key-outline" size={20} color={COLORS.primary} />
-          </View>
-          <View style={styles.securityInfo}>
-            <Text style={styles.securityTitle}>Şifreyi Güncelle</Text>
-            <Text style={styles.securityCaption}>Güçlü bir şifre belirleyin</Text>
-          </View>
-          <Ionicons
-            name={showPasswordForm ? 'chevron-up' : 'chevron-down'}
-            size={20}
-            color={COLORS.gray500}
-          />
-        </TouchableOpacity>
-
-        {showPasswordForm ? (
-          <View style={styles.passwordForm}>
-            <TextInput
-              style={styles.textInput}
-              placeholder="Mevcut şifre"
-              placeholderTextColor={COLORS.textDisabled}
-              secureTextEntry
-              value={currentPw}
-              onChangeText={setCurrentPw}
-            />
-            <TextInput
-              style={styles.textInput}
-              placeholder="Yeni şifre"
-              placeholderTextColor={COLORS.textDisabled}
-              secureTextEntry
-              value={pw1}
-              onChangeText={setPw1}
-            />
-            <TextInput
-              style={styles.textInput}
-              placeholder="Yeni şifre (tekrar)"
-              placeholderTextColor={COLORS.textDisabled}
-              secureTextEntry
-              value={pw2}
-              onChangeText={setPw2}
-            />
-            <TouchableOpacity
-              style={[styles.secondaryButton, changingPassword && styles.buttonDisabled]}
-              onPress={changePassword}
-              disabled={changingPassword}
-            >
-              {changingPassword ? (
-                <ActivityIndicator color={COLORS.textPrimary} />
-              ) : (
-                <Text style={styles.secondaryButtonText}>Şifreyi Değiştir</Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        ) : null}
-      </AppCard>
-
-      <AppCard style={styles.card}>
-        <View style={styles.cardHeader}>
-          <View>
-            <Text style={styles.cardTitle}>Faturalama Özeti</Text>
-            <Text style={styles.cardSubtitle}>Ödemelerinizi takip edin</Text>
-          </View>
-        </View>
-
-        <View style={styles.summaryRow}>
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryValue}>
-              {invoicesQuery.isLoading ? '...' : outstandingInvoices}
-            </Text>
-            <Text style={styles.summaryLabel}>Bekleyen Fatura</Text>
-          </View>
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryValueSmall}>{paymentSummary}</Text>
-            <Text style={styles.summaryLabel}>Varsayılan Ödeme</Text>
-          </View>
-        </View>
-
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={[styles.outlineButton, styles.buttonRowItem]}
-            onPress={() => navigation.navigate('InvoiceList')}
-          >
-            <Ionicons name="card-outline" size={18} color={COLORS.primary} style={styles.buttonIcon} />
-            <Text style={styles.outlineButtonText}>Faturaları Gör</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.outlineButton, styles.buttonRowItem, styles.buttonRowItemLast]}
-            onPress={() => navigation.navigate('PaymentMethods')}
-          >
-            <Ionicons name="wallet-outline" size={18} color={COLORS.primary} style={styles.buttonIcon} />
-            <Text style={styles.outlineButtonText}>Ödeme Yöntemleri</Text>
-          </TouchableOpacity>
-        </View>
-      </AppCard>
-
-      <AppCard style={styles.card}>
-        <View style={styles.cardHeader}>
-          <View>
-            <Text style={styles.cardTitle}>Hızlı İşlemler</Text>
-            <Text style={styles.cardSubtitle}>Sık kullanılan sayfalara atlayın</Text>
-          </View>
-        </View>
-
-        <ListItem
-          title="Profil detaylarını görüntüle"
-          subtitle="Ad, soyad ve iletişim bilgileri"
-          icon="person-circle-outline"
-          onPress={() => navigation.navigate('Profile')}
-        />
-        <ListItem
-          title="Güvenlik ayarları"
-          subtitle="2FA, cihaz yönetimi ve oturumlar"
-          icon="shield-half-outline"
-          onPress={() => navigation.navigate('Security')}
-        />
-        <ListItem
-          title="Bildirim tercihleri"
-          subtitle="Push, e-posta ve SMS ayarları"
-          icon="notifications-outline"
-          onPress={() => navigation.navigate('NotificationSettings')}
-        />
-        <ListItem
-          title="Faturalar & ödemeler"
-          subtitle="Fatura geçmişi ve kart yönetimi"
-          icon="card-outline"
-          onPress={() => navigation.navigate('InvoiceList')}
-        />
-      </AppCard>
+      <QuickActionsCard actions={quickActions} />
 
       <AppCard style={styles.card}>
         <View style={styles.cardHeader}>
@@ -676,86 +485,6 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontSize: FONT_SIZES.sm,
   },
-  headerCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: SPACING.lg,
-    borderRadius: BORDER_RADIUS.lg,
-    marginBottom: SPACING.lg,
-  },
-  avatarCircle: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: 'rgba(255,255,255,0.25)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: SPACING.md,
-  },
-  avatarText: {
-    color: '#FFF',
-    fontWeight: '800',
-    fontSize: 22,
-  },
-  headerContent: {
-    flex: 1,
-  },
-  headerName: {
-    color: '#FFF',
-    fontSize: FONT_SIZES.xl,
-    fontWeight: '800',
-  },
-  headerEmail: {
-    color: 'rgba(255,255,255,0.9)',
-    fontSize: FONT_SIZES.sm,
-    marginTop: 4,
-  },
-  lastLoginText: {
-    color: 'rgba(255,255,255,0.8)',
-    fontSize: FONT_SIZES.xs,
-    marginTop: 6,
-  },
-  metricsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: SPACING.lg,
-  },
-  metricCard: {
-    flex: 1,
-    backgroundColor: COLORS.surface,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: SPACING.md,
-    borderWidth: 1,
-    borderColor: COLORS.gray200,
-    marginRight: SPACING.sm,
-  },
-  metricCardLast: {
-    marginRight: 0,
-  },
-  metricIconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: `${COLORS.primary}15`,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: SPACING.sm,
-  },
-  metricValue: {
-    fontSize: FONT_SIZES.xl,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
-  },
-  metricLabel: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    marginTop: 2,
-  },
-  metricCaption: {
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.gray500,
-    marginTop: 4,
-  },
   card: {
     marginBottom: SPACING.lg,
   },
@@ -774,216 +503,6 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.sm,
     color: COLORS.textSecondary,
     marginTop: 4,
-  },
-  completionBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 6,
-    backgroundColor: `${COLORS.primary}15`,
-    borderRadius: 20,
-  },
-  completionText: {
-    marginLeft: 6,
-    color: COLORS.primary,
-    fontWeight: '700',
-  },
-  progressBar: {
-    height: 6,
-    borderRadius: 4,
-    backgroundColor: COLORS.gray200,
-    overflow: 'hidden',
-    marginBottom: SPACING.lg,
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: COLORS.primary,
-  },
-  formField: {
-    marginBottom: SPACING.md,
-  },
-  inputLabel: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    marginBottom: 6,
-  },
-  readonlyField: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.gray100,
-    borderRadius: BORDER_RADIUS.md,
-    paddingHorizontal: SPACING.md,
-    height: 48,
-    borderWidth: 1,
-    borderColor: COLORS.gray200,
-  },
-  readonlyValue: {
-    marginLeft: SPACING.sm,
-    color: COLORS.textPrimary,
-    fontSize: FONT_SIZES.md,
-    fontWeight: '600',
-  },
-  textInput: {
-    backgroundColor: COLORS.gray100,
-    borderRadius: BORDER_RADIUS.md,
-    paddingHorizontal: SPACING.md,
-    height: 48,
-    color: COLORS.textPrimary,
-    borderWidth: 1,
-    borderColor: COLORS.gray200,
-  },
-  primaryButton: {
-    marginTop: SPACING.md,
-    height: 48,
-    borderRadius: BORDER_RADIUS.md,
-    backgroundColor: COLORS.primary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primaryButtonText: {
-    color: '#FFF',
-    fontSize: FONT_SIZES.md,
-    fontWeight: '700',
-  },
-  buttonIcon: {
-    marginRight: 8,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  securityRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACING.md,
-  },
-  securityIcon: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: `${COLORS.primary}15`,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: SPACING.md,
-  },
-  securityInfo: {
-    flex: 1,
-  },
-  securityTitle: {
-    fontSize: FONT_SIZES.md,
-    color: COLORS.textPrimary,
-    fontWeight: '600',
-  },
-  securityCaption: {
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
-    marginTop: 3,
-  },
-  securityAction: {
-    alignItems: 'flex-end',
-  },
-  statusPill: {
-    borderRadius: 16,
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 4,
-    marginBottom: 6,
-  },
-  statusPillActive: {
-    backgroundColor: `${COLORS.success}20`,
-  },
-  statusPillInactive: {
-    backgroundColor: COLORS.gray100,
-  },
-  statusPillText: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '700',
-  },
-  statusPillTextActive: {
-    color: COLORS.success,
-  },
-  statusPillTextInactive: {
-    color: COLORS.gray500,
-  },
-  securityButton: {
-    borderRadius: 18,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: COLORS.primary,
-  },
-  securityButtonText: {
-    color: COLORS.primary,
-    fontWeight: '600',
-    fontSize: FONT_SIZES.sm,
-  },
-  collapseToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACING.md,
-  },
-  passwordForm: {
-    marginTop: SPACING.sm,
-  },
-  secondaryButton: {
-    marginTop: SPACING.md,
-    height: 48,
-    borderRadius: BORDER_RADIUS.md,
-    backgroundColor: COLORS.gray100,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  secondaryButtonText: {
-    color: COLORS.textPrimary,
-    fontSize: FONT_SIZES.md,
-    fontWeight: '700',
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: SPACING.md,
-  },
-  summaryItem: {
-    flex: 1,
-    marginRight: SPACING.md,
-  },
-  summaryValue: {
-    fontSize: FONT_SIZES.xl,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
-  },
-  summaryValueSmall: {
-    fontSize: FONT_SIZES.md,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
-  },
-  summaryLabel: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
-    marginTop: 4,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  buttonRowItem: {
-    marginRight: SPACING.sm,
-  },
-  buttonRowItemLast: {
-    marginRight: 0,
-  },
-  outlineButton: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: COLORS.primary,
-    borderRadius: BORDER_RADIUS.md,
-    height: 44,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  outlineButtonText: {
-    color: COLORS.primary,
-    fontWeight: '600',
   },
   inlineLoader: {
     flexDirection: 'row',
@@ -1037,6 +556,9 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontWeight: '700',
     fontSize: FONT_SIZES.md,
+  },
+  buttonIcon: {
+    marginRight: 8,
   },
 });
 
