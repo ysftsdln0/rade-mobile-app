@@ -4,9 +4,9 @@ import { ServicesStackParamList } from '../types';
 
 // Import service screens
 import ServicesListScreen from '../screens/services/ServicesListScreen';
+import HostingListScreen from '../screens/hosting/HostingListScreen';
+import HostingDetailsScreen from '../screens/hosting/HostingDetailsScreen';
 import {
-  HostingListScreen,
-  HostingDetailsScreen,
   FileManagerScreen,
   DatabaseManagerScreen,
   DomainListScreen,

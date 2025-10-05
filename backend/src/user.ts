@@ -1,7 +1,29 @@
 import { Router, Request, Response } from 'express';
 import { authMiddleware } from './auth.js';
-import { users, hostingPackages, activities } from './store.js';
-import { ApiResponse, User } from './types.js';
+import {
+  users,
+  hostingPackages,
+  hostingDetails,
+  hostingUsage,
+  activities,
+  invoices,
+  paymentMethods,
+  supportTickets,
+  domains,
+  domainDnsRecords,
+  servers,
+} from './store.js';
+import {
+  ApiResponse,
+  HostingDetail,
+  HostingUsage,
+  Invoice,
+  PaymentMethod,
+  SupportTicket,
+  Domain,
+  DnsRecord,
+  Server,
+} from './types.js';
 import bcrypt from 'bcryptjs';
 
 export function userRouter(): Router {
@@ -55,9 +77,78 @@ export function userRouter(): Router {
     res.json({ success: true, data: list });
   });
 
+  router.get('/hosting/packages/:id/detail', authMiddleware, (req: Request, res: Response<ApiResponse<HostingDetail | null>>) => {
+    const userId = (req as any).userId as string;
+    const id = req.params.id;
+    const item = hostingDetails[id];
+    if (!item || item.userId !== userId) {
+      return res.status(404).json({ success: false, data: null, message: 'Hosting bulunamadı' });
+    }
+    res.json({ success: true, data: item });
+  });
+
+  router.get('/hosting/packages/:id/usage', authMiddleware, (req: Request, res: Response<ApiResponse<HostingUsage | null>>) => {
+    const userId = (req as any).userId as string;
+    const id = req.params.id;
+    const pkg = hostingPackages.find(p => p.id === id && p.userId === userId);
+    if (!pkg) {
+      return res.status(404).json({ success: false, data: null, message: 'Hosting bulunamadı' });
+    }
+    const usage = hostingUsage[id];
+    res.json({ success: true, data: usage ?? null });
+  });
+
   router.get('/activity/recent', authMiddleware, (req: Request, res: Response<ApiResponse<any>>) => {
     const userId = (req as any).userId as string;
     const list = activities.filter(a => a.userId === userId).sort((a,b)=> b.createdAt.localeCompare(a.createdAt)).slice(0,10);
+    res.json({ success: true, data: list });
+  });
+
+  router.get('/finance/invoices', authMiddleware, (req: Request, res: Response<ApiResponse<Invoice[]>>) => {
+    const userId = (req as any).userId as string;
+    const list = invoices.filter(inv => inv.userId === userId).sort((a, b) => b.date.localeCompare(a.date));
+    res.json({ success: true, data: list });
+  });
+
+  router.get('/finance/payment-methods', authMiddleware, (req: Request, res: Response<ApiResponse<PaymentMethod[]>>) => {
+    const userId = (req as any).userId as string;
+    const list = paymentMethods.filter(pm => pm.userId === userId);
+    res.json({ success: true, data: list });
+  });
+
+  router.get('/support/tickets', authMiddleware, (req: Request, res: Response<ApiResponse<SupportTicket[]>>) => {
+    const userId = (req as any).userId as string;
+    const list = supportTickets.filter(ticket => ticket.userId === userId).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    res.json({ success: true, data: list });
+  });
+
+  router.get('/support/tickets/:id', authMiddleware, (req: Request, res: Response<ApiResponse<SupportTicket | null>>) => {
+    const userId = (req as any).userId as string;
+    const ticket = supportTickets.find(t => t.id === req.params.id && t.userId === userId);
+    if (!ticket) {
+      return res.status(404).json({ success: false, data: null, message: 'Talep bulunamadı' });
+    }
+    res.json({ success: true, data: ticket });
+  });
+
+  router.get('/domains', authMiddleware, (req: Request, res: Response<ApiResponse<Domain[]>>) => {
+    const userId = (req as any).userId as string;
+    const list = domains.filter(domain => domain.userId === userId).sort((a, b) => a.name.localeCompare(b.name));
+    res.json({ success: true, data: list });
+  });
+
+  router.get('/domains/:id/dns-records', authMiddleware, (req: Request, res: Response<ApiResponse<DnsRecord[]>>) => {
+    const userId = (req as any).userId as string;
+    const domain = domains.find(d => d.id === req.params.id && d.userId === userId);
+    if (!domain) {
+      return res.status(404).json({ success: false, data: null as any, message: 'Domain bulunamadı' });
+    }
+    res.json({ success: true, data: domainDnsRecords[domain.id] ?? [] });
+  });
+
+  router.get('/servers', authMiddleware, (req: Request, res: Response<ApiResponse<Server[]>>) => {
+    const userId = (req as any).userId as string;
+    const list = servers.filter(server => server.userId === userId);
     res.json({ success: true, data: list });
   });
 

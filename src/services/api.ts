@@ -125,7 +125,7 @@ class ApiService {
   }
 
   async getHostingDetails(hostingId: string): Promise<ApiResponse<any>> {
-    const response = await this.client.get(`/hosting/packages/${hostingId}`);
+    const response = await this.client.get(`/hosting/packages/${hostingId}/detail`);
     return response.data;
   }
 
@@ -187,7 +187,7 @@ class ApiService {
   }
 
   async getDnsRecords(domainId: string): Promise<ApiResponse<any[]>> {
-    const response = await this.client.get(`/domains/${domainId}/dns`);
+    const response = await this.client.get(`/domains/${domainId}/dns-records`);
     return response.data;
   }
 

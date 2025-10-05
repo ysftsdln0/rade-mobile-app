@@ -29,6 +29,7 @@ const LoginScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const demoLoginEnabled = process.env.EXPO_PUBLIC_ENABLE_DEMO_LOGIN !== 'false';
 
   React.useEffect(() => {
     checkBiometricAvailability();
@@ -59,10 +60,9 @@ const LoginScreen = () => {
       return;
     }
 
-  // Demo giriş kontrolü
-  // NOT: Backend artık hazır olduğunda bu blok tamamen kaldırılabilir ya da env flag ile koşullu yapılabilir.
-  // Amaç: Backend kapalıyken hızlı erişim.
-    if (email.trim().toLowerCase() === 'demo@rade.com' && password === 'demo123') {
+  // Demo giriş kontrolü (ENV ile kapanabilir)
+  // NOT: Backend tam hazır olduğunda bu blok kapatılabilir. Varsayılan olarak açık bırakılıyor.
+    if (demoLoginEnabled && email.trim().toLowerCase() === 'demo@rade.com' && password === 'demo123') {
       // Demo kullanıcı bilgileri oluştur
       const demoUser = {
         id: 'demo-user-1',
@@ -94,7 +94,7 @@ const LoginScreen = () => {
 
       // Save email if remember me is checked
       if (rememberMe) {
-        await storageService.setItem('saved_email', email.trim().toLowerCase());
+          await storageService.setItem('saved_email', email.trim().toLowerCase());
       }
 
       navigation.replace('Main');
@@ -182,23 +182,25 @@ const LoginScreen = () => {
           </View>
 
           {/* Demo Info Box */}
-          <View style={styles.demoBox}>
-            <View style={styles.demoHeader}>
-              <Ionicons name="information-circle" size={20} color={COLORS.info} />
-              <Text style={styles.demoTitle}>Demo Hesap</Text>
+          {demoLoginEnabled && (
+            <View style={styles.demoBox}>
+              <View style={styles.demoHeader}>
+                <Ionicons name="information-circle" size={20} color={COLORS.info} />
+                <Text style={styles.demoTitle}>Demo Hesap</Text>
+              </View>
+              <Text style={styles.demoText}>E-posta: demo@rade.com</Text>
+              <Text style={styles.demoText}>Şifre: demo123</Text>
+              <TouchableOpacity 
+                style={styles.fillDemoButton}
+                onPress={() => {
+                  setEmail('demo@rade.com');
+                  setPassword('demo123');
+                }}
+              >
+                <Text style={styles.fillDemoText}>Demo Bilgileri Doldur</Text>
+              </TouchableOpacity>
             </View>
-            <Text style={styles.demoText}>E-posta: demo@rade.com</Text>
-            <Text style={styles.demoText}>Şifre: demo123</Text>
-            <TouchableOpacity 
-              style={styles.fillDemoButton}
-              onPress={() => {
-                setEmail('demo@rade.com');
-                setPassword('demo123');
-              }}
-            >
-              <Text style={styles.fillDemoText}>Demo Bilgileri Doldur</Text>
-            </TouchableOpacity>
-          </View>
+          )}
 
           {/* Login Form */}
           <View style={styles.form}>

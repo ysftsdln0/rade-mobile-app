@@ -7,10 +7,10 @@ import {
   SecurityScreen,
   NotificationSettingsScreen,
   FinanceScreen,
-  InvoiceListScreen,
-  PaymentMethodsScreen,
 } from '../screens/PlaceholderScreens';
 import AccountMainScreen from '../screens/account/AccountMainScreen';
+import InvoiceListScreen from '../screens/finance/InvoiceListScreen';
+import PaymentMethodsScreen from '../screens/finance/PaymentMethodsScreen';
 
 const Stack = createStackNavigator();
 

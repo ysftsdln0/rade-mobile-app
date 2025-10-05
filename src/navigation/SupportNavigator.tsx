@@ -2,9 +2,9 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
 // Import support screens
+import SupportMainScreen from '../screens/support/SupportMainScreen';
+import TicketListScreen from '../screens/support/TicketListScreen';
 import {
-  SupportMainScreen,
-  TicketListScreen,
   TicketDetailsScreen,
   CreateTicketScreen,
   ChatbotScreen,

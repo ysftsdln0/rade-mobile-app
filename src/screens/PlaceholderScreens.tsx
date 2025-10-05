@@ -32,8 +32,6 @@ const styles = StyleSheet.create({
 });
 
 // Hosting Screens
-export const HostingListScreen = () => <PlaceholderScreen title="Hosting Paketleri" />;
-export const HostingDetailsScreen = () => <PlaceholderScreen title="Hosting Detayları" />;
 export const FileManagerScreen = () => <PlaceholderScreen title="Dosya Yöneticisi" />;
 export const DatabaseManagerScreen = () => <PlaceholderScreen title="Veritabanı Yöneticisi" />;
 
@@ -46,8 +44,6 @@ export const ServerListScreen = () => <PlaceholderScreen title="Sunucu Listesi" 
 export const ServerDetailsScreen = () => <PlaceholderScreen title="Sunucu Detayları" />;
 
 // Support Screens
-export const SupportMainScreen = () => <PlaceholderScreen title="Destek Merkezi" />;
-export const TicketListScreen = () => <PlaceholderScreen title="Destek Biletleri" />;
 export const TicketDetailsScreen = () => <PlaceholderScreen title="Bilet Detayları" />;
 export const CreateTicketScreen = () => <PlaceholderScreen title="Yeni Bilet Oluştur" />;
 export const ChatbotScreen = () => <PlaceholderScreen title="Canlı Destek" />;
@@ -60,5 +56,3 @@ export const NotificationSettingsScreen = () => <PlaceholderScreen title="Bildir
 
 // Finance Screens
 export const FinanceScreen = () => <PlaceholderScreen title="Mali İşlemler" />;
-export const InvoiceListScreen = () => <PlaceholderScreen title="Faturalar" />;
-export const PaymentMethodsScreen = () => <PlaceholderScreen title="Ödeme Yöntemleri" />;
