@@ -65,11 +65,11 @@ const SplashScreen = () => {
         <View style={styles.content}>
           {/* App Logo */}
           <View style={styles.logoContainer}>
-            <View style={styles.logoPlaceholder}>
-              <Text style={styles.logoText}>RADE</Text>
-            </View>
-            <Text style={styles.appName}>{APP_CONFIG.APP_NAME}</Text>
-            <Text style={styles.tagline}>Hosting Yönetim Sistemi</Text>
+            <Image 
+              source={require('../../assets/radelogo-beyaz.png')} 
+              style={styles.logo}
+              resizeMode="contain"
+            />
           </View>
 
           {/* Loading Indicator */}
@@ -80,12 +80,6 @@ const SplashScreen = () => {
 
           {/* Version Info */}
           <View style={styles.footer}>
-            <Text style={styles.versionText}>
-              v{APP_CONFIG.VERSION}
-            </Text>
-            <Text style={styles.companyText}>
-              © 2025 {APP_CONFIG.COMPANY}
-            </Text>
           </View>
         </View>
       </LinearGradient>
@@ -109,35 +103,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  logoPlaceholder: {
-    width: 120,
-    height: 120,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  logoText: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    letterSpacing: 2,
-  },
-  appName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  tagline: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.8)',
-    textAlign: 'center',
-    fontWeight: '300',
+  logo: {
+    width: 250,
+    height: 100,
   },
   loadingContainer: {
     alignItems: 'center',

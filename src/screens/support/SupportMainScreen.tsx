@@ -9,6 +9,7 @@ import { EmptyState } from '../../components/common/EmptyState';
 import { apiService } from '../../services/api';
 import { SupportTicket } from '../../types';
 import { COLORS, FONT_SIZES, SPACING, BORDER_RADIUS } from '../../constants';
+import { AppHeader } from '../../components/common/AppHeader';
 
 const SupportMainScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -45,7 +46,9 @@ const SupportMainScreen: React.FC = () => {
   }, [tickets]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <View style={{ flex: 1 }}>
+      <AppHeader showLogo={true} />
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <AppCard style={styles.card}>
         <View style={styles.headerRow}>
           <View>
@@ -93,6 +96,7 @@ const SupportMainScreen: React.FC = () => {
         </View>
       </AppCard>
     </ScrollView>
+    </View>
   );
 };
 

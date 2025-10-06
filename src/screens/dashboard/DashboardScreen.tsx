@@ -8,11 +8,11 @@ import {
   Dimensions,
   StatusBar,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAppSelector } from '../../store';
+import { AppHeader } from '../../components/common/AppHeader';
 import { COLORS } from '../../constants';
 import { apiService } from '../../services/api';
 import { useQuery } from '@tanstack/react-query';
@@ -41,7 +41,6 @@ interface QuickAction {
 const DashboardScreen = () => {
   const navigation = useNavigation<any>();
   const { user } = useAppSelector((state) => state.auth);
-  const insets = useSafeAreaInsets();
 
   // Queries
   const hostingQuery = useQuery({
@@ -186,18 +185,15 @@ const DashboardScreen = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
-        {/* Header */}
-        <LinearGradient
-          colors={[COLORS.primary, '#001eff']}
-          style={[styles.header, { paddingTop: insets.top }]}
-        >
-        <View style={styles.headerContent}>
-          <View style={styles.headerLeft}>
+      <AppHeader
+        leftContent={
+          <View>
             <Text style={styles.welcomeText}>Merhaba,</Text>
             <Text style={styles.userName}>{user?.firstName || 'Kullanıcı'}</Text>
           </View>
-          
-          <View style={styles.headerRight}>
+        }
+        rightContent={
+          <View style={styles.headerButtonsContainer}>
             <TouchableOpacity style={styles.headerButton}>
               <Ionicons name="notifications-outline" size={24} color="#FFFFFF" />
             </TouchableOpacity>
@@ -205,8 +201,8 @@ const DashboardScreen = () => {
               <Ionicons name="log-out-outline" size={24} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
-        </View>
-      </LinearGradient>
+        }
+      />
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Quick Actions */}
         <View style={styles.section}>
@@ -278,7 +274,7 @@ const DashboardScreen = () => {
         </View>
 
         {/* Footer Spacing */}
-        <View style={{ height: Math.max(insets.bottom + 20, 40) }} />
+        <View style={{ height: 40 }} />
       </ScrollView>
     </View>
   );
@@ -314,6 +310,10 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerButtonsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
