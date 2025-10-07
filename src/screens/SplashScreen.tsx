@@ -57,9 +57,9 @@ const SplashScreen = () => {
 
   return (
     <>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary.main} />
       <LinearGradient
-        colors={[COLORS.primary, '#001eff']}
+        colors={[COLORS.primary.main, '#001eff']}
         style={styles.container}
       >
         <View style={styles.content}>

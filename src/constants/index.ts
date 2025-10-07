@@ -27,12 +27,63 @@ export const STORAGE_KEYS = {
 };
 
 export const COLORS = {
-  primary: '#2196F3',
-  secondary: '#FF9800',
-  success: '#4CAF50',
-  warning: '#FFC107',
-  error: '#F44336',
-  info: '#00BCD4',
+  // Primary colors with shades
+  primary: {
+    main: '#2196F3',
+    light: '#64B5F6',
+    dark: '#1976D2',
+    gradient: ['#2196F3', '#1976D2'],
+  },
+  secondary: {
+    main: '#9C27B0',
+    light: '#BA68C8',
+    dark: '#7B1FA2',
+    gradient: ['#9C27B0', '#7B1FA2'],
+  },
+  
+  // Status colors with shades
+  success: {
+    main: '#4CAF50',
+    light: '#81C784',
+    dark: '#388E3C',
+    bg: '#E8F5E9',
+  },
+  warning: {
+    main: '#FF9800',
+    light: '#FFB74D',
+    dark: '#F57C00',
+    bg: '#FFF3E0',
+  },
+  error: {
+    main: '#F44336',
+    light: '#E57373',
+    dark: '#D32F2F',
+    bg: '#FFEBEE',
+  },
+  info: {
+    main: '#2196F3',
+    light: '#64B5F6',
+    dark: '#1976D2',
+    bg: '#E3F2FD',
+  },
+  
+  // Service specific colors
+  hosting: {
+    main: '#2196F3',
+    gradient: ['#2196F3', '#1565C0'],
+  },
+  domain: {
+    main: '#9C27B0',
+    gradient: ['#9C27B0', '#6A1B9A'],
+  },
+  server: {
+    main: '#FF9800',
+    gradient: ['#FF9800', '#E65100'],
+  },
+  support: {
+    main: '#795548',
+    gradient: ['#795548', '#4E342E'],
+  },
   
   // Neutral colors
   white: '#FFFFFF',
@@ -50,13 +101,15 @@ export const COLORS = {
   // Background colors
   background: '#F8F9FA',
   surface: '#FFFFFF',
+  overlay: 'rgba(0, 0, 0, 0.5)',
   
   // Text colors
   textPrimary: '#212121',
   textSecondary: '#757575',
   textDisabled: '#BDBDBD',
+  textInverse: '#FFFFFF',
   
-  // Status colors
+  // Status colors (for backward compatibility)
   online: '#4CAF50',
   offline: '#F44336',
   pending: '#FF9800',
@@ -86,6 +139,74 @@ export const FONT_SIZES = {
   lg: 18,
   xl: 20,
   xxl: 24,
+  xxxl: 32,
+};
+
+export const TYPOGRAPHY = {
+  h1: {
+    fontSize: 32,
+    fontWeight: '700' as const,
+    lineHeight: 40,
+  },
+  h2: {
+    fontSize: 24,
+    fontWeight: '700' as const,
+    lineHeight: 32,
+  },
+  h3: {
+    fontSize: 20,
+    fontWeight: '600' as const,
+    lineHeight: 28,
+  },
+  h4: {
+    fontSize: 18,
+    fontWeight: '600' as const,
+    lineHeight: 24,
+  },
+  body1: {
+    fontSize: 16,
+    fontWeight: '400' as const,
+    lineHeight: 24,
+  },
+  body2: {
+    fontSize: 14,
+    fontWeight: '400' as const,
+    lineHeight: 20,
+  },
+  caption: {
+    fontSize: 12,
+    fontWeight: '400' as const,
+    lineHeight: 16,
+  },
+  button: {
+    fontSize: 16,
+    fontWeight: '600' as const,
+    lineHeight: 24,
+  },
+};
+
+export const SHADOWS = {
+  sm: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  md: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  lg: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+  },
 };
 
 export const HOSTING_PACKAGE_TYPES = {

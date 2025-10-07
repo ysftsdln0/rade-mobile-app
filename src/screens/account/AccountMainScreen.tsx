@@ -296,7 +296,7 @@ const AccountMainScreen: React.FC = () => {
   if (!user) {
     return (
       <View style={[styles.loaderContainer, styles.centered]}>
-        <ActivityIndicator color={COLORS.primary} />
+        <ActivityIndicator color={typeof COLORS.primary === 'object' ? COLORS.primary.main : COLORS.primary} />
         <Text style={styles.loaderText}>Kullanıcı bilgisi yükleniyor...</Text>
       </View>
     );
@@ -359,7 +359,7 @@ const AccountMainScreen: React.FC = () => {
 
         {activityQuery.isLoading ? (
           <View style={styles.inlineLoader}>
-            <ActivityIndicator color={COLORS.primary} />
+            <ActivityIndicator color={typeof COLORS.primary === 'object' ? COLORS.primary.main : COLORS.primary} />
             <Text style={styles.loaderText}>Aktiviteler yükleniyor...</Text>
           </View>
         ) : topActivities.length > 0 ? (
@@ -453,15 +453,15 @@ const formatRelativeTime = (iso?: string) => {
 const getActivityPresentation = (type: string) => {
   switch (type) {
     case 'ssl':
-      return { icon: 'lock-closed-outline' as keyof typeof Ionicons.glyphMap, color: COLORS.success };
+      return { icon: 'lock-closed-outline' as keyof typeof Ionicons.glyphMap, color: COLORS.success.main };
     case 'backup':
-      return { icon: 'cloud-upload-outline' as keyof typeof Ionicons.glyphMap, color: COLORS.info };
+      return { icon: 'cloud-upload-outline' as keyof typeof Ionicons.glyphMap, color: COLORS.info.main };
     case 'invoice':
-      return { icon: 'card-outline' as keyof typeof Ionicons.glyphMap, color: COLORS.warning };
+      return { icon: 'card-outline' as keyof typeof Ionicons.glyphMap, color: COLORS.warning.main };
     default:
       return {
         icon: 'information-circle-outline' as keyof typeof Ionicons.glyphMap,
-        color: COLORS.primary,
+        color: typeof COLORS.primary === 'object' ? COLORS.primary.main : COLORS.primary,
       };
   }
 };
@@ -547,7 +547,7 @@ const styles = StyleSheet.create({
     marginTop: SPACING.md,
     height: 48,
     borderRadius: BORDER_RADIUS.md,
-    backgroundColor: COLORS.error,
+    backgroundColor: COLORS.error.main,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

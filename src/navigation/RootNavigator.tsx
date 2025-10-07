@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Platform } from 'react-native';
 
 // Import screens (we'll create these next)
 import SplashScreen from '../screens/SplashScreen';
@@ -17,6 +18,7 @@ import AccountNavigator from './AccountNavigator';
 
 // Navigation types
 import { RootStackParamList, MainTabParamList } from '../types';
+import { COLORS } from '../constants';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -46,16 +48,25 @@ const MainTabNavigator = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#2196F3',
-        tabBarInactiveTintColor: 'gray',
+        tabBarActiveTintColor: typeof COLORS.primary === 'object' ? COLORS.primary.main : COLORS.primary,
+        tabBarInactiveTintColor: COLORS.gray500,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          borderTopWidth: 1,
-          borderTopColor: '#E0E0E0',
+          position: 'absolute',
+          backgroundColor: Platform.OS === 'ios' ? 'rgba(255, 255, 255, 0.95)' : '#FFFFFF',
+          borderTopWidth: 0,
           paddingBottom: Math.max(insets.bottom, 8),
-          paddingTop: 8,
+          paddingTop: 12,
           height: Math.max(70 + insets.bottom, 80),
           paddingHorizontal: 10,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 12,
+          elevation: 8,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
         },
         headerShown: false,
       })}

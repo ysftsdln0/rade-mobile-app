@@ -69,10 +69,10 @@ const SupportMainScreen: React.FC = () => {
       <AppCard style={styles.card}>
         <Text style={styles.sectionTitle}>Durum Özeti</Text>
         <View style={styles.statsRow}>
-          <StatBox label="Toplam" value={stats.total} color={COLORS.primary} />
-          <StatBox label="Açık" value={stats.open} color={COLORS.error} />
-          <StatBox label="Beklemede" value={stats.pending} color={COLORS.warning} />
-          <StatBox label="Çözüldü" value={stats.resolved} color={COLORS.success} />
+          <StatBox label="Toplam" value={stats.total} color={COLORS.primary.main} />
+          <StatBox label="Açık" value={stats.open} color={COLORS.error.main} />
+          <StatBox label="Beklemede" value={stats.pending} color={COLORS.warning.main} />
+          <StatBox label="Çözüldü" value={stats.resolved} color={COLORS.success.main} />
         </View>
       </AppCard>
 
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.xs,
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,
     borderRadius: 24,

@@ -1,29 +1,42 @@
 import React from 'react';
 import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
-import { COLORS, FONT_SIZES, SPACING } from '../../constants';
+import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
 
 interface LoadingStateProps {
   message?: string;
+  size?: 'small' | 'large';
 }
 
-export const LoadingState: React.FC<LoadingStateProps> = ({ message = 'Yükleniyor...' }) => {
+export const LoadingState: React.FC<LoadingStateProps> = ({ 
+  message = 'Yükleniyor...', 
+  size = 'large' 
+}) => {
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color={COLORS.primary} />
-      <Text style={styles.text}>{message}</Text>
+      <View style={styles.spinnerContainer}>
+        <ActivityIndicator 
+          size={size} 
+          color={typeof COLORS.primary === 'object' ? COLORS.primary.main : COLORS.primary} 
+        />
+      </View>
+      {message && <Text style={styles.text}>{message}</Text>}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: SPACING.xl,
+    padding: SPACING.xl,
+  },
+  spinnerContainer: {
+    marginBottom: SPACING.md,
   },
   text: {
-    marginTop: SPACING.sm,
-    fontSize: FONT_SIZES.sm,
+    ...TYPOGRAPHY.body2,
     color: COLORS.textSecondary,
+    textAlign: 'center',
   },
 });

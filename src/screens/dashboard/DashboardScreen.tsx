@@ -13,7 +13,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useAppSelector } from '../../store';
 import { AppHeader } from '../../components/common/AppHeader';
-import { COLORS } from '../../constants';
+import { ServiceCard } from '../../components/common/ServiceCard';
+import { COLORS, SHADOWS, TYPOGRAPHY, SPACING } from '../../constants';
 import { apiService } from '../../services/api';
 import { useQuery } from '@tanstack/react-query';
 import { ActivityItem, HostingPackage } from '../../types';
@@ -68,11 +69,11 @@ const DashboardScreen = () => {
       {
         id: 'hosting',
         title: 'Hosting Paketleri',
-        subtitle: hostingQuery.isLoading ? 'Yükleniyor...' : `${hostingCount} paket`,
+        subtitle: hostingQuery.isLoading ? 'Yüklüyor...' : `${hostingCount} paket`,
         icon: 'server-outline',
         count: hostingCount,
         status: 'active',
-        color: COLORS.primary,
+        color: COLORS.hosting.main,
         onPress: () => navigation.navigate('Services', { screen: 'HostingList' }),
       },
       {
@@ -80,7 +81,7 @@ const DashboardScreen = () => {
         title: 'Domain Adları',
         subtitle: 'Liste yakında',
         icon: 'globe-outline',
-        color: '#9C27B0',
+        color: COLORS.domain.main,
         onPress: () => navigation.navigate('Services', { screen: 'DomainList' }),
       },
       {
@@ -88,7 +89,7 @@ const DashboardScreen = () => {
         title: 'Sunucular',
         subtitle: 'Yakında',
         icon: 'hardware-chip-outline',
-        color: '#FF9800',
+        color: COLORS.server.main,
         onPress: () => navigation.navigate('Services', { screen: 'ServerList' }),
       },
       {
@@ -96,7 +97,7 @@ const DashboardScreen = () => {
         title: 'Destek Biletleri',
         subtitle: 'Yakında',
         icon: 'headset-outline',
-        color: '#795548',
+        color: COLORS.support.main,
         onPress: () => navigation.navigate('Support', { screen: 'TicketList' }),
       },
     ];
@@ -176,7 +177,7 @@ const DashboardScreen = () => {
       activeOpacity={0.7}
     >
       <View style={styles.quickActionIcon}>
-        <Ionicons name={item.icon} size={24} color={COLORS.primary} />
+        <Ionicons name={item.icon} size={24} color={COLORS.primary.main} />
       </View>
       <Text style={styles.quickActionText}>{item.title}</Text>
     </TouchableOpacity>
@@ -184,7 +185,7 @@ const DashboardScreen = () => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary} />
+      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary.main} />
       <AppHeader
         leftContent={
           <View>
@@ -259,9 +260,9 @@ const DashboardScreen = () => {
                     a.type === 'backup' ? 'cloud-upload-outline' :
                     a.type === 'invoice' ? 'card-outline' : 'information-circle-outline'
                   } size={20} color={
-                    a.type === 'ssl' ? COLORS.success :
-                    a.type === 'backup' ? COLORS.info :
-                    a.type === 'invoice' ? COLORS.warning : COLORS.primary
+                    a.type === 'ssl' ? COLORS.success.main :
+                    a.type === 'backup' ? COLORS.info.main :
+                    a.type === 'invoice' ? COLORS.warning.main : COLORS.primary.main
                   } />
                 </View>
                 <View style={styles.activityContent}>
@@ -348,30 +349,26 @@ const styles = StyleSheet.create({
   quickActionItem: {
     width: (width - 40) / 2,
     backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 12,
+    padding: 18,
+    borderRadius: 16,
     alignItems: 'center',
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...SHADOWS.md,
   },
   quickActionIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: `${COLORS.primary}15`,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: `${COLORS.primary.main}15`,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   quickActionText: {
-    fontSize: 14,
+    ...TYPOGRAPHY.body2,
     color: COLORS.textPrimary,
     textAlign: 'center',
-    fontWeight: '500',
+    fontWeight: '600',
   },
   serviceCards: {
     flexDirection: 'row',
@@ -441,7 +438,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.success,
+    backgroundColor: COLORS.success.main,
     marginRight: 8,
   },
   statusTitle: {

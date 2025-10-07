@@ -26,7 +26,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
   return (
     <LinearGradient
-      colors={[COLORS.primary, '#001eff']}
+      colors={[COLORS.primary.main, '#001eff']}
       style={[styles.header, { paddingTop: insets.top }]}
     >
       <View style={styles.headerContent}>
