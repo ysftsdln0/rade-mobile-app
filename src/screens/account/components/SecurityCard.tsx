@@ -30,6 +30,8 @@ type Props = {
   onChangePasswordField: (field: keyof PasswordFields, value: string) => void;
   onSubmitPassword: () => void;
   submittingPassword: boolean;
+  darkModeEnabled?: boolean;
+  onToggleDarkMode?: () => void;
 };
 
 export const SecurityCard: React.FC<Props> = ({
@@ -44,6 +46,8 @@ export const SecurityCard: React.FC<Props> = ({
   onChangePasswordField,
   onSubmitPassword,
   submittingPassword,
+  darkModeEnabled,
+  onToggleDarkMode,
 }) => {
   return (
     <AppCard style={styles.card}>
@@ -54,7 +58,7 @@ export const SecurityCard: React.FC<Props> = ({
 
       <View style={styles.securityRow}>
         <View style={styles.securityIcon}>
-          <Ionicons name="finger-print" size={20} color={COLORS.primary} />
+          <Ionicons name="finger-print" size={20} color={COLORS.primary.main} />
         </View>
         <View style={styles.securityInfo}>
           <Text style={styles.securityTitle}>Biyometrik Giriş</Text>
@@ -79,15 +83,33 @@ export const SecurityCard: React.FC<Props> = ({
           <Switch
             value={biometricEnabled}
             onValueChange={onToggleBiometric}
-            thumbColor={biometricEnabled ? COLORS.secondary : COLORS.gray300}
+            thumbColor={biometricEnabled ? COLORS.secondary.main : COLORS.gray300}
             trackColor={{ true: '#FFD18A', false: COLORS.gray300 }}
           />
         </View>
       </View>
 
+      {onToggleDarkMode && (
+        <View style={styles.securityRow}>
+          <View style={styles.securityIcon}>
+            <Ionicons name="moon-outline" size={20} color={COLORS.primary.main} />
+          </View>
+          <View style={styles.securityInfo}>
+            <Text style={styles.securityTitle}>Karanlık Mod</Text>
+            <Text style={styles.securityCaption}>Gözlerinizi koruyun</Text>
+          </View>
+          <Switch
+            value={darkModeEnabled}
+            onValueChange={onToggleDarkMode}
+            thumbColor={darkModeEnabled ? COLORS.secondary.main : COLORS.gray300}
+            trackColor={{ true: '#FFD18A', false: COLORS.gray300 }}
+          />
+        </View>
+      )}
+
       <View style={styles.securityRow}>
         <View style={styles.securityIcon}>
-          <Ionicons name="shield-checkmark-outline" size={20} color={COLORS.primary} />
+          <Ionicons name="shield-checkmark-outline" size={20} color={COLORS.primary.main} />
         </View>
         <View style={styles.securityInfo}>
           <Text style={styles.securityTitle}>İki Adımlı Doğrulama</Text>
@@ -96,7 +118,7 @@ export const SecurityCard: React.FC<Props> = ({
               ? 'Durum kontrol ediliyor...'
               : twoFactorEnabled
               ? 'Hesabınız ek güvenlik katmanıyla korunuyor'
-              : 'Ek güvenlik için 2FA’yı etkinleştirin'}
+              : "Ek güvenlik için 2FA'yı etkinleştirin"}
           </Text>
         </View>
         <TouchableOpacity style={styles.securityButton} onPress={onPressTwoFactor}>
@@ -106,7 +128,7 @@ export const SecurityCard: React.FC<Props> = ({
 
       <TouchableOpacity style={styles.collapseToggle} onPress={onTogglePasswordForm}>
         <View style={styles.securityIcon}>
-          <Ionicons name="key-outline" size={20} color={COLORS.primary} />
+          <Ionicons name="key-outline" size={20} color={COLORS.primary.main} />
         </View>
         <View style={styles.securityInfo}>
           <Text style={styles.securityTitle}>Şifreyi Güncelle</Text>
@@ -184,7 +206,7 @@ const styles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: `${COLORS.primary}15`,
+    backgroundColor: `${COLORS.primary.main}15`,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: SPACING.md,
@@ -212,7 +234,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   statusPillActive: {
-    backgroundColor: `${COLORS.success}20`,
+    backgroundColor: `${COLORS.success.main}20`,
   },
   statusPillInactive: {
     backgroundColor: COLORS.gray100,
@@ -222,7 +244,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   statusPillTextActive: {
-    color: COLORS.success,
+    color: COLORS.success.main,
   },
   statusPillTextInactive: {
     color: COLORS.gray500,
@@ -232,10 +254,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: 8,
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: COLORS.primary.main,
   },
   securityButtonText: {
-    color: COLORS.primary,
+    color: COLORS.primary.main,
     fontWeight: '600',
     fontSize: FONT_SIZES.sm,
   },
