@@ -13,7 +13,7 @@ type Props = {
 export const AccountHeader: React.FC<Props> = ({ displayName, email, initials, lastLoginText }) => {
   return (
     <LinearGradient
-      colors={[typeof COLORS.primary === 'object' ? COLORS.primary.main : COLORS.primary, '#001eff']}
+      colors={[COLORS.primary.main, '#001eff']}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.headerCard}

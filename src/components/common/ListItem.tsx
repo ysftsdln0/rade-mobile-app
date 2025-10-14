@@ -24,7 +24,7 @@ export const ListItem: React.FC<ListItemProps> = ({
     <View style={[styles.container, style]}>
       {icon && (
         <View style={styles.iconContainer}>
-          <Ionicons name={icon} size={22} color={COLORS.primary} />
+          <Ionicons name={icon} size={22} color={COLORS.primary.main} />
         </View>
       )}
       <View style={styles.textContainer}>
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: `${COLORS.primary}15`,
+    backgroundColor: `${COLORS.primary.main}15`,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: SPACING.md,

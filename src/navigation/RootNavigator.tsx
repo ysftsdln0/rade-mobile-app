@@ -48,7 +48,7 @@ const MainTabNavigator = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: typeof COLORS.primary === 'object' ? COLORS.primary.main : COLORS.primary,
+        tabBarActiveTintColor: COLORS.primary.main,
         tabBarInactiveTintColor: COLORS.gray500,
         tabBarStyle: {
           position: 'absolute',

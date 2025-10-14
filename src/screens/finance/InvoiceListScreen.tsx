@@ -7,9 +7,9 @@ import { EmptyState } from '../../components/common/EmptyState';
 import { COLORS, FONT_SIZES, SPACING } from '../../constants';
 
 const statusMeta = {
-  paid: { label: 'Ödendi', color: COLORS.success, background: '#E8F5E9' },
-  unpaid: { label: 'Ödenmedi', color: COLORS.error, background: '#FDECEA' },
-  overdue: { label: 'Son Tarih Geçti', color: COLORS.warning, background: '#FFF3E0' },
+  paid: { label: 'Ödendi', color: COLORS.success.main, background: '#E8F5E9' },
+  unpaid: { label: 'Ödenmedi', color: COLORS.error.main, background: '#FDECEA' },
+  overdue: { label: 'Son Tarih Geçti', color: COLORS.warning.main, background: '#FFF3E0' },
   cancelled: { label: 'İptal', color: COLORS.gray500, background: '#ECEFF1' },
 } as const;
 
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     marginTop: SPACING.sm,
     fontSize: FONT_SIZES.xl,
     fontWeight: '600',
-    color: COLORS.primary,
+    color: COLORS.primary.main,
   },
   row: {
     flexDirection: 'row',
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   },
   payButton: {
     marginTop: SPACING.md,
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
     borderRadius: 12,
     paddingVertical: SPACING.md,
     alignItems: 'center',

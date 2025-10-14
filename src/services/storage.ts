@@ -87,15 +87,6 @@ class StorageService {
     return enabled ?? false;
   }
 
-  async setThemeMode(mode: 'light' | 'dark'): Promise<void> {
-    await this.setItem(STORAGE_KEYS.THEME_MODE, mode);
-  }
-
-  async getThemeMode(): Promise<'light' | 'dark'> {
-    const mode = await this.getItem<'light' | 'dark'>(STORAGE_KEYS.THEME_MODE);
-    return mode ?? 'light';
-  }
-
   async setLanguage(language: string): Promise<void> {
     await this.setItem(STORAGE_KEYS.LANGUAGE, language);
   }

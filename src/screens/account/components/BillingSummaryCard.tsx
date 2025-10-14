@@ -40,14 +40,14 @@ export const BillingSummaryCard: React.FC<Props> = ({
           style={[styles.outlineButton, styles.buttonRowItem]}
           onPress={onPressInvoices}
         >
-          <Ionicons name="card-outline" size={18} color={COLORS.primary} style={styles.buttonIcon} />
+          <Ionicons name="card-outline" size={18} color={COLORS.primary.main} style={styles.buttonIcon} />
           <Text style={styles.outlineButtonText}>Faturaları Gör</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.outlineButton, styles.buttonRowItemLast]}
           onPress={onPressPaymentMethods}
         >
-          <Ionicons name="wallet-outline" size={18} color={COLORS.primary} style={styles.buttonIcon} />
+          <Ionicons name="wallet-outline" size={18} color={COLORS.primary.main} style={styles.buttonIcon} />
           <Text style={styles.outlineButtonText}>Ödeme Yöntemleri</Text>
         </TouchableOpacity>
       </View>
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   outlineButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: COLORS.primary.main,
     borderRadius: BORDER_RADIUS.md,
     height: 44,
     flexDirection: 'row',
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     marginRight: 0,
   },
   outlineButtonText: {
-    color: COLORS.primary,
+    color: COLORS.primary.main,
     fontWeight: '600',
   },
   buttonIcon: {

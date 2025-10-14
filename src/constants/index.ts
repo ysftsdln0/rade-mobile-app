@@ -21,7 +21,6 @@ export const STORAGE_KEYS = {
   REFRESH_TOKEN: '@rade_refresh_token',
   USER_DATA: '@rade_user_data',
   BIOMETRIC_ENABLED: '@rade_biometric_enabled',
-  THEME_MODE: '@rade_theme_mode',
   LANGUAGE: '@rade_language',
   FIRST_LAUNCH: '@rade_first_launch',
 };

@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   nextButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
     flex: 1,
     marginLeft: 15,
   },

@@ -16,7 +16,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
       <View style={styles.spinnerContainer}>
         <ActivityIndicator 
           size={size} 
-          color={typeof COLORS.primary === 'object' ? COLORS.primary.main : COLORS.primary} 
+          color={COLORS.primary.main} 
         />
       </View>
       {message && <Text style={styles.text}>{message}</Text>}

@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.lg,
   },
   actionButton: {
-    backgroundColor: typeof COLORS.primary === 'object' ? COLORS.primary.main : COLORS.primary,
+    backgroundColor: COLORS.primary.main,
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
     borderRadius: 12,

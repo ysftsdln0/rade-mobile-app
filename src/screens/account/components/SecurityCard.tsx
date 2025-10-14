@@ -30,8 +30,6 @@ type Props = {
   onChangePasswordField: (field: keyof PasswordFields, value: string) => void;
   onSubmitPassword: () => void;
   submittingPassword: boolean;
-  darkModeEnabled?: boolean;
-  onToggleDarkMode?: () => void;
 };
 
 export const SecurityCard: React.FC<Props> = ({
@@ -46,8 +44,6 @@ export const SecurityCard: React.FC<Props> = ({
   onChangePasswordField,
   onSubmitPassword,
   submittingPassword,
-  darkModeEnabled,
-  onToggleDarkMode,
 }) => {
   return (
     <AppCard style={styles.card}>
@@ -88,24 +84,6 @@ export const SecurityCard: React.FC<Props> = ({
           />
         </View>
       </View>
-
-      {onToggleDarkMode && (
-        <View style={styles.securityRow}>
-          <View style={styles.securityIcon}>
-            <Ionicons name="moon-outline" size={20} color={COLORS.primary.main} />
-          </View>
-          <View style={styles.securityInfo}>
-            <Text style={styles.securityTitle}>Karanlık Mod</Text>
-            <Text style={styles.securityCaption}>Gözlerinizi koruyun</Text>
-          </View>
-          <Switch
-            value={darkModeEnabled}
-            onValueChange={onToggleDarkMode}
-            thumbColor={darkModeEnabled ? COLORS.secondary.main : COLORS.gray300}
-            trackColor={{ true: '#FFD18A', false: COLORS.gray300 }}
-          />
-        </View>
-      )}
 
       <View style={styles.securityRow}>
         <View style={styles.securityIcon}>

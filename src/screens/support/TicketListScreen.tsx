@@ -11,9 +11,9 @@ import { SupportTicket } from '../../types';
 import { COLORS, FONT_SIZES, SPACING } from '../../constants';
 
 const statusStyles = {
-  open: { label: 'Açık', color: COLORS.error },
-  pending: { label: 'Bekliyor', color: COLORS.warning },
-  resolved: { label: 'Çözüldü', color: COLORS.success },
+  open: { label: 'Açık', color: COLORS.error.main },
+  pending: { label: 'Bekliyor', color: COLORS.warning.main },
+  resolved: { label: 'Çözüldü', color: COLORS.success.main },
   closed: { label: 'Kapalı', color: COLORS.gray500 },
 } as const;
 

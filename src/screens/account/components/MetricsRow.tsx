@@ -23,7 +23,7 @@ export const MetricsRow: React.FC<Props> = ({ metrics }) => (
         style={[styles.metricCard, index === metrics.length - 1 && styles.metricCardLast]}
       >
         <View style={styles.metricIconCircle}>
-          <Ionicons name={item.icon} size={18} color={COLORS.primary} />
+          <Ionicons name={item.icon} size={18} color={COLORS.primary.main} />
         </View>
         <Text style={styles.metricValue}>{item.value}</Text>
         <Text style={styles.metricLabel}>{item.label}</Text>
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: `${COLORS.primary}15`,
+    backgroundColor: `${COLORS.primary.main}15`,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: SPACING.sm,

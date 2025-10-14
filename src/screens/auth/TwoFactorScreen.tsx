@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   backButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,

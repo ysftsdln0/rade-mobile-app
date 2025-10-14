@@ -10,10 +10,10 @@ import { HostingPackage } from '../../types';
 import { COLORS, FONT_SIZES, SPACING } from '../../constants';
 
 const statusMeta = {
-	active: { label: 'Aktif', color: COLORS.success },
-	suspended: { label: 'Askıda', color: COLORS.warning },
-	expired: { label: 'Süresi Dolmuş', color: COLORS.error },
-	pending: { label: 'Beklemede', color: COLORS.info },
+	active: { label: 'Aktif', color: COLORS.success.main },
+	suspended: { label: 'Askıda', color: COLORS.warning.main },
+	expired: { label: 'Süresi Dolmuş', color: COLORS.error.main },
+	pending: { label: 'Beklemede', color: COLORS.info.main },
 } as const;
 
 const packageLabel = {

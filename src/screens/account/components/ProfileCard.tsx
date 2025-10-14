@@ -27,7 +27,7 @@ export const ProfileCard: React.FC<Props> = ({ email, values, onChange, onSave, 
           <Text style={styles.cardSubtitle}>Bilgilerinizi güncel tutun</Text>
         </View>
         <View style={styles.completionBadge}>
-          <Ionicons name="sparkles-outline" size={16} color={COLORS.primary} />
+          <Ionicons name="sparkles-outline" size={16} color={COLORS.primary.main} />
           <Text style={styles.completionText}>{completionPercent}%</Text>
         </View>
       </View>
@@ -113,12 +113,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: SPACING.md,
     paddingVertical: 6,
-    backgroundColor: `${COLORS.primary}15`,
+    backgroundColor: `${COLORS.primary.main}15`,
     borderRadius: 20,
   },
   completionText: {
     marginLeft: 6,
-    color: COLORS.primary,
+    color: COLORS.primary.main,
     fontWeight: '700',
   },
   progressBar: {
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   },
   progressFill: {
     height: '100%',
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
   },
   formField: {
     marginBottom: SPACING.md,
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     marginTop: SPACING.md,
     height: 48,
     borderRadius: BORDER_RADIUS.md,
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',

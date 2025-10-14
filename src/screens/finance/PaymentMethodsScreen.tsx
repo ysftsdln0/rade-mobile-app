@@ -53,7 +53,7 @@ const PaymentMethodsScreen: React.FC = () => {
                 <Ionicons
                   name={methodIcon[method.type] ?? 'card-outline'}
                   size={22}
-                  color={COLORS.primary}
+                  color={COLORS.primary.main}
                 />
               </View>
               <Text style={styles.methodTitle}>{formatMethodTitle(method)}</Text>
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: `${COLORS.primary}15`,
+    backgroundColor: `${COLORS.primary.main}15`,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   badge: {
-    backgroundColor: `${COLORS.primary}20`,
+    backgroundColor: `${COLORS.primary.main}20`,
     paddingHorizontal: SPACING.md,
     paddingVertical: 6,
     borderRadius: 24,
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   badgeText: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '700',
-    color: COLORS.primary,
+    color: COLORS.primary.main,
     textTransform: 'uppercase',
   },
 });

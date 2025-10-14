@@ -197,7 +197,7 @@ const LoginScreen = () => {
           {demoLoginEnabled && (
             <View style={styles.demoBox}>
               <View style={styles.demoHeader}>
-                <Ionicons name="information-circle" size={20} color={COLORS.info} />
+                <Ionicons name="information-circle" size={20} color={COLORS.info.main} />
                 <Text style={styles.demoTitle}>Demo Hesap</Text>
               </View>
               <Text style={styles.demoText}>E-posta: demo@rade.com</Text>
@@ -289,7 +289,7 @@ const LoginScreen = () => {
                 <Ionicons
                   name={rememberMe ? 'checkbox' : 'checkbox-outline'}
                   size={20}
-                  color={rememberMe ? COLORS.primary : COLORS.gray400}
+                  color={rememberMe ? COLORS.primary.main : COLORS.gray400}
                 />
                 <Text style={styles.rememberMeText}>Beni hatırla</Text>
               </TouchableOpacity>
@@ -313,7 +313,7 @@ const LoginScreen = () => {
 
             {biometricAvailable && (
               <TouchableOpacity style={styles.biometricButton} onPress={handleBiometricLogin}>
-                <Ionicons name="finger-print" size={24} color={COLORS.primary} />
+                <Ionicons name="finger-print" size={24} color={COLORS.primary.main} />
                 <Text style={styles.biometricText}>Parmak İzi ile Giriş</Text>
               </TouchableOpacity>
             )}
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
   logoContainer: {
     width: 80,
     height: 80,
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
     borderRadius: 40,
     justifyContent: 'center',
     alignItems: 'center',
@@ -429,11 +429,11 @@ const styles = StyleSheet.create({
   },
   forgotPasswordText: {
     fontSize: 14,
-    color: COLORS.primary,
+    color: COLORS.primary.main,
     fontWeight: '600',
   },
   loginButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
     borderRadius: 12,
     height: 54,
     alignItems: 'center',
@@ -453,14 +453,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: COLORS.primary.main,
     borderRadius: 12,
     height: 50,
     marginBottom: 24,
   },
   biometricText: {
     marginLeft: 10,
-    color: COLORS.primary,
+    color: COLORS.primary.main,
     fontSize: 15,
     fontWeight: '600',
   },
@@ -490,7 +490,7 @@ const styles = StyleSheet.create({
   },
   registerLink: {
     fontSize: 14,
-    color: COLORS.primary,
+    color: COLORS.primary.main,
     fontWeight: '600',
   },
   footer: {
@@ -508,12 +508,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   demoBox: {
-    backgroundColor: `${COLORS.info}12`,
+    backgroundColor: `${COLORS.info.main}12`,
     borderRadius: 12,
     padding: 16,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: `${COLORS.info}30`,
+    borderColor: `${COLORS.info.main}30`,
   },
   demoHeader: {
     flexDirection: 'row',
@@ -523,7 +523,7 @@ const styles = StyleSheet.create({
   demoTitle: {
     marginLeft: 8,
     fontWeight: '700',
-    color: COLORS.info,
+    color: COLORS.info.main,
   },
   demoText: {
     fontSize: 14,
@@ -535,14 +535,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
-    backgroundColor: `${COLORS.info}20`,
+    backgroundColor: `${COLORS.info.main}20`,
   },
   fillDemoText: {
-    color: COLORS.info,
+    color: COLORS.info.main,
     fontWeight: '600',
   },
   errorText: {
-    color: COLORS.error,
+    color: COLORS.error.main,
     fontSize: 12,
     marginBottom: 12,
     marginLeft: 4,

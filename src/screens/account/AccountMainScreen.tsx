@@ -296,7 +296,7 @@ const AccountMainScreen: React.FC = () => {
   if (!user) {
     return (
       <View style={[styles.loaderContainer, styles.centered]}>
-        <ActivityIndicator color={typeof COLORS.primary === 'object' ? COLORS.primary.main : COLORS.primary} />
+        <ActivityIndicator color={COLORS.primary.main} />
         <Text style={styles.loaderText}>Kullanıcı bilgisi yükleniyor...</Text>
       </View>
     );
@@ -359,7 +359,7 @@ const AccountMainScreen: React.FC = () => {
 
         {activityQuery.isLoading ? (
           <View style={styles.inlineLoader}>
-            <ActivityIndicator color={typeof COLORS.primary === 'object' ? COLORS.primary.main : COLORS.primary} />
+            <ActivityIndicator color={COLORS.primary.main} />
             <Text style={styles.loaderText}>Aktiviteler yükleniyor...</Text>
           </View>
         ) : topActivities.length > 0 ? (
@@ -461,7 +461,7 @@ const getActivityPresentation = (type: string) => {
     default:
       return {
         icon: 'information-circle-outline' as keyof typeof Ionicons.glyphMap,
-        color: typeof COLORS.primary === 'object' ? COLORS.primary.main : COLORS.primary,
+        color: COLORS.primary.main,
       };
   }
 };

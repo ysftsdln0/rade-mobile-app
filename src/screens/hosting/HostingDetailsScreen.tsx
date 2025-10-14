@@ -85,13 +85,13 @@ const HostingDetailsScreen: React.FC = () => {
 	const statusMeta = useMemo(() => {
 		switch (details.status) {
 			case 'active':
-				return { label: 'Aktif', color: COLORS.success };
+				return { label: 'Aktif', color: COLORS.success.main };
 			case 'suspended':
-				return { label: 'Askıda', color: COLORS.warning };
+				return { label: 'Askıda', color: COLORS.warning.main };
 			case 'expired':
-				return { label: 'Süresi Dolmuş', color: COLORS.error };
+				return { label: 'Süresi Dolmuş', color: COLORS.error.main };
 			default:
-				return { label: 'Beklemede', color: COLORS.info };
+				return { label: 'Beklemede', color: COLORS.info.main };
 		}
 	}, [details.status]);
 
@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
 	},
 	progressBar: {
 		height: '100%',
-		backgroundColor: COLORS.primary,
+		backgroundColor: COLORS.primary.main,
 		borderRadius: 4,
 	},
 	quickStatsRow: {

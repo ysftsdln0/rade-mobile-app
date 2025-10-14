@@ -100,9 +100,9 @@ const RegisterScreen = () => {
   const passwordStrength = useMemo(() => {
     const metCount = passwordChecks.filter((check) => check.met).length;
     if (!passwordValue) return { label: 'Şifre Gücü: -', color: COLORS.textSecondary };
-    if (metCount <= 1) return { label: 'Şifre Gücü: Zayıf', color: COLORS.error };
-    if (metCount === 2 || metCount === 3) return { label: 'Şifre Gücü: Orta', color: COLORS.warning };
-    return { label: 'Şifre Gücü: Güçlü', color: COLORS.success };
+    if (metCount <= 1) return { label: 'Şifre Gücü: Zayıf', color: COLORS.error.main };
+    if (metCount === 2 || metCount === 3) return { label: 'Şifre Gücü: Orta', color: COLORS.warning.main };
+    return { label: 'Şifre Gücü: Güçlü', color: COLORS.success.main };
   }, [passwordChecks, passwordValue]);
 
   const onSubmit = async (values: RegisterFormValues) => {
@@ -224,7 +224,7 @@ const RegisterScreen = () => {
                   <Ionicons
                     name={check.met ? 'checkmark-circle' : 'ellipse-outline'}
                     size={16}
-                    color={check.met ? COLORS.success : COLORS.gray400}
+                    color={check.met ? COLORS.success.main : COLORS.gray400}
                     style={{ marginRight: 8 }}
                   />
                   <Text
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
   },
   toggle: { position: 'absolute', right: 12, top: 30, padding: 4 },
-  toggleText: { fontSize: 12, color: COLORS.primary, fontWeight: '600' },
+  toggleText: { fontSize: 12, color: COLORS.primary.main, fontWeight: '600' },
   row: { flexDirection: 'row' },
   termsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   checkbox: {
@@ -369,13 +369,13 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 4,
     borderWidth: 1.5,
-    borderColor: COLORS.primary,
+    borderColor: COLORS.primary.main,
     marginRight: 10,
   },
-  checkboxChecked: { backgroundColor: COLORS.primary },
+  checkboxChecked: { backgroundColor: COLORS.primary.main },
   termsText: { flex: 1, fontSize: 13, color: COLORS.textSecondary },
   registerButton: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.primary.main,
     borderRadius: 12,
     height: 54,
     alignItems: 'center',
@@ -386,9 +386,9 @@ const styles = StyleSheet.create({
   registerButtonText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
   loginLinkRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
   loginText: { fontSize: 14, color: COLORS.textSecondary },
-  loginLink: { fontSize: 14, color: COLORS.primary, fontWeight: '600' },
+  loginLink: { fontSize: 14, color: COLORS.primary.main, fontWeight: '600' },
   errorText: {
-    color: COLORS.error,
+    color: COLORS.error.main,
     fontSize: 12,
     marginTop: 4,
   },
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   requirementMet: {
-    color: COLORS.success,
+    color: COLORS.success.main,
     fontWeight: '600',
   },
   passwordStrength: {
