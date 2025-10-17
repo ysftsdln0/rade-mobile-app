@@ -1,6 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AuthState, User } from '../types';
-import { loginAsync, registerAsync, logoutAsync, loadUserFromStorageAsync } from './authThunks';
+import { 
+  loginAsync, 
+  registerAsync, 
+  logoutAsync, 
+  loadUserFromStorageAsync,
+  updateProfileAsync 
+} from './authThunks';
 
 const initialState: AuthState = {
   user: null,
@@ -100,6 +106,18 @@ const authSlice = createSlice({
       state.token = null;
       state.refreshToken = null;
       state.isAuthenticated = false;
+    });
+
+    // Update Profile
+    builder.addCase(updateProfileAsync.pending, (state) => {
+      state.isLoading = true;
+    });
+    builder.addCase(updateProfileAsync.fulfilled, (state, action) => {
+      state.user = action.payload;
+      state.isLoading = false;
+    });
+    builder.addCase(updateProfileAsync.rejected, (state) => {
+      state.isLoading = false;
     });
   }
 });
