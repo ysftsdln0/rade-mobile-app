@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, FONT_SIZES, SPACING, BORDER_RADIUS } from '../../../constants';
+import { colors } from '../../../styles/colors';
 
 export type AccountMetric = {
   id: string;

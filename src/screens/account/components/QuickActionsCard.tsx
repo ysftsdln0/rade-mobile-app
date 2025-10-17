@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import AppCard from '../../../components/common/AppCard';
 import { ListItem } from '../../../components/common/ListItem';
 import { COLORS, FONT_SIZES, SPACING } from '../../../constants';
+import { colors } from '../../../styles/colors';
 
 export type QuickAction = {
   title: string;

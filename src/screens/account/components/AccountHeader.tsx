@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, FONT_SIZES, BORDER_RADIUS, SPACING } from '../../../constants';
+import { FONT_SIZES, BORDER_RADIUS, SPACING } from '../../../constants';
+import { colors } from '../../../styles/colors';
 
 type Props = {
   displayName: string;
@@ -13,7 +14,7 @@ type Props = {
 export const AccountHeader: React.FC<Props> = ({ displayName, email, initials, lastLoginText }) => {
   return (
     <LinearGradient
-      colors={[COLORS.primary.main, '#001eff']}
+      colors={[colors.primary[500], colors.accent.gradient_end]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.headerCard}

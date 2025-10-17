@@ -3,6 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AppCard from '../../../components/common/AppCard';
 import { COLORS, FONT_SIZES, SPACING, BORDER_RADIUS } from '../../../constants';
+import { colors } from '../../../styles/colors';
 
 type Props = {
   outstandingInvoices: string;

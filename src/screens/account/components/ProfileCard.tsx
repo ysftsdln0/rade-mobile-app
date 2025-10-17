@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View 
 import { Ionicons } from '@expo/vector-icons';
 import AppCard from '../../../components/common/AppCard';
 import { COLORS, FONT_SIZES, SPACING, BORDER_RADIUS } from '../../../constants';
+import { colors } from '../../../styles/colors';
 
 type Props = {
   email: string;

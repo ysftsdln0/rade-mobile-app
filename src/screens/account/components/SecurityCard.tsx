@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AppCard from '../../../components/common/AppCard';
-import { COLORS, FONT_SIZES, SPACING, BORDER_RADIUS } from '../../../constants';
+import { FONT_SIZES, SPACING, BORDER_RADIUS } from '../../../constants';
+import { colors } from '../../../styles/colors';
 
 type PasswordFields = {
   currentPassword: string;
@@ -54,7 +55,7 @@ export const SecurityCard: React.FC<Props> = ({
 
       <View style={styles.securityRow}>
         <View style={styles.securityIcon}>
-          <Ionicons name="finger-print" size={20} color={COLORS.primary.main} />
+          <Ionicons name="finger-print" size={20} color={colors.primary[500]} />
         </View>
         <View style={styles.securityInfo}>
           <Text style={styles.securityTitle}>Biyometrik Giriş</Text>
@@ -79,15 +80,15 @@ export const SecurityCard: React.FC<Props> = ({
           <Switch
             value={biometricEnabled}
             onValueChange={onToggleBiometric}
-            thumbColor={biometricEnabled ? COLORS.secondary.main : COLORS.gray300}
-            trackColor={{ true: '#FFD18A', false: COLORS.gray300 }}
+            thumbColor={biometricEnabled ? colors.accent.gradient_end : colors.neutral[300]}
+            trackColor={{ true: '#FFD18A', false: colors.neutral[300] }}
           />
         </View>
       </View>
 
       <View style={styles.securityRow}>
         <View style={styles.securityIcon}>
-          <Ionicons name="shield-checkmark-outline" size={20} color={COLORS.primary.main} />
+          <Ionicons name="shield-checkmark-outline" size={20} color={colors.primary[500]} />
         </View>
         <View style={styles.securityInfo}>
           <Text style={styles.securityTitle}>İki Adımlı Doğrulama</Text>
@@ -106,7 +107,7 @@ export const SecurityCard: React.FC<Props> = ({
 
       <TouchableOpacity style={styles.collapseToggle} onPress={onTogglePasswordForm}>
         <View style={styles.securityIcon}>
-          <Ionicons name="key-outline" size={20} color={COLORS.primary.main} />
+          <Ionicons name="key-outline" size={20} color={colors.primary[500]} />
         </View>
         <View style={styles.securityInfo}>
           <Text style={styles.securityTitle}>Şifreyi Güncelle</Text>
@@ -115,11 +116,11 @@ export const SecurityCard: React.FC<Props> = ({
         <Ionicons
           name={passwordFormVisible ? 'chevron-up' : 'chevron-down'}
           size={20}
-          color={COLORS.gray500}
+          color={colors.neutral[500]}
         />
       </TouchableOpacity>
 
-      {passwordFormVisible ? (
+          {passwordFormVisible ? (
         <View style={styles.passwordForm}>
           {renderPasswordInput('Mevcut şifre', 'currentPassword', passwordFields.currentPassword, onChangePasswordField)}
           {renderPasswordInput('Yeni şifre', 'newPassword', passwordFields.newPassword, onChangePasswordField)}
@@ -130,7 +131,7 @@ export const SecurityCard: React.FC<Props> = ({
             disabled={submittingPassword}
           >
             {submittingPassword ? (
-              <ActivityIndicator color={COLORS.textPrimary} />
+              <ActivityIndicator color={colors.neutral[900]} />
             ) : (
               <Text style={styles.secondaryButtonText}>Şifreyi Değiştir</Text>
             )}
@@ -151,7 +152,7 @@ const renderPasswordInput = (
     key={field}
     style={styles.textInput}
     placeholder={placeholder}
-    placeholderTextColor={COLORS.textDisabled}
+    placeholderTextColor={colors.neutral[300]}
     secureTextEntry
     value={value}
     onChangeText={(text) => onChange(field, text)}
@@ -168,11 +169,11 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: FONT_SIZES.lg,
     fontWeight: '700',
-    color: COLORS.textPrimary,
+    color: colors.neutral[900],
   },
   cardSubtitle: {
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
+    color: colors.neutral[600],
     marginTop: 4,
   },
   securityRow: {
@@ -184,7 +185,7 @@ const styles = StyleSheet.create({
     width: 46,
     height: 46,
     borderRadius: 23,
-    backgroundColor: `${COLORS.primary.main}15`,
+    backgroundColor: `${colors.primary[500]}15`,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: SPACING.md,
@@ -194,12 +195,12 @@ const styles = StyleSheet.create({
   },
   securityTitle: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.textPrimary,
+    color: colors.neutral[900],
     fontWeight: '600',
   },
   securityCaption: {
     fontSize: FONT_SIZES.xs,
-    color: COLORS.textSecondary,
+    color: colors.neutral[600],
     marginTop: 3,
   },
   securityAction: {
@@ -212,30 +213,30 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   statusPillActive: {
-    backgroundColor: `${COLORS.success.main}20`,
+    backgroundColor: `${colors.semantic.success}20`,
   },
   statusPillInactive: {
-    backgroundColor: COLORS.gray100,
+    backgroundColor: colors.neutral[100],
   },
   statusPillText: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '700',
   },
   statusPillTextActive: {
-    color: COLORS.success.main,
+    color: colors.semantic.success,
   },
   statusPillTextInactive: {
-    color: COLORS.gray500,
+    color: colors.neutral[500],
   },
   securityButton: {
     borderRadius: 18,
     paddingHorizontal: SPACING.md,
     paddingVertical: 8,
     borderWidth: 1,
-    borderColor: COLORS.primary.main,
+    borderColor: colors.primary[500],
   },
   securityButtonText: {
-    color: COLORS.primary.main,
+    color: colors.primary[500],
     fontWeight: '600',
     fontSize: FONT_SIZES.sm,
   },
@@ -248,25 +249,25 @@ const styles = StyleSheet.create({
     marginTop: SPACING.sm,
   },
   textInput: {
-    backgroundColor: COLORS.gray100,
+    backgroundColor: colors.neutral[100],
     borderRadius: BORDER_RADIUS.md,
     paddingHorizontal: SPACING.md,
     height: 48,
-    color: COLORS.textPrimary,
+    color: colors.neutral[900],
     borderWidth: 1,
-    borderColor: COLORS.gray200,
+    borderColor: colors.neutral[200],
     marginBottom: SPACING.sm,
   },
   secondaryButton: {
     marginTop: SPACING.md,
     height: 48,
     borderRadius: BORDER_RADIUS.md,
-    backgroundColor: COLORS.gray100,
+    backgroundColor: colors.neutral[100],
     alignItems: 'center',
     justifyContent: 'center',
   },
   secondaryButtonText: {
-    color: COLORS.textPrimary,
+    color: colors.neutral[900],
     fontSize: FONT_SIZES.md,
     fontWeight: '700',
   },
