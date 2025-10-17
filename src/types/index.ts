@@ -188,6 +188,7 @@ export type MainTabParamList = {
   Dashboard: undefined;
   Services: undefined;
   Support: undefined;
+  Chatbot: undefined;
   Account: undefined;
 };
 
