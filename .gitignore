@@ -184,3 +184,86 @@ src/config/secrets.ts
 src/config/keys.ts
 secrets.json
 keys.json
+
+# Memory Bank & Agent Files (Development Only)
+memory-bank/
+AGENTS.md
+
+# Design Files & Assets (Figma exports)
+designs/
+*.fig
+*.sketch
+
+# Documentation (Optional - remove if you want to track docs)
+# docs/
+
+# Backend specific
+backend/node_modules/
+backend/dist/
+backend/build/
+backend/.env
+backend/.env.local
+
+# macOS specific
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Expo specific (additional)
+.expo-config.json
+*.expo-build.tar.gz
+.expo-source/
+.vercel/
+
+# React Native specific (additional)
+buck-out/
+\.buckd/
+*.keystore
+!debug.keystore
+
+# Watchman
+.watchman-config
+.watchman-cookie-*
+
+# Local environment variables
+local.properties
+
+# Screenshot testing
+__image_snapshots__/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Error logs
+npm-error.log
+yarn-error.log
+pnpm-error.log
+
+# IDE specific
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.history/
+
+designs/
+expo-error.md
