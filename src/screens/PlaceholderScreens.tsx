@@ -46,11 +46,10 @@ export const ServerDetailsScreen = () => <PlaceholderScreen title="Sunucu Detayl
 // Support Screens
 export const TicketDetailsScreen = () => <PlaceholderScreen title="Bilet Detayları" />;
 export const CreateTicketScreen = () => <PlaceholderScreen title="Yeni Bilet Oluştur" />;
-export const ChatbotScreen = () => <PlaceholderScreen title="Canlı Destek" />;
 
 // Account Screens
 export const AccountMainScreen = () => <PlaceholderScreen title="Hesap Yönetimi" />;
-export const ProfileScreen = () => <PlaceholderScreen title="Profil Bilgileri" />;
+// ProfileScreen moved to src/screens/account/ProfileScreen.tsx
 export const SecurityScreen = () => <PlaceholderScreen title="Güvenlik Ayarları" />;
 export const NotificationSettingsScreen = () => <PlaceholderScreen title="Bildirim Ayarları" />;
 
