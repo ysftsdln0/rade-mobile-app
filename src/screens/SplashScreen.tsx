@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -12,18 +12,15 @@ import { useNavigation } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '../store';
 import { loadUserFromStorageAsync } from '../store/authThunks';
 import { storageService } from '../services/storage';
-import { APP_CONFIG, COLORS } from '../constants';
+import { APP_CONFIG } from '../constants';
+import { colors } from '../styles';
 
 const SplashScreen = () => {
   const navigation = useNavigation<any>();
   const dispatch = useAppDispatch();
   const { isAuthenticated } = useAppSelector((state) => state.auth);
 
-  useEffect(() => {
-    initializeApp();
-  }, []);
-
-  const initializeApp = async () => {
+  const initializeApp = useCallback(async () => {
     try {
       // Simulate app initialization
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -53,13 +50,17 @@ const SplashScreen = () => {
       // On error, go to auth
       navigation.replace('Auth');
     }
-  };
+  }, [dispatch, navigation]);
+
+  useEffect(() => {
+    initializeApp();
+  }, [initializeApp]);
 
   return (
     <>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary.main} />
+      <StatusBar barStyle="light-content" backgroundColor={colors.primary[500]} />
       <LinearGradient
-        colors={[COLORS.primary.main, '#001eff']}
+        colors={[colors.primary[500], colors.primary[700]]}
         style={styles.container}
       >
         <View style={styles.content}>
