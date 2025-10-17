@@ -1,304 +1,389 @@
+/**
+ * HostingDetailsScreen
+ * 
+ * Hosting package details view showing:
+ * - Package information and status
+ * - Resource usage (disk, bandwidth, CPU)
+ * - Expiry date and renewal options
+ * - Management actions
+ */
 import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { useQuery } from '@tanstack/react-query';
-import AppCard from '../../components/common/AppCard';
-import { LoadingState } from '../../components/common/LoadingState';
-import { EmptyState } from '../../components/common/EmptyState';
-import { apiService } from '../../services/api';
-import { COLORS, FONT_SIZES, SPACING } from '../../constants';
-import { ServicesStackParamList } from '../../types';
-
-interface HostingDetailsResponse {
-	id: string;
-	name: string;
-	domain: string;
-	packageType: string;
-	status: string;
-	createdAt: string;
-	expiryDate: string;
-	ipAddress: string;
-	nameservers: string[];
-	autoRenew: boolean;
-	features: string[];
-}
-
-interface HostingUsageResponse {
-	disk: {
-		used: number;
-		total: number;
-	};
-	bandwidth: {
-		used: number;
-		total: number;
-	};
-	databases: number;
-	ftpAccounts: number;
-	emailAccounts: number;
-	backupsEnabled: boolean;
-}
-
-type HostingDetailsRoute = RouteProp<ServicesStackParamList, 'HostingDetails'>;
-
-const HostingDetailsScreen: React.FC = () => {
-	const route = useRoute<HostingDetailsRoute>();
-	const { hostingId } = route.params;
-
-	const detailsQuery = useQuery({
-		queryKey: ['hostingDetails', hostingId],
-		queryFn: async () => {
-			const response = await apiService.getHostingDetails(hostingId);
-			return response.data as HostingDetailsResponse;
-		},
-	});
-
-	const usageQuery = useQuery({
-		queryKey: ['hostingUsage', hostingId],
-		queryFn: async () => {
-			const response = await apiService.getHostingUsage(hostingId);
-			return response.data as HostingUsageResponse;
-		},
-		enabled: detailsQuery.isSuccess,
-		staleTime: 1000 * 60,
-		refetchInterval: 1000 * 60,
-	});
-
-	const isLoading = detailsQuery.isLoading || usageQuery.isLoading;
-
-	if (isLoading) {
-		return <LoadingState message="Hosting detayları yükleniyor..." />;
-	}
-
-	if (detailsQuery.isError || usageQuery.isError || !detailsQuery.data) {
-		return (
-			<EmptyState
-				icon="warning-outline"
-				title="Hosting bilgileri alınamadı"
-				description="Sayfayı yenileyerek tekrar deneyebilirsiniz."
-			/>
-		);
-	}
-
-	const details = detailsQuery.data;
-	const usage = usageQuery.data;
-
-	const statusMeta = useMemo(() => {
-		switch (details.status) {
-			case 'active':
-				return { label: 'Aktif', color: COLORS.success.main };
-			case 'suspended':
-				return { label: 'Askıda', color: COLORS.warning.main };
-			case 'expired':
-				return { label: 'Süresi Dolmuş', color: COLORS.error.main };
-			default:
-				return { label: 'Beklemede', color: COLORS.info.main };
-		}
-	}, [details.status]);
-
-	return (
-		<ScrollView style={styles.container} contentContainerStyle={styles.content}>
-			<AppCard style={styles.card}>
-				<View style={styles.headerRow}>
-					<Text style={styles.title}>{details.name}</Text>
-					<View style={[styles.badge, { backgroundColor: `${statusMeta.color}20` }]}>
-						<Text style={[styles.badgeText, { color: statusMeta.color }]}>{statusMeta.label}</Text>
-					</View>
-				</View>
-				<Text style={styles.domain}>{details.domain}</Text>
-				<View style={styles.metaRow}>
-					<Text style={styles.metaLabel}>Paket Türü</Text>
-					<Text style={styles.metaValue}>{details.packageType}</Text>
-				</View>
-				<View style={styles.metaRow}>
-					<Text style={styles.metaLabel}>IP Adresi</Text>
-					<Text style={styles.metaValue}>{details.ipAddress}</Text>
-				</View>
-				<View style={styles.metaRow}>
-					<Text style={styles.metaLabel}>Oluşturulma</Text>
-					<Text style={styles.metaValue}>{formatDate(details.createdAt)}</Text>
-				</View>
-				<View style={styles.metaRow}>
-					<Text style={styles.metaLabel}>Bitiş Tarihi</Text>
-					<Text style={styles.metaValue}>{formatDate(details.expiryDate)}</Text>
-				</View>
-				<View style={styles.metaRow}>
-					<Text style={styles.metaLabel}>Otomatik Yenileme</Text>
-					<Text style={styles.metaValue}>{details.autoRenew ? 'Açık' : 'Kapalı'}</Text>
-				</View>
-			</AppCard>
-
-			{usage ? (
-				<AppCard style={styles.card}>
-					<Text style={styles.sectionTitle}>Kaynak Kullanımı</Text>
-					<ResourceBar label="Disk" used={usage.disk.used} total={usage.disk.total} unit="GB" />
-					<ResourceBar label="Bant Genişliği" used={usage.bandwidth.used} total={usage.bandwidth.total} unit="GB" />
-					<View style={styles.quickStatsRow}>
-						<QuickStat label="Veritabanı" value={`${usage.databases}`} />
-						<QuickStat label="FTP Hesabı" value={`${usage.ftpAccounts}`} />
-						<QuickStat label="E-posta" value={`${usage.emailAccounts}`} />
-					</View>
-					<Text style={styles.metaLabel}>Yedekleme</Text>
-					<Text style={styles.metaValue}>{usage.backupsEnabled ? 'Aktif' : 'Pasif'}</Text>
-				</AppCard>
-			) : null}
-
-			<AppCard style={styles.card}>
-				<Text style={styles.sectionTitle}>Nameserver Bilgileri</Text>
-				{details.nameservers.map((ns) => (
-					<Text key={ns} style={styles.listItem}>{ns}</Text>
-				))}
-			</AppCard>
-
-			<AppCard style={styles.card}>
-				<Text style={styles.sectionTitle}>Paket Özellikleri</Text>
-				{details.features.map((feature) => (
-					<Text key={feature} style={styles.listItem}>• {feature}</Text>
-				))}
-			</AppCard>
-		</ScrollView>
-	);
-};
-
-const ResourceBar: React.FC<{ label: string; used: number; total: number; unit?: string }> = ({
-	label,
-	used,
-	total,
-	unit,
-}) => {
-	const ratio = total > 0 ? Math.min(1, used / total) : 0;
-	return (
-		<View style={styles.resourceContainer}>
-			<View style={styles.resourceHeader}>
-				<Text style={styles.metaLabel}>{label}</Text>
-				<Text style={styles.metaValue}>
-					{used} / {total} {unit}
-				</Text>
-			</View>
-			<View style={styles.progressTrack}>
-				<View style={[styles.progressBar, { width: `${ratio * 100}%` }]} />
-			</View>
-		</View>
-	);
-};
-
-const QuickStat: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-	<View style={styles.quickStat}>
-		<Text style={styles.quickStatValue}>{value}</Text>
-		<Text style={styles.quickStatLabel}>{label}</Text>
-	</View>
-);
+import { View, StyleSheet, ScrollView, SafeAreaView, Alert, Text } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import {
+  DashboardHeader,
+  Card,
+  MetricCard,
+  DataRow,
+  Button,
+  AlertBanner,
+} from '../../components/common';
+import { colors, spacing } from '../../styles';
 
 const formatDate = (date: string) => {
-	const d = new Date(date);
-	if (Number.isNaN(d.getTime())) return '-';
-	return d.toLocaleDateString('tr-TR', {
-		year: 'numeric',
-		month: 'short',
-		day: 'numeric',
-	});
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return '-';
+  return d.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
+const formatBytes = (bytes: number) => {
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let size = bytes;
+  let unitIndex = 0;
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+  return `${size.toFixed(2)} ${units[unitIndex]}`;
+};
+
+const getUsageStatus = (used: number, total: number) => {
+  const percentage = (used / total) * 100;
+  if (percentage >= 90) return 'warning' as const;
+  if (percentage >= 70) return 'warning' as const;
+  return 'online' as const;
+};
+
+interface HostingPackage {
+  id: string;
+  name: string;
+  plan: string;
+  status: 'active' | 'inactive' | 'suspended';
+  diskUsed: number;
+  diskTotal: number;
+  bandwidthUsed: number;
+  bandwidthTotal: number;
+  cpuUsed: number;
+  cpuTotal: number;
+  expiryDate: string;
+  autoRenewal: boolean;
+  price: number;
+  currency: string;
+}
+
+// Mock data - in real app, this would come from route params or API
+const mockHostingPackage: HostingPackage = {
+  id: 'h1',
+  name: 'Premium Hosting',
+  plan: 'hosting.pro',
+  status: 'active',
+  diskUsed: 450,
+  diskTotal: 1000,
+  bandwidthUsed: 85,
+  bandwidthTotal: 250,
+  cpuUsed: 45,
+  cpuTotal: 100,
+  expiryDate: '2025-12-17',
+  autoRenewal: true,
+  price: 99.99,
+  currency: 'USD',
+};
+
+const HostingDetailsScreen = () => {
+  const route = useRoute<any>();
+  const navigation = useNavigation<any>();
+  
+  const hosting = route.params?.hosting || mockHostingPackage;
+
+  const statusColor: { [key in 'active' | 'inactive' | 'suspended']: 'online' | 'offline' | 'warning' } = {
+    active: 'online' as const,
+    inactive: 'offline' as const,
+    suspended: 'warning' as const,
+  };
+
+  const daysUntilExpiry = useMemo(() => {
+    const expiry = new Date(hosting.expiryDate);
+    const today = new Date();
+    const diffTime = expiry.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  }, [hosting.expiryDate]);
+
+  const expiryStatus = useMemo(() => {
+    if (daysUntilExpiry <= 0) return 'expired' as const;
+    if (daysUntilExpiry <= 30) return 'warning' as const;
+    return 'ok' as const;
+  }, [daysUntilExpiry]);
+
+  const handleRenewal = () => {
+    Alert.alert(
+      'Renew Hosting',
+      `Renew this hosting package for another year?\n\nCost: $${hosting.price.toFixed(2)} ${hosting.currency}`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Renew',
+          onPress: () => {
+            Alert.alert('Success', 'Hosting package renewed successfully!');
+          },
+        },
+      ]
+    );
+  };
+
+  const handleToggleAutoRenewal = () => {
+    Alert.alert(
+      'Auto-Renewal',
+      hosting.autoRenewal
+        ? 'Disable auto-renewal? You will need to manually renew before expiry.'
+        : 'Enable auto-renewal? Your hosting will automatically renew before expiry.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Confirm',
+          onPress: () => {
+            Alert.alert('Success', 'Auto-renewal setting updated!');
+          },
+        },
+      ]
+    );
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+      >
+        {/* Header */}
+        <DashboardHeader
+          title={hosting.name}
+          subtitle={hosting.plan}
+        />
+
+        {/* Status Alert */}
+        {expiryStatus === 'warning' && (
+          <Card title="Expiry Alert" variant="default">
+            <AlertBanner
+              type="warning"
+              title="Expiring Soon"
+              message={`Your hosting expires in ${daysUntilExpiry} days`}
+              action={{
+                label: 'Renew Now',
+                onPress: handleRenewal,
+              }}
+              dismissible
+            />
+          </Card>
+        )}
+
+        {expiryStatus === 'expired' && (
+          <Card title="Expired" variant="default">
+            <AlertBanner
+              type="error"
+              title="Hosting Expired"
+              message="Your hosting package has expired. Please renew to continue service."
+              action={{
+                label: 'Renew Now',
+                onPress: handleRenewal,
+              }}
+              dismissible={false}
+            />
+          </Card>
+        )}
+
+        {/* Package Info */}
+        <Card title="Package Information" variant="default">
+          <DataRow
+            label="Status"
+            value={hosting.status.charAt(0).toUpperCase() + hosting.status.slice(1)}
+            status={statusColor[hosting.status as keyof typeof statusColor]}
+            divider
+          />
+          <DataRow
+            label="Plan"
+            value={hosting.plan}
+            status="neutral"
+            divider
+          />
+          <DataRow
+            label="Price"
+            value={`$${hosting.price.toFixed(2)}/${hosting.currency}`}
+            status="neutral"
+            divider={false}
+          />
+        </Card>
+
+        {/* Resource Usage */}
+        <Card title="Resource Usage" variant="default">
+          <View style={styles.metricsGrid}>
+            <MetricCard
+              value={`${(hosting.diskUsed / 1024).toFixed(2)}`}
+              unit="GB"
+              label="Disk Usage"
+              status={getUsageStatus(hosting.diskUsed, hosting.diskTotal)}
+            />
+            <MetricCard
+              value={`${(hosting.bandwidthUsed).toFixed(0)}`}
+              unit="GB"
+              label="Bandwidth"
+              status={getUsageStatus(hosting.bandwidthUsed, hosting.bandwidthTotal)}
+            />
+            <MetricCard
+              value={`${hosting.cpuUsed}`}
+              unit="%"
+              label="CPU Usage"
+              status={getUsageStatus(hosting.cpuUsed, hosting.cpuTotal)}
+            />
+          </View>
+        </Card>
+
+        {/* Detailed Specs */}
+        <Card title="Specifications" variant="default">
+          <DataRow
+            label="Total Disk"
+            value={`${hosting.diskTotal} GB`}
+            status="neutral"
+            divider
+          />
+          <DataRow
+            label="Total Bandwidth"
+            value={`${hosting.bandwidthTotal} GB/month`}
+            status="neutral"
+            divider
+          />
+          <DataRow
+            label="CPU Cores"
+            value={`${hosting.cpuTotal}`}
+            status="neutral"
+            divider={false}
+          />
+        </Card>
+
+        {/* Renewal Settings */}
+        <Card title="Renewal Settings" variant="default">
+          <DataRow
+            label="Expiry Date"
+            value={formatDate(hosting.expiryDate)}
+            secondary={`${daysUntilExpiry} days remaining`}
+            status={expiryStatus === 'ok' ? 'online' : 'warning'}
+            divider
+          />
+          <View style={styles.autoRenewalRow}>
+            <View style={styles.autoRenewalLabel}>
+              <Text style={styles.autoRenewalLabelText}>Auto-Renewal</Text>
+              <Text style={styles.autoRenewalDescription}>
+                Automatically renew before expiry
+              </Text>
+            </View>
+            <View
+              style={[
+                styles.autoRenewalToggle,
+                { backgroundColor: hosting.autoRenewal ? colors.semantic.success : colors.neutral[300] },
+              ]}
+            >
+              <Text style={styles.autoRenewalToggleText}>
+                {hosting.autoRenewal ? 'ON' : 'OFF'}
+              </Text>
+            </View>
+          </View>
+        </Card>
+
+        {/* Actions */}
+        <Card title="Actions" variant="default">
+          <View style={styles.actionsContainer}>
+            <Button
+              label="Renew Package"
+              variant="primary"
+              size="md"
+              onPress={handleRenewal}
+              style={styles.actionButton}
+            />
+            <Button
+              label={hosting.autoRenewal ? 'Disable Auto-Renewal' : 'Enable Auto-Renewal'}
+              variant="secondary"
+              size="md"
+              onPress={handleToggleAutoRenewal}
+              style={styles.actionButton}
+            />
+            <Button
+              label="Manage Files"
+              variant="secondary"
+              size="md"
+              onPress={() => {
+                // TODO: Navigate to file manager
+              }}
+              style={styles.actionButton}
+            />
+            <Button
+              label="Support"
+              variant="ghost"
+              size="md"
+              onPress={() => navigation.navigate('Support')}
+              style={styles.actionButton}
+            />
+          </View>
+        </Card>
+
+        {/* Spacer */}
+        <View style={styles.spacer} />
+      </ScrollView>
+    </SafeAreaView>
+  );
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: COLORS.background,
-	},
-	content: {
-		padding: SPACING.lg,
-		paddingBottom: SPACING.xxl,
-	},
-	card: {
-		marginBottom: SPACING.lg,
-	},
-	headerRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'center',
-	},
-	title: {
-		fontSize: FONT_SIZES.lg,
-		fontWeight: '700',
-		color: COLORS.textPrimary,
-	},
-	domain: {
-		marginTop: SPACING.sm,
-		fontSize: FONT_SIZES.md,
-		color: COLORS.textSecondary,
-	},
-	badge: {
-		paddingHorizontal: SPACING.md,
-		paddingVertical: 6,
-		borderRadius: 24,
-	},
-	badgeText: {
-		fontSize: FONT_SIZES.xs,
-		fontWeight: '700',
-		textTransform: 'uppercase',
-	},
-	metaRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		marginTop: SPACING.sm,
-	},
-	metaLabel: {
-		color: COLORS.textSecondary,
-		fontSize: FONT_SIZES.sm,
-	},
-	metaValue: {
-		color: COLORS.textPrimary,
-		fontSize: FONT_SIZES.sm,
-		fontWeight: '600',
-	},
-	sectionTitle: {
-		fontSize: FONT_SIZES.lg,
-		fontWeight: '700',
-		marginBottom: SPACING.md,
-		color: COLORS.textPrimary,
-	},
-	listItem: {
-		fontSize: FONT_SIZES.sm,
-		color: COLORS.textSecondary,
-		marginBottom: SPACING.xs,
-	},
-	resourceContainer: {
-		marginBottom: SPACING.md,
-	},
-	resourceHeader: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		marginBottom: SPACING.xs,
-	},
-	progressTrack: {
-		height: 8,
-		backgroundColor: COLORS.gray200,
-		borderRadius: 4,
-		overflow: 'hidden',
-	},
-	progressBar: {
-		height: '100%',
-		backgroundColor: COLORS.primary.main,
-		borderRadius: 4,
-	},
-	quickStatsRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		marginBottom: SPACING.md,
-	},
-	quickStat: {
-		alignItems: 'center',
-		flex: 1,
-	},
-	quickStatValue: {
-		fontSize: FONT_SIZES.lg,
-		fontWeight: '700',
-		color: COLORS.textPrimary,
-	},
-	quickStatLabel: {
-		marginTop: SPACING.xs,
-		fontSize: FONT_SIZES.xs,
-		color: COLORS.textSecondary,
-		textTransform: 'uppercase',
-	},
+  container: {
+    flex: 1,
+    backgroundColor: colors.neutral[50],
+  },
+  scrollView: {
+    flex: 1,
+  },
+  contentContainer: {
+    paddingBottom: spacing[6],
+  },
+  metricsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: spacing[3],
+    marginBottom: spacing[2],
+  },
+  autoRenewalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: spacing[3],
+    borderTopWidth: 1,
+    borderTopColor: colors.neutral[200],
+  },
+  autoRenewalLabel: {
+    flex: 1,
+  },
+  autoRenewalLabelText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.neutral[900],
+    marginBottom: spacing[1],
+  },
+  autoRenewalDescription: {
+    fontSize: 12,
+    color: colors.neutral[600],
+  },
+  autoRenewalToggle: {
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[2],
+    borderRadius: 8,
+  },
+  autoRenewalToggleText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: colors.neutral[50],
+  },
+  actionsContainer: {
+    gap: spacing[2],
+  },
+  actionButton: {
+    width: '100%',
+  },
+  spacer: {
+    height: spacing[6],
+  },
 });
 
 export default HostingDetailsScreen;

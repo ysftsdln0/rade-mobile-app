@@ -6,6 +6,7 @@ import AppCard from '../../components/common/AppCard';
 import { LoadingState } from '../../components/common/LoadingState';
 import { EmptyState } from '../../components/common/EmptyState';
 import { COLORS, FONT_SIZES, SPACING } from '../../constants';
+import { colors } from '../../styles/colors';
 import { PaymentMethod } from '../../types';
 
 const methodIcon = {

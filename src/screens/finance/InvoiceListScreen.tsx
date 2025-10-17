@@ -1,21 +1,39 @@
-import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
+/**
+ * InvoiceListScreen
+ * 
+ * Invoice management screen showing:
+ * - List of all invoices with status
+ * - Invoice amounts and due dates
+ * - Payment actions
+ * - Status filtering
+ * - Search by invoice ID or customer
+ */
+import React, { useMemo, useState } from 'react';
+import { View, StyleSheet, ScrollView, SafeAreaView, Alert, Text, TextInput, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { useInvoices } from '../../hooks/useInvoices';
-import AppCard from '../../components/common/AppCard';
-import { LoadingState } from '../../components/common/LoadingState';
-import { EmptyState } from '../../components/common/EmptyState';
-import { COLORS, FONT_SIZES, SPACING } from '../../constants';
+import {
+  DashboardHeader,
+  Card,
+  DataRow,
+  Button,
+  AlertBanner,
+  Badge,
+  Progress,
+} from '../../components/common';
+import { colors, spacing } from '../../styles';
 
-const statusMeta = {
-  paid: { label: 'Ödendi', color: COLORS.success.main, background: '#E8F5E9' },
-  unpaid: { label: 'Ödenmedi', color: COLORS.error.main, background: '#FDECEA' },
-  overdue: { label: 'Son Tarih Geçti', color: COLORS.warning.main, background: '#FFF3E0' },
-  cancelled: { label: 'İptal', color: COLORS.gray500, background: '#ECEFF1' },
-} as const;
+const statusConfig = {
+  paid: { label: 'Paid', color: 'online' as const },
+  unpaid: { label: 'Unpaid', color: 'offline' as const },
+  overdue: { label: 'Overdue', color: 'warning' as const },
+  cancelled: { label: 'Cancelled', color: 'neutral' as const },
+};
 
 const formatCurrency = (amount: number, currency: string) => {
   try {
-    return new Intl.NumberFormat('tr-TR', {
+    return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency.toUpperCase(),
     }).format(amount);
@@ -27,15 +45,18 @@ const formatCurrency = (amount: number, currency: string) => {
 const formatDate = (date: string) => {
   const d = new Date(date);
   if (Number.isNaN(d.getTime())) return '-';
-  return d.toLocaleDateString('tr-TR', {
+  return d.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
   });
 };
 
-const InvoiceListScreen: React.FC = () => {
+const InvoiceListScreen = () => {
+  const navigation = useNavigation<any>();
   const { invoicesQuery, payInvoice, paying, paymentMethodsQuery } = useInvoices();
+  const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'unpaid' | 'overdue'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const defaultMethodId = useMemo(() => {
     const methods = paymentMethodsQuery.data || [];
@@ -43,162 +64,419 @@ const InvoiceListScreen: React.FC = () => {
     return defaultMethod?.id;
   }, [paymentMethodsQuery.data]);
 
-  const handlePay = async (invoiceId: string) => {
+  const invoices = useMemo(() => {
+    let list = invoicesQuery.data || [];
+    
+    // Filter by status
+    if (filterStatus !== 'all') {
+      list = list.filter((inv) => inv.status === filterStatus);
+    }
+    
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      list = list.filter(
+        (inv) =>
+          inv.id.toLowerCase().includes(query)
+      );
+    }
+    
+    return list;
+  }, [invoicesQuery.data, filterStatus, searchQuery]);
+
+  const stats = useMemo(() => {
+    const allInvoices = invoicesQuery.data || [];
+    return {
+      total: allInvoices.length,
+      paid: allInvoices.filter((i) => i.status === 'paid').length,
+      unpaid: allInvoices.filter((i) => i.status === 'unpaid' || i.status === 'overdue').length,
+      pending: allInvoices.filter((i) => i.status === 'unpaid').length,
+    };
+  }, [invoicesQuery.data]);
+
+  const handlePay = async (invoiceId: string, invoiceAmount: number) => {
     if (!defaultMethodId) {
-      Alert.alert('Ödeme Yöntemi Yok', 'Ödeme yapabilmek için önce bir ödeme yöntemi ekleyin.');
+      Alert.alert('No Payment Method', 'Please add a payment method before paying invoices.');
       return;
     }
 
     Alert.alert(
-      'Ödemeyi Onayla',
-      'Seçili faturayı varsayılan ödeme yöntemi ile ödemek istediğinizden emin misiniz?',
+      'Confirm Payment',
+      `Pay ${formatCurrency(invoiceAmount, 'USD')}?`,
       [
-        { text: 'İptal', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Öde',
+          text: 'Pay',
           onPress: async () => {
             try {
               await payInvoice({ invoiceId, methodId: defaultMethodId });
-              Alert.alert('Başarılı', 'Fatura ödemesi tamamlandı.');
+              Alert.alert('Success', 'Invoice paid successfully.');
             } catch (error: any) {
-              Alert.alert('Hata', error?.message || 'Ödeme sırasında bir sorun oluştu.');
+              Alert.alert('Error', error?.message || 'Payment failed. Please try again.');
             }
           },
         },
-      ],
-      { cancelable: true }
+      ]
     );
   };
 
   if (invoicesQuery.isLoading) {
-    return <LoadingState message="Faturalar yükleniyor..." />;
+    return (
+      <SafeAreaView style={styles.container}>
+        <ScrollView>
+          <DashboardHeader title="Invoices" subtitle="Loading..." />
+          <Card title="Loading" variant="default">
+            <AlertBanner
+              type="info"
+              title="Loading invoices..."
+              message="Please wait"
+              dismissible={false}
+            />
+          </Card>
+        </ScrollView>
+      </SafeAreaView>
+    );
   }
 
   if (invoicesQuery.isError) {
     return (
-      <EmptyState
-        icon="warning-outline"
-        title="Faturalar alınamadı"
-        description="Lütfen internet bağlantınızı kontrol ederek tekrar deneyin."
-      />
-    );
-  }
-
-  const invoices = invoicesQuery.data || [];
-
-  if (invoices.length === 0) {
-    return (
-      <EmptyState
-        icon="receipt-outline"
-        title="Gösterilecek fatura yok"
-        description="Tamamlanan ödemeler veya bekleyen faturalar bu alanda görünecek."
-      />
+      <SafeAreaView style={styles.container}>
+        <ScrollView>
+          <DashboardHeader title="Invoices" subtitle="Error loading" />
+          <Card title="Error" variant="default">
+            <AlertBanner
+              type="error"
+              title="Failed to load invoices"
+              message="Please check your connection and try again"
+              dismissible
+            />
+          </Card>
+        </ScrollView>
+      </SafeAreaView>
     );
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {invoices.map((invoice) => {
-        const meta = statusMeta[invoice.status] ?? statusMeta.unpaid;
-        return (
-          <AppCard key={invoice.id} style={styles.card}>
-            <View style={styles.headerRow}>
-              <Text style={styles.invoiceNumber}>{invoice.number}</Text>
-              <View style={[styles.statusPill, { backgroundColor: meta.background }]}> 
-                <Text style={[styles.statusText, { color: meta.color }]}>{meta.label}</Text>
-              </View>
-            </View>
-            <Text style={styles.amount}>{formatCurrency(invoice.amount, invoice.currency)}</Text>
-            <View style={styles.row}>
-              <Text style={styles.label}>Fatura Tarihi</Text>
-              <Text style={styles.value}>{formatDate(invoice.date)}</Text>
-            </View>
-            <View style={styles.row}>
-              <Text style={styles.label}>Son Ödeme Tarihi</Text>
-              <Text style={styles.value}>{formatDate(invoice.dueDate)}</Text>
-            </View>
-            <TouchableOpacity
-              style={[styles.payButton, (invoice.status === 'paid' || paying) && styles.payButtonDisabled]}
-              onPress={() => handlePay(invoice.id)}
-              disabled={invoice.status === 'paid' || paying}
+    <SafeAreaView style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+      >
+        {/* Page Header */}
+        <DashboardHeader
+          title="Invoices"
+          subtitle={`${stats.total} invoices total`}
+        />
+
+        {/* Search and Filter */}
+        <View style={styles.searchContainer}>
+          <View style={styles.searchInputWrapper}>
+            <Ionicons name="search" size={20} color={colors.neutral[500]} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Fatura ara..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              placeholderTextColor={colors.neutral[400]}
+            />
+            {searchQuery.length > 0 && (
+              <Pressable onPress={() => setSearchQuery('')}>
+                <Ionicons name="close-circle" size={20} color={colors.neutral[400]} />
+              </Pressable>
+            )}
+          </View>
+        </View>
+
+        {/* Filter Chips */}
+        <View style={styles.filterChipsContainer}>
+          {(['all', 'paid', 'unpaid', 'overdue'] as const).map((status) => (
+            <Pressable
+              key={status}
+              style={[
+                styles.filterChip,
+                filterStatus === status && styles.filterChipActive,
+              ]}
+              onPress={() => setFilterStatus(status)}
             >
-              <Text style={styles.payButtonText}>
-                {invoice.status === 'paid' ? 'Ödeme Tamamlandı' : paying ? 'İşlem yapılıyor...' : 'Faturayı Öde'}
+              <Text
+                style={[
+                  styles.filterChipText,
+                  filterStatus === status && styles.filterChipTextActive,
+                ]}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
               </Text>
-            </TouchableOpacity>
-          </AppCard>
-        );
-      })}
-    </ScrollView>
+            </Pressable>
+          ))}
+        </View>
+
+        {/* Stats Overview */}
+        <Card title="Summary" variant="elevated">
+          <View style={styles.statsGrid}>
+            <View style={styles.statItem}>
+              <View style={[styles.statNumber, { backgroundColor: colors.semantic.success + '20' }]}>
+                <Text style={[styles.statValue, { color: colors.semantic.success }]}>
+                  {stats.paid}
+                </Text>
+              </View>
+              <Text style={styles.statLabel}>Paid</Text>
+            </View>
+            <View style={styles.statItem}>
+              <View style={[styles.statNumber, { backgroundColor: colors.semantic.warning + '20' }]}>
+                <Text style={[styles.statValue, { color: colors.semantic.warning }]}>
+                  {stats.pending}
+                </Text>
+              </View>
+              <Text style={styles.statLabel}>Pending</Text>
+            </View>
+            <View style={styles.statItem}>
+              <View style={[styles.statNumber, { backgroundColor: colors.semantic.error + '20' }]}>
+                <Text style={[styles.statValue, { color: colors.semantic.error }]}>
+                  {stats.unpaid - stats.pending}
+                </Text>
+              </View>
+              <Text style={styles.statLabel}>Overdue</Text>
+            </View>
+          </View>
+        </Card>
+
+        {/* Filter Buttons */}
+        <Card title="Filter" variant="default">
+          <View style={styles.filterRow}>
+            {(['all', 'paid', 'unpaid', 'overdue'] as const).map((status) => (
+              <Button
+                key={status}
+                label={status.charAt(0).toUpperCase() + status.slice(1)}
+                variant={filterStatus === status ? 'primary' : 'secondary'}
+                size="sm"
+                onPress={() => setFilterStatus(status)}
+                style={styles.filterButton}
+              />
+            ))}
+          </View>
+        </Card>
+
+        {/* Invoices List */}
+        {invoices.length === 0 ? (
+          <Card title="No Invoices" variant="default">
+            <AlertBanner
+              type="info"
+              title="No invoices"
+              message={`No ${filterStatus} invoices found`}
+              dismissible={false}
+            />
+          </Card>
+        ) : (
+          <Card title={`${invoices.length} Invoice${invoices.length !== 1 ? 's' : ''}`} variant="default">
+            {invoices.map((invoice, index) => {
+              const status = statusConfig[invoice.status] || statusConfig.unpaid;
+              const isPaid = invoice.status === 'paid';
+              
+              const badgeVariant = 
+                invoice.status === 'paid' ? 'success' :
+                invoice.status === 'unpaid' ? 'warning' :
+                invoice.status === 'overdue' ? 'error' :
+                'default';
+              
+              return (
+                <View key={invoice.id}>
+                  <View style={styles.invoiceRow}>
+                    <View style={styles.invoiceInfo}>
+                      <DataRow
+                        label={invoice.number}
+                        value={formatCurrency(invoice.amount, invoice.currency)}
+                        secondary={`Due: ${formatDate(invoice.dueDate)}`}
+                        divider={false}
+                      />
+                    </View>
+                    <Badge label={status.label} variant={badgeVariant} />
+                  </View>
+                  {index < invoices.length - 1 && <View style={styles.invoiceDivider} />}
+                  {!isPaid && (
+                    <View style={styles.invoiceActions}>
+                      <Button
+                        label={paying ? 'Processing...' : 'Pay Now'}
+                        variant="primary"
+                        size="sm"
+                        loading={paying}
+                        disabled={paying || isPaid}
+                        onPress={() => handlePay(invoice.id, invoice.amount)}
+                        style={styles.payButton}
+                      />
+                      <Button
+                        label="Details"
+                        variant="secondary"
+                        size="sm"
+                        onPress={() => {
+                          // TODO: Navigate to invoice details
+                        }}
+                        style={styles.detailsButton}
+                      />
+                    </View>
+                  )}
+                </View>
+              );
+            })}
+          </Card>
+        )}
+
+        {/* Payment Methods Info */}
+        {invoices.some((i) => i.status !== 'paid') && (
+          <Card title="Payment Method" variant="default">
+            {defaultMethodId ? (
+              <DataRow
+                label="Default Payment Method"
+                value="Configured"
+                status="online"
+                divider={false}
+                onPress={() => navigation.navigate('Account', { screen: 'PaymentMethods' })}
+              />
+            ) : (
+              <AlertBanner
+                type="warning"
+                title="No payment method"
+                message="Add a payment method to pay invoices"
+                action={{
+                  label: 'Add Method',
+                  onPress: () => navigation.navigate('Account', { screen: 'PaymentMethods' }),
+                }}
+                dismissible={false}
+              />
+            )}
+          </Card>
+        )}
+
+        {/* Spacer */}
+        <View style={styles.spacer} />
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: colors.neutral[50],
   },
-  content: {
-    padding: SPACING.lg,
-    paddingBottom: SPACING.xxl,
+  scrollView: {
+    flex: 1,
   },
-  card: {
-    marginBottom: SPACING.lg,
+  contentContainer: {
+    paddingBottom: spacing[6],
   },
-  headerRow: {
+  searchContainer: {
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
+  },
+  searchInputWrapper: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: colors.neutral[100],
+    borderRadius: 12,
+    paddingHorizontal: spacing[4],
+    height: 50,
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
   },
-  invoiceNumber: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: colors.neutral[900],
+    marginLeft: spacing[2],
   },
-  statusPill: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 6,
-    borderRadius: 24,
-  },
-  statusText: {
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-  },
-  amount: {
-    marginTop: SPACING.sm,
-    fontSize: FONT_SIZES.xl,
-    fontWeight: '600',
-    color: COLORS.primary.main,
-  },
-  row: {
+  filterChipsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: SPACING.sm,
+    flexWrap: 'wrap',
+    gap: spacing[2],
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[3],
   },
-  label: {
-    color: COLORS.textSecondary,
-    fontSize: FONT_SIZES.sm,
+  filterChip: {
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[2],
+    borderRadius: 20,
+    backgroundColor: colors.neutral[200],
+    borderWidth: 1,
+    borderColor: colors.neutral[300],
   },
-  value: {
-    color: COLORS.textPrimary,
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '500',
+  filterChipActive: {
+    backgroundColor: colors.primary[500],
+    borderColor: colors.primary[500],
+  },
+  filterChipText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.neutral[700],
+  },
+  filterChipTextActive: {
+    color: 'white',
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    gap: spacing[3],
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statNumber: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing[2],
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  statLabel: {
+    fontSize: 12,
+    color: colors.neutral[600],
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  filterRow: {
+    flexDirection: 'row',
+    gap: spacing[2],
+    flexWrap: 'wrap',
+  },
+  filterButton: {
+    flex: 1,
+    minWidth: 80,
+  },
+  invoiceActions: {
+    flexDirection: 'row',
+    gap: spacing[2],
+    marginTop: spacing[3],
+    marginBottom: spacing[3],
+    paddingHorizontal: spacing[2],
   },
   payButton: {
-    marginTop: SPACING.md,
-    backgroundColor: COLORS.primary.main,
-    borderRadius: 12,
-    paddingVertical: SPACING.md,
+    flex: 1,
+  },
+  detailsButton: {
+    flex: 1,
+  },
+  spacer: {
+    height: spacing[6],
+  },
+  invoiceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingVertical: spacing[2],
   },
-  payButtonDisabled: {
-    backgroundColor: COLORS.gray300,
+  invoiceInfo: {
+    flex: 1,
   },
-  payButtonText: {
-    color: COLORS.white,
-    fontSize: FONT_SIZES.md,
-    fontWeight: '700',
+  invoiceDivider: {
+    height: 1,
+    backgroundColor: colors.neutral[200],
+    marginVertical: spacing[2],
   },
 });
 

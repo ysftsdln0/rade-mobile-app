@@ -12,7 +12,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, APP_CONFIG } from '../constants';
+import { APP_CONFIG } from '../constants';
+import { colors } from '../styles';
 
 const { width, height } = Dimensions.get('window');
 
@@ -30,35 +31,35 @@ const onboardingData: OnboardingSlide[] = [
     title: 'Hosting Yönetimi',
     description: 'Tüm hosting paketlerinizi tek yerden yönetin. Disk kullanımı, trafik ve performans verilerinizi anlık olarak takip edin.',
     icon: 'server-outline',
-    gradient: ['#2196F3', '#001eff'],
+    gradient: [colors.primary[400], colors.primary[600]],
   },
   {
     id: '2',
     title: 'Domain Kontrolü',
     description: 'Domain adlarınızı kolayca yönetin. DNS ayarları, yenileme tarihleri ve WHOIS bilgilerinizi güncel tutun.',
     icon: 'globe-outline',
-    gradient: ['#9C27B0', '#001eff'],
+    gradient: [colors.accent.gradient_start, colors.accent.gradient_end],
   },
   {
     id: '3',
     title: 'Sunucu İzleme',
     description: 'VPS ve dedicated sunucularınızı 7/24 izleyin. CPU, RAM ve disk kullanımını gerçek zamanlı görüntüleyin.',
     icon: 'hardware-chip-outline',
-    gradient: ['#FF9800', '#001eff'],
+    gradient: ['#FF9800', colors.primary[600]],
   },
   {
     id: '4',
     title: 'Destek Sistemi',
     description: 'Teknik destek ekibimizle anında iletişime geçin. Bilet sistemi ve canlı chat ile sorularınızı çözün.',
     icon: 'headset-outline',
-    gradient: ['#4CAF50', '#001eff'],
+    gradient: [colors.semantic.success, colors.primary[600]],
   },
   {
     id: '5',
     title: 'Mali İşlemler',
     description: 'Faturalarınızı görüntüleyin, ödeme yapın ve harcama geçmişinizi takip edin. Güvenli ödeme seçenekleri ile.',
     icon: 'card-outline',
-    gradient: ['#795548', '#001eff'],
+    gradient: ['#795548', colors.primary[600]],
   },
 ];
 
@@ -299,7 +300,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   nextButton: {
-    backgroundColor: COLORS.primary.main,
+    backgroundColor: colors.primary[500],
     flex: 1,
     marginLeft: 15,
   },
