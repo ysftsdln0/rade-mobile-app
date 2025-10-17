@@ -18,7 +18,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { COLORS } from '../../constants';
+import { colors, spacing } from '../../styles';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { registerAsync } from '../../store/authThunks';
 
@@ -99,10 +99,10 @@ const RegisterScreen = () => {
 
   const passwordStrength = useMemo(() => {
     const metCount = passwordChecks.filter((check) => check.met).length;
-    if (!passwordValue) return { label: 'Şifre Gücü: -', color: COLORS.textSecondary };
-    if (metCount <= 1) return { label: 'Şifre Gücü: Zayıf', color: COLORS.error.main };
-    if (metCount === 2 || metCount === 3) return { label: 'Şifre Gücü: Orta', color: COLORS.warning.main };
-    return { label: 'Şifre Gücü: Güçlü', color: COLORS.success.main };
+    if (!passwordValue) return { label: 'Şifre Gücü: -', color: colors.neutral[600] };
+    if (metCount <= 1) return { label: 'Şifre Gücü: Zayıf', color: colors.semantic.error };
+    if (metCount === 2 || metCount === 3) return { label: 'Şifre Gücü: Orta', color: colors.semantic.warning };
+    return { label: 'Şifre Gücü: Güçlü', color: colors.semantic.success };
   }, [passwordChecks, passwordValue]);
 
   const onSubmit = async (values: RegisterFormValues) => {
@@ -224,8 +224,8 @@ const RegisterScreen = () => {
                   <Ionicons
                     name={check.met ? 'checkmark-circle' : 'ellipse-outline'}
                     size={16}
-                    color={check.met ? COLORS.success.main : COLORS.gray400}
-                    style={{ marginRight: 8 }}
+                    color={check.met ? colors.semantic.success : colors.neutral[400]}
+                    style={{ marginRight: spacing[2] }}
                   />
                   <Text
                     style={[
@@ -340,64 +340,64 @@ const RegisterScreen = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF' },
-  scroll: { padding: 20, paddingBottom: 40 },
-  title: { fontSize: 28, fontWeight: '700', color: COLORS.textPrimary, marginBottom: 4 },
-  subtitle: { fontSize: 14, color: COLORS.textSecondary, marginBottom: 24 },
-  inputGroup: { marginBottom: 16, position: 'relative' },
+  scroll: { padding: spacing[5], paddingBottom: spacing[10] },
+  title: { fontSize: 28, fontWeight: '700', color: colors.neutral[900], marginBottom: spacing[1] },
+  subtitle: { fontSize: 14, color: colors.neutral[600], marginBottom: spacing[6] },
+  inputGroup: { marginBottom: spacing[4], position: 'relative' },
   label: {
     fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textSecondary,
+    color: colors.neutral[600],
     marginBottom: 6,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   input: {
-    backgroundColor: COLORS.gray100,
+    backgroundColor: colors.neutral[100],
     borderRadius: 10,
     paddingHorizontal: 14,
     height: 50,
     fontSize: 15,
-    color: COLORS.textPrimary,
+    color: colors.neutral[900],
   },
-  toggle: { position: 'absolute', right: 12, top: 30, padding: 4 },
-  toggleText: { fontSize: 12, color: COLORS.primary.main, fontWeight: '600' },
+  toggle: { position: 'absolute', right: 12, top: 30, padding: spacing[1] },
+  toggleText: { fontSize: 12, color: colors.primary[500], fontWeight: '600' },
   row: { flexDirection: 'row' },
-  termsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  termsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing[2] },
   checkbox: {
     width: 20,
     height: 20,
     borderRadius: 4,
     borderWidth: 1.5,
-    borderColor: COLORS.primary.main,
+    borderColor: colors.primary[500],
     marginRight: 10,
   },
-  checkboxChecked: { backgroundColor: COLORS.primary.main },
-  termsText: { flex: 1, fontSize: 13, color: COLORS.textSecondary },
+  checkboxChecked: { backgroundColor: colors.primary[500] },
+  termsText: { flex: 1, fontSize: 13, color: colors.neutral[600] },
   registerButton: {
-    backgroundColor: COLORS.primary.main,
+    backgroundColor: colors.primary[500],
     borderRadius: 12,
     height: 54,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 24,
-    marginTop: 12,
+    marginBottom: spacing[6],
+    marginTop: spacing[3],
   },
   registerButtonText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
   loginLinkRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  loginText: { fontSize: 14, color: COLORS.textSecondary },
-  loginLink: { fontSize: 14, color: COLORS.primary.main, fontWeight: '600' },
+  loginText: { fontSize: 14, color: colors.neutral[600] },
+  loginLink: { fontSize: 14, color: colors.primary[500], fontWeight: '600' },
   errorText: {
-    color: COLORS.error.main,
+    color: colors.semantic.error,
     fontSize: 12,
-    marginTop: 4,
+    marginTop: spacing[1],
   },
   passwordHints: {
-    marginTop: 8,
-    backgroundColor: COLORS.gray100,
+    marginTop: spacing[2],
+    backgroundColor: colors.neutral[100],
     borderRadius: 8,
     paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: spacing[3],
   },
   requirementRow: {
     flexDirection: 'row',
@@ -406,10 +406,10 @@ const styles = StyleSheet.create({
   },
   requirementText: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.neutral[600],
   },
   requirementMet: {
-    color: COLORS.success.main,
+    color: colors.semantic.success,
     fontWeight: '600',
   },
   passwordStrength: {

@@ -3,14 +3,15 @@ import {
   View,
   Text,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
   SafeAreaView,
   Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import * as LocalAuthentication from 'expo-local-authentication';
@@ -19,9 +20,12 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { useAppDispatch, useAppSelector } from '../../store';
-import { loginAsync } from '../../store/authThunks';
+import { loginAsync, loadUserFromStorageAsync } from '../../store/authThunks';
 import { storageService } from '../../services/storage';
-import { COLORS, APP_CONFIG } from '../../constants';
+import { colors, spacing } from '../../styles';
+import { APP_CONFIG } from '../../constants';
+import { TextInput } from '../../components/common/TextInput';
+import { Button } from '../../components/common/Button';
 
 const loginSchema = z.object({
   email: z.string().email('Geçerli bir e-posta adresi girin.'),
@@ -154,13 +158,17 @@ const LoginScreen = () => {
       });
 
       if (result.success) {
-        const token = await storageService.getAuthToken();
-        if (token) {
+        // Load stored user data and validate session
+        const loadResult = await dispatch(loadUserFromStorageAsync());
+        
+        if (loadUserFromStorageAsync.fulfilled.match(loadResult)) {
+          // Token is valid and user loaded successfully
           navigation.replace('Main');
         } else {
+          // Token is invalid or expired
           Alert.alert(
-            'Hata',
-            'Kaydedilmiş oturum bulunamadı. Lütfen e-posta ve şifrenizle giriş yapın.'
+            'Oturum Süresi Doldu',
+            'Lütfen e-posta ve şifrenizle tekrar giriş yapın.'
           );
         }
       }
@@ -187,17 +195,18 @@ const LoginScreen = () => {
           <View style={styles.header}>
             <View style={styles.logoContainer}>
               <Text style={styles.logoText}>RADE</Text>
+              <Text style={styles.logoSubtext}>RADE HOSTING</Text>
             </View>
-            <Text style={styles.welcomeText}>Hoş Geldiniz</Text>
+            <Text style={styles.welcomeText}>Welcome Back</Text>
             <Text style={styles.subtitleText}>
-              Hesabınıza giriş yapın ve hizmetlerinizi yönetin
+              Login to manage your hosting
             </Text>
           </View>
 
           {demoLoginEnabled && (
             <View style={styles.demoBox}>
               <View style={styles.demoHeader}>
-                <Ionicons name="information-circle" size={20} color={COLORS.info.main} />
+                <Ionicons name="information-circle" size={20} color={colors.semantic.info} />
                 <Text style={styles.demoTitle}>Demo Hesap</Text>
               </View>
               <Text style={styles.demoText}>E-posta: demo@rade.com</Text>
@@ -216,80 +225,69 @@ const LoginScreen = () => {
           )}
 
           <View style={styles.form}>
-            <View style={styles.inputContainer}>
-              <Ionicons
-                name="mail-outline"
-                size={20}
-                color={COLORS.gray500}
-                style={styles.inputIcon}
-              />
-              <Controller
-                control={control}
-                name="email"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    style={styles.input}
-                    placeholder="E-posta adresi"
-                    placeholderTextColor={COLORS.gray400}
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoComplete="email"
-                    textContentType="emailAddress"
-                  />
-                )}
-              />
-            </View>
-            {errors.email ? <Text style={styles.errorText}>{errors.email.message}</Text> : null}
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <TextInput
+                  placeholder="E-posta adresi"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoComplete="email"
+                  textContentType="emailAddress"
+                  editable={!isLoading}
+                  error={errors.email?.message}
+                  icon={<Ionicons name="mail-outline" size={20} color={colors.neutral[500]} />}
+                />
+              )}
+            />
 
-            <View style={styles.inputContainer}>
-              <Ionicons
-                name="lock-closed-outline"
-                size={20}
-                color={COLORS.gray500}
-                style={styles.inputIcon}
-              />
-              <Controller
-                control={control}
-                name="password"
-                render={({ field: { onChange, onBlur, value } }) => (
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View style={styles.passwordWrapper}>
                   <TextInput
-                    style={[styles.input, { paddingRight: 50 }]}
                     placeholder="Şifre"
-                    placeholderTextColor={COLORS.gray400}
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
                     secureTextEntry={!showPassword}
                     autoComplete="password"
                     textContentType="password"
+                    editable={!isLoading}
+                    error={errors.password?.message}
+                    icon={<Ionicons name="lock-closed-outline" size={20} color={colors.neutral[500]} />}
+                    containerStyle={styles.passwordInputContainer}
                   />
-                )}
-              />
-              <TouchableOpacity
-                style={styles.passwordToggle}
-                onPress={() => setShowPassword((prev) => !prev)}
-              >
-                <Ionicons
-                  name={showPassword ? 'eye-outline' : 'eye-off-outline'}
-                  size={20}
-                  color={COLORS.gray500}
-                />
-              </TouchableOpacity>
-            </View>
-            {errors.password ? <Text style={styles.errorText}>{errors.password.message}</Text> : null}
+                  <TouchableOpacity
+                    style={styles.passwordToggle}
+                    onPress={() => setShowPassword((prev) => !prev)}
+                    disabled={isLoading}
+                  >
+                    <Ionicons
+                      name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                      size={20}
+                      color={colors.neutral[500]}
+                    />
+                  </TouchableOpacity>
+                </View>
+              )}
+            />
 
             <View style={styles.optionsRow}>
               <TouchableOpacity
                 style={styles.rememberMe}
                 onPress={() => setValue('rememberMe', !rememberMe)}
+                disabled={isLoading}
               >
                 <Ionicons
                   name={rememberMe ? 'checkbox' : 'checkbox-outline'}
                   size={20}
-                  color={rememberMe ? COLORS.primary.main : COLORS.gray400}
+                  color={rememberMe ? colors.primary[500] : colors.neutral[400]}
                 />
                 <Text style={styles.rememberMeText}>Beni hatırla</Text>
               </TouchableOpacity>
@@ -299,35 +297,43 @@ const LoginScreen = () => {
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity
-              style={[styles.loginButton, (isLoading) && styles.loginButtonDisabled]}
+            <Button
+              label={isLoading ? "Logging in..." : "Login"}
+              variant="gradient"
+              size="lg"
               onPress={handleSubmit(onSubmit)}
               disabled={isLoading}
-            >
-              {isLoading ? (
-                <Text style={styles.loginButtonText}>Giriş yapılıyor...</Text>
-              ) : (
-                <Text style={styles.loginButtonText}>Giriş Yap</Text>
-              )}
-            </TouchableOpacity>
+              loading={isLoading}
+              fullWidth
+              style={{ marginBottom: spacing[4] }}
+            />
 
             {biometricAvailable && (
               <TouchableOpacity style={styles.biometricButton} onPress={handleBiometricLogin}>
-                <Ionicons name="finger-print" size={24} color={COLORS.primary.main} />
-                <Text style={styles.biometricText}>Parmak İzi ile Giriş</Text>
+                <Ionicons name="finger-print" size={24} color={colors.primary[500]} />
+                <Text style={styles.biometricText}>Biometric Login</Text>
               </TouchableOpacity>
             )}
 
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>veya</Text>
+              <Text style={styles.dividerText}>Or continue with</Text>
               <View style={styles.dividerLine} />
             </View>
 
+            <View style={styles.socialLoginContainer}>
+              <TouchableOpacity style={styles.socialButton} activeOpacity={0.7}>
+                <Ionicons name="finger-print" size={32} color={colors.neutral[700]} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.socialButton} activeOpacity={0.7}>
+                <Ionicons name="logo-apple" size={32} color={colors.neutral[700]} />
+              </TouchableOpacity>
+            </View>
+
             <View style={styles.registerContainer}>
-              <Text style={styles.registerText}>Hesabınız yok mu? </Text>
+              <Text style={styles.registerText}>Don't have an account? </Text>
               <TouchableOpacity onPress={handleRegister}>
-                <Text style={styles.registerLink}>Kayıt Olun</Text>
+                <Text style={styles.registerLink}>Sign Up</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -352,100 +358,81 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing[5],
   },
   header: {
     alignItems: 'center',
-    paddingTop: 40,
-    paddingBottom: 30,
+    paddingTop: spacing[10],
+    paddingBottom: spacing[8],
   },
   logoContainer: {
-    width: 80,
-    height: 80,
-    backgroundColor: COLORS.primary.main,
-    borderRadius: 40,
+    width: 160,
+    height: 160,
+    backgroundColor: '#2C5234',
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: spacing[6],
   },
   logoText: {
-    fontSize: 24,
+    fontSize: 48,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    letterSpacing: 1,
+    letterSpacing: 2,
+  },
+  logoSubtext: {
+    fontSize: 12,
+    color: '#FFFFFF',
+    letterSpacing: 2,
+    marginTop: spacing[1],
   },
   welcomeText: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
-    marginBottom: 8,
+    color: colors.neutral[900],
+    marginBottom: spacing[2],
   },
   subtitleText: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.neutral[600],
     textAlign: 'center',
     lineHeight: 22,
   },
   form: {
     flex: 1,
-    paddingTop: 20,
+    paddingTop: spacing[5],
   },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.gray100,
-    borderRadius: 12,
-    marginBottom: 12,
-    paddingHorizontal: 16,
-    height: 56,
+  passwordWrapper: {
+    position: 'relative',
   },
-  inputIcon: {
-    marginRight: 12,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: COLORS.textPrimary,
+  passwordInputContainer: {
+    marginBottom: 0,
   },
   passwordToggle: {
     position: 'absolute',
-    right: 16,
-    padding: 4,
+    right: spacing[3],
+    top: spacing[3],
+    padding: spacing[2],
+    zIndex: 10,
   },
   optionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing[6],
   },
   rememberMe: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   rememberMeText: {
-    marginLeft: 8,
+    marginLeft: spacing[2],
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.neutral[600],
   },
   forgotPasswordText: {
     fontSize: 14,
-    color: COLORS.primary.main,
-    fontWeight: '600',
-  },
-  loginButton: {
-    backgroundColor: COLORS.primary.main,
-    borderRadius: 12,
-    height: 54,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  loginButtonDisabled: {
-    opacity: 0.7,
-  },
-  loginButtonText: {
-    color: '#FFF',
-    fontSize: 16,
+    color: colors.primary[500],
     fontWeight: '600',
   },
   biometricButton: {
@@ -453,31 +440,47 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: COLORS.primary.main,
+    borderColor: colors.primary[500],
     borderRadius: 12,
     height: 50,
-    marginBottom: 24,
+    marginBottom: spacing[6],
   },
   biometricText: {
-    marginLeft: 10,
-    color: COLORS.primary.main,
+    marginLeft: spacing[2],
+    color: colors.primary[500],
     fontSize: 15,
     fontWeight: '600',
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: spacing[6],
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: COLORS.gray200,
+    backgroundColor: colors.neutral[200],
   },
   dividerText: {
-    marginHorizontal: 12,
-    color: COLORS.textSecondary,
+    marginHorizontal: spacing[3],
+    color: colors.neutral[600],
     fontSize: 14,
+  },
+  socialLoginContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: spacing[4],
+    marginBottom: spacing[6],
+  },
+  socialButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.neutral[100],
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.neutral[200],
   },
   registerContainer: {
     flexDirection: 'row',
@@ -486,66 +489,66 @@ const styles = StyleSheet.create({
   },
   registerText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.neutral[600],
   },
   registerLink: {
     fontSize: 14,
-    color: COLORS.primary.main,
+    color: colors.primary[500],
     fontWeight: '600',
   },
   footer: {
     alignItems: 'center',
-    marginTop: 40,
-    marginBottom: 24,
+    marginTop: spacing[10],
+    marginBottom: spacing[6],
   },
   footerText: {
     fontSize: 13,
-    color: COLORS.textSecondary,
+    color: colors.neutral[600],
   },
   versionText: {
     fontSize: 12,
-    color: COLORS.gray500,
-    marginTop: 4,
+    color: colors.neutral[500],
+    marginTop: spacing[1],
   },
   demoBox: {
-    backgroundColor: `${COLORS.info.main}12`,
+    backgroundColor: `${colors.semantic.info}12`,
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
+    padding: spacing[4],
+    marginBottom: spacing[6],
     borderWidth: 1,
-    borderColor: `${COLORS.info.main}30`,
+    borderColor: `${colors.semantic.info}30`,
   },
   demoHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: spacing[2],
   },
   demoTitle: {
-    marginLeft: 8,
+    marginLeft: spacing[2],
     fontWeight: '700',
-    color: COLORS.info.main,
+    color: colors.semantic.info,
   },
   demoText: {
     fontSize: 14,
-    color: COLORS.textSecondary,
+    color: colors.neutral[600],
   },
   fillDemoButton: {
-    marginTop: 12,
+    marginTop: spacing[3],
     alignSelf: 'flex-start',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[1],
     borderRadius: 8,
-    backgroundColor: `${COLORS.info.main}20`,
+    backgroundColor: `${colors.semantic.info}20`,
   },
   fillDemoText: {
-    color: COLORS.info.main,
+    color: colors.semantic.info,
     fontWeight: '600',
   },
   errorText: {
-    color: COLORS.error.main,
+    color: colors.semantic.error,
     fontSize: 12,
-    marginBottom: 12,
-    marginLeft: 4,
+    marginBottom: spacing[3],
+    marginLeft: spacing[1],
   },
 });
 

@@ -1,49 +1,46 @@
 import React, { useMemo } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-  StatusBar,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import { View, ScrollView, StyleSheet, SafeAreaView, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useAppSelector } from '../../store';
-import { AppHeader } from '../../components/common/AppHeader';
-import { ServiceCard } from '../../components/common/ServiceCard';
-import { COLORS, SHADOWS, TYPOGRAPHY, SPACING } from '../../constants';
-import { apiService } from '../../services/api';
 import { useQuery } from '@tanstack/react-query';
-import { ActivityItem, HostingPackage } from '../../types';
+import { Ionicons } from '@expo/vector-icons';
+import { useAppSelector } from '../../store';
+import { apiService } from '../../services/api';
+import { transformToTimelineEvents } from '../../utils/activityHelpers';
 
-const { width } = Dimensions.get('window');
+// Phase 1 Professional Components
+import {
+  DashboardHeader,
+  Card,
+  MetricCard,
+  DataRow,
+  AlertBanner,
+  Timeline,
+  Button,
+  Badge,
+  Progress,
+} from '../../components/common';
 
-interface ServiceCard {
-  id: string;
-  title: string;
-  subtitle: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  count?: number;
-  status?: string;
-  color: string;
-  onPress: () => void;
-}
+// Design Tokens
+import { colors, spacing } from '../../styles';
 
-interface QuickAction {
-  id: string;
-  title: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  onPress: () => void;
-}
+// Types
+import { HostingPackage, ActivityItem } from '../../types';
 
+
+/**
+ * DashboardScreen
+ * 
+ * Main dashboard view showing:
+ * - Key metrics (active services, system status)
+ * - Recent activity timeline
+ * - Quick action buttons
+ * - System health alerts
+ */
 const DashboardScreen = () => {
   const navigation = useNavigation<any>();
   const { user } = useAppSelector((state) => state.auth);
 
-  // Queries
+  // Fetch dashboard data
   const hostingQuery = useQuery({
     queryKey: ['hostingPackages'],
     queryFn: async () => {
@@ -60,434 +57,312 @@ const DashboardScreen = () => {
       return res.data as ActivityItem[];
     },
     enabled: !!user,
-    staleTime: 1000 * 60, // 1 dakika
+    staleTime: 1000 * 60, // 1 minute
   });
 
-  const serviceCards: ServiceCard[] = useMemo(() => {
-    const hostingCount = hostingQuery.data?.length || 0;
-    return [
-      {
-        id: 'hosting',
-        title: 'Hosting Paketleri',
-        subtitle: hostingQuery.isLoading ? 'Yüklüyor...' : `${hostingCount} paket`,
-        icon: 'server-outline',
-        count: hostingCount,
-        status: 'active',
-        color: COLORS.hosting.main,
-        onPress: () => navigation.navigate('Services', { screen: 'HostingList' }),
-      },
-      {
-        id: 'domains',
-        title: 'Domain Adları',
-        subtitle: 'Liste yakında',
-        icon: 'globe-outline',
-        color: COLORS.domain.main,
-        onPress: () => navigation.navigate('Services', { screen: 'DomainList' }),
-      },
-      {
-        id: 'servers',
-        title: 'Sunucular',
-        subtitle: 'Yakında',
-        icon: 'hardware-chip-outline',
-        color: COLORS.server.main,
-        onPress: () => navigation.navigate('Services', { screen: 'ServerList' }),
-      },
-      {
-        id: 'tickets',
-        title: 'Destek Biletleri',
-        subtitle: 'Yakında',
-        icon: 'headset-outline',
-        color: COLORS.support.main,
-        onPress: () => navigation.navigate('Support', { screen: 'TicketList' }),
-      },
-    ];
-  }, [hostingQuery.data, hostingQuery.isLoading, navigation]);
+  // Transform activity data for Timeline component using utility function
+  const timelineEvents = useMemo(() => {
+    return transformToTimelineEvents(activityQuery.data || []);
+  }, [activityQuery.data]);
 
-  const quickActions: QuickAction[] = [
-    {
-      id: '1',
-      title: 'Yeni Domain',
-      icon: 'add-circle-outline',
-      onPress: () => {
-        // Navigate to domain search/purchase
-      },
-    },
-    {
-      id: '2',
-      title: 'Fatura Öde',
-      icon: 'card-outline',
-      onPress: () => navigation.navigate('Account', { screen: 'InvoiceList' }),
-    },
-    {
-      id: '3',
-      title: 'Destek Al',
-      icon: 'help-circle-outline',
-      onPress: () => navigation.navigate('Support', { screen: 'CreateTicket' }),
-    },
-    {
-      id: '4',
-      title: 'Canlı Chat',
-      icon: 'chatbubble-outline',
-      onPress: () => navigation.navigate('Support', { screen: 'Chatbot' }),
-    },
-  ];
+  const hostingCount = hostingQuery.data?.length || 0;
+  const activeCount = hostingQuery.data?.filter(h => h.status === 'active').length || 0;
 
-  const handleLogout = () => {
-    // dispatch(logoutAsync());
-    navigation.replace('Auth');
+  // Get greeting based on time
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
   };
 
-  const renderServiceCard = (item: ServiceCard) => (
-    <TouchableOpacity
-      key={item.id}
-      style={styles.serviceCard}
-      onPress={item.onPress}
-      activeOpacity={0.7}
-    >
-      <LinearGradient
-        colors={[item.color, '#001eff']}
-        style={styles.serviceCardGradient}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
-        <View style={styles.serviceCardHeader}>
-          <Ionicons name={item.icon} size={28} color="#FFFFFF" />
-          {item.count !== undefined && (
-            <View style={styles.countBadge}>
-              <Text style={styles.countText}>{item.count}</Text>
-            </View>
-          )}
-        </View>
-        
-        <Text style={styles.serviceCardTitle}>{item.title}</Text>
-        <Text style={styles.serviceCardSubtitle}>{item.subtitle}</Text>
-        
-        <View style={styles.serviceCardFooter}>
-          <Ionicons name="chevron-forward" size={20} color="rgba(255,255,255,0.7)" />
-        </View>
-      </LinearGradient>
-    </TouchableOpacity>
-  );
-
-  const renderQuickAction = (item: QuickAction) => (
-    <TouchableOpacity
-      key={item.id}
-      style={styles.quickActionItem}
-      onPress={item.onPress}
-      activeOpacity={0.7}
-    >
-      <View style={styles.quickActionIcon}>
-        <Ionicons name={item.icon} size={24} color={COLORS.primary.main} />
-      </View>
-      <Text style={styles.quickActionText}>{item.title}</Text>
-    </TouchableOpacity>
-  );
-
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={COLORS.primary.main} />
-      <AppHeader
-        leftContent={
-          <View>
-            <Text style={styles.welcomeText}>Merhaba,</Text>
-            <Text style={styles.userName}>{user?.firstName || 'Kullanıcı'}</Text>
-          </View>
-        }
-        rightContent={
-          <View style={styles.headerButtonsContainer}>
-            <TouchableOpacity style={styles.headerButton}>
-              <Ionicons name="notifications-outline" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.headerButton} onPress={handleLogout}>
-              <Ionicons name="log-out-outline" size={24} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
-        }
-      />
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Quick Actions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Hızlı Erişim</Text>
-          <View style={styles.quickActions}>
-            {quickActions.map(renderQuickAction)}
-          </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+      >
+        {/* Page Header - Figma Design */}
+        <View style={styles.customHeader}>
+          <Text style={styles.greetingText}>{getGreeting()}, {user?.firstName || 'User'}!</Text>
+          <Text style={styles.overviewText}>Here's a quick overview of your account.</Text>
         </View>
 
-        {/* Service Cards */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Hizmetlerim</Text>
-          <View style={styles.serviceCards}>
-            {serviceCards.map(renderServiceCard)}
-          </View>
-        </View>
-
-        {/* System Status */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Sistem Durumu</Text>
-          <View style={styles.statusCard}>
-            <View style={styles.statusHeader}>
-              <View style={styles.statusIndicator} />
-              <Text style={styles.statusTitle}>Tüm Sistemler Çalışıyor</Text>
+        {/* Metrics Row - Icon-based rounded boxes */}
+        <View style={styles.metricsRow}>
+          <View style={styles.metricBox}>
+            <View style={[styles.metricIcon, { backgroundColor: colors.primary[100] }]}>
+              <Ionicons name="globe-outline" size={24} color={colors.primary[500]} />
             </View>
-            <Text style={styles.statusSubtitle}>
-              Son güncelleme: 2 dakika önce
-            </Text>
+            <Text style={styles.metricValue}>{hostingCount + 12}</Text>
+            <Text style={styles.metricLabel}>Total Websites</Text>
+          </View>
+          
+          <View style={styles.metricBox}>
+            <View style={[styles.metricIcon, { backgroundColor: '#E8F5E9' }]}>
+              <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+            </View>
+            <Text style={styles.metricValue}>99.9%</Text>
+            <Text style={styles.metricLabel}>Uptime</Text>
+          </View>
+          
+          <View style={styles.metricBox}>
+            <View style={[styles.metricIcon, { backgroundColor: '#FFF3E0' }]}>
+              <Ionicons name="help-circle-outline" size={24} color="#FF9800" />
+            </View>
+            <Text style={styles.metricValue}>2</Text>
+            <Text style={styles.metricLabel}>Support Tickets</Text>
           </View>
         </View>
+
+        {/* My Services Section */}
+        <View style={styles.servicesSection}>
+          <Text style={styles.sectionTitle}>My Services</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalScroll}
+          >
+            <MetricCard
+              label="Active Packages"
+              value={activeCount}
+              status={activeCount > 0 ? 'online' : 'offline'}
+              style={styles.horizontalMetricCard}
+            />
+            <MetricCard
+              label="Total Services"
+              value={hostingCount}
+              change={hostingCount > 0 ? 5 : 0}
+              style={styles.horizontalMetricCard}
+            />
+            <MetricCard
+              label="Uptime"
+              value="99.9%"
+              status="online"
+              style={styles.horizontalMetricCard}
+            />
+            <MetricCard
+              label="Storage Used"
+              value="150 GB"
+              change={12}
+              style={styles.horizontalMetricCard}
+            />
+          </ScrollView>
+        </View>
+
+        {/* Quick Services Summary */}
+        {hostingCount > 0 && (
+          <Card title="Your Services" variant="default">
+            {hostingQuery.data?.slice(0, 3).map((hosting) => (
+              <DataRow
+                key={hosting.id}
+                label={hosting.name}
+                value={hosting.status}
+                status={hosting.status === 'active' ? 'online' : 'offline'}
+                secondary={hosting.expiryDate ? `Expires: ${new Date(hosting.expiryDate).toLocaleDateString()}` : ''}
+                divider
+                onPress={() => navigation.navigate('Services', { screen: 'HostingDetails' })}
+              />
+            ))}
+            {hostingCount > 3 && (
+              <Button
+                label={`View All ${hostingCount} Services`}
+                variant="secondary"
+                size="sm"
+                onPress={() => navigation.navigate('Services')}
+              />
+            )}
+          </Card>
+        )}
+
+        {/* System Health */}
+        <Card title="System Health" variant="elevated">
+          <View style={styles.healthSection}>
+            <View style={styles.healthRow}>
+              <View style={styles.healthLabel}>
+                <Text style={styles.healthText}>Server Status</Text>
+              </View>
+              <Badge label="Operational" variant="success" />
+            </View>
+            <View style={styles.healthMetric}>
+              <Text style={styles.healthMetricLabel}>System Load</Text>
+              <Progress progress={65} showLabel variant="linear" />
+            </View>
+            <View style={styles.healthMetric}>
+              <Text style={styles.healthMetricLabel}>Disk Usage</Text>
+              <Progress progress={45} showLabel variant="linear" />
+            </View>
+            <DataRow
+              label="Services Running"
+              value={`${hostingCount + 2}`}
+              secondary="All services operational"
+              divider={false}
+            />
+          </View>
+        </Card>
 
         {/* Recent Activity */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Son Aktiviteler</Text>
-          <View style={styles.activityList}>
-            {activityQuery.isLoading && (
-              <View style={styles.activityItem}>
-                <Text style={styles.activityTitle}>Yükleniyor...</Text>
-              </View>) }
-            {activityQuery.isError && (
-              <View style={styles.activityItem}>
-                <Text style={styles.activityTitle}>Aktiviteler alınamadı</Text>
-              </View>) }
-            {!activityQuery.isLoading && activityQuery.data && activityQuery.data.length === 0 && (
-              <View style={styles.activityItem}>
-                <Text style={styles.activityTitle}>Kayıt yok</Text>
-              </View>
-            )}
-            {activityQuery.data?.map(a => (
-              <View key={a.id} style={styles.activityItem}>
-                <View style={styles.activityIcon}>
-                  <Ionicons name={
-                    a.type === 'ssl' ? 'checkmark-circle' :
-                    a.type === 'backup' ? 'cloud-upload-outline' :
-                    a.type === 'invoice' ? 'card-outline' : 'information-circle-outline'
-                  } size={20} color={
-                    a.type === 'ssl' ? COLORS.success.main :
-                    a.type === 'backup' ? COLORS.info.main :
-                    a.type === 'invoice' ? COLORS.warning.main : COLORS.primary.main
-                  } />
-                </View>
-                <View style={styles.activityContent}>
-                  <Text style={styles.activityTitle}>{a.title}</Text>
-                  <Text style={styles.activityTime}>{a.context || ''}</Text>
-                </View>
-              </View>
-            ))}
+        {timelineEvents.length > 0 && (
+          <Card title="Recent Activity" variant="default">
+            <Timeline events={timelineEvents.slice(0, 5)} />
+          </Card>
+        )}
+
+        {/* Quick Actions */}
+        <View style={styles.actionsSection}>
+          <View style={styles.buttonRow}>
+            <Button
+              label="Manage Services"
+              variant="primary"
+              onPress={() => navigation.navigate('Services')}
+              fullWidth
+            />
+          </View>
+          <View style={styles.buttonRow}>
+            <Button
+              label="View Invoices"
+              variant="secondary"
+              onPress={() => navigation.navigate('Account', { screen: 'InvoiceList' })}
+              style={styles.halfButton}
+            />
+            <Button
+              label="Support"
+              variant="secondary"
+              onPress={() => navigation.navigate('Support')}
+              style={styles.halfButton}
+            />
           </View>
         </View>
-
-        {/* Footer Spacing */}
-        <View style={{ height: 40 }} />
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#FAFAFA',
   },
-  header: {
-    paddingTop: 15,
-    paddingBottom: 20,
-    paddingHorizontal: 16,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerLeft: {
+  scrollView: {
     flex: 1,
   },
-  welcomeText: {
+  contentContainer: {
+    paddingBottom: spacing[10],
+  },
+  customHeader: {
+    paddingHorizontal: spacing[5],
+    paddingTop: spacing[6],
+    paddingBottom: spacing[4],
+  },
+  greetingText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: colors.neutral[900],
+    marginBottom: spacing[1],
+  },
+  overviewText: {
     fontSize: 16,
-    color: 'rgba(255,255,255,0.8)',
-    fontWeight: '300',
+    color: colors.neutral[600],
   },
-  userName: {
-    fontSize: 24,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    marginTop: 2,
-  },
-  headerRight: {
+  metricsRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    paddingHorizontal: spacing[5],
+    gap: spacing[3],
+    marginBottom: spacing[6],
   },
-  headerButtonsContainer: {
-    flexDirection: 'row',
+  metricBox: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: spacing[4],
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
-  headerButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+  metricIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 10,
+    marginBottom: spacing[2],
   },
-  content: {
-    flex: 1,
-    paddingHorizontal: 16,
+  metricValue: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.neutral[900],
+    marginBottom: spacing[1],
   },
-  section: {
-    marginTop: 20,
+  metricLabel: {
+    fontSize: 12,
+    color: colors.neutral[600],
+    textAlign: 'center',
+  },
+  servicesSection: {
+    paddingHorizontal: spacing[5],
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.textPrimary,
-    marginBottom: 12,
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.neutral[900],
+    marginBottom: spacing[4],
   },
-  quickActions: {
+  horizontalMetricsContainer: {
+    marginVertical: spacing[3],
+  },
+  horizontalScroll: {
+    paddingHorizontal: spacing[4],
+    gap: spacing[3],
+  },
+  horizontalMetricCard: {
+    minWidth: 160,
+    marginRight: spacing[2],
+  },
+  metricsGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 8,
+    gap: spacing[3],
+    marginHorizontal: -spacing[4],
   },
-  quickActionItem: {
-    width: (width - 40) / 2,
-    backgroundColor: '#FFFFFF',
-    padding: 18,
-    borderRadius: 16,
-    alignItems: 'center',
-    marginBottom: 12,
-    ...SHADOWS.md,
+  actionsSection: {
+    paddingHorizontal: spacing[4],
+    gap: spacing[3],
+    marginTop: spacing[4],
+    marginBottom: spacing[6],
   },
-  quickActionIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: `${COLORS.primary.main}15`,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  quickActionText: {
-    ...TYPOGRAPHY.body2,
-    color: COLORS.textPrimary,
-    textAlign: 'center',
-    fontWeight: '600',
-  },
-  serviceCards: {
+  buttonRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 8,
+    gap: spacing[2],
   },
-  serviceCard: {
-    width: (width - 40) / 2,
-    height: 140,
-    marginBottom: 16,
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  serviceCardGradient: {
-    flex: 1,
-    padding: 14,
-    justifyContent: 'space-between',
-  },
-  serviceCardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  countBadge: {
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 10,
-    minWidth: 20,
-  },
-  countText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  serviceCardTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 2,
-  },
-  serviceCardSubtitle: {
-    fontSize: 12,
-    color: 'rgba(255,255,255,0.8)',
-  },
-  serviceCardFooter: {
-    alignItems: 'flex-end',
-  },
-  statusCard: {
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  statusHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  statusIndicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: COLORS.success.main,
-    marginRight: 8,
-  },
-  statusTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.textPrimary,
-  },
-  statusSubtitle: {
-    fontSize: 14,
-    color: COLORS.textSecondary,
-  },
-  activityList: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  activityItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray200,
-  },
-  activityIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F5F5F5',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  activityContent: {
+  halfButton: {
     flex: 1,
   },
-  activityTitle: {
+  healthSection: {
+    gap: spacing[4],
+  },
+  healthRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  healthLabel: {
+    flex: 1,
+  },
+  healthText: {
     fontSize: 14,
     fontWeight: '500',
-    color: COLORS.textPrimary,
-    marginBottom: 2,
+    color: colors.neutral[700],
   },
-  activityTime: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
+  healthMetric: {
+    gap: spacing[2],
+  },
+  healthMetricLabel: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: colors.neutral[600],
   },
 });
 

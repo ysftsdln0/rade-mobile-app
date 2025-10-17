@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS } from '../../constants';
+import { colors } from '../../styles';
 
 const TwoFactorScreen = () => {
   const navigation = useNavigation<any>();
@@ -32,17 +32,17 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
+    color: colors.neutral[900],
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: COLORS.textSecondary,
+    color: colors.neutral[600],
     marginBottom: 30,
     textAlign: 'center',
   },
   backButton: {
-    backgroundColor: COLORS.primary.main,
+    backgroundColor: colors.primary[500],
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
