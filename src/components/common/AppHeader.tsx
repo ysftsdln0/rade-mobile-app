@@ -9,7 +9,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS } from '../../constants';
+import { colors } from '../../styles';
 
 interface AppHeaderProps {
   leftContent?: React.ReactNode;
@@ -26,7 +26,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
   return (
     <LinearGradient
-      colors={[COLORS.primary.main, '#001eff']}
+      colors={[colors.primary[500], colors.primary[700]]}
       style={[styles.header, { paddingTop: insets.top }]}
     >
       <View style={styles.headerContent}>
