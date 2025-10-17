@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { COLORS, SPACING, TYPOGRAPHY, SHADOWS } from '../../constants';
+import { SPACING, TYPOGRAPHY, SHADOWS } from '../../constants';
+import { colors } from '../../styles';
 
 interface EmptyStateProps {
   title: string;
@@ -21,7 +22,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.iconWrapper}>
-        <Ionicons name={icon} size={48} color={COLORS.gray400} />
+        <Ionicons name={icon} size={48} color={colors.neutral[400]} />
       </View>
       <Text style={styles.title}>{title}</Text>
       {description && <Text style={styles.description}>{description}</Text>}
@@ -49,26 +50,26 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: COLORS.gray100,
+    backgroundColor: colors.neutral[100],
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: SPACING.lg,
   },
   title: {
     ...TYPOGRAPHY.h3,
-    color: COLORS.textPrimary,
+    color: colors.neutral[900],
     textAlign: 'center',
     marginBottom: SPACING.sm,
   },
   description: {
     ...TYPOGRAPHY.body2,
-    color: COLORS.textSecondary,
+    color: colors.neutral[600],
     textAlign: 'center',
     lineHeight: 20,
     marginBottom: SPACING.lg,
   },
   actionButton: {
-    backgroundColor: COLORS.primary.main,
+    backgroundColor: colors.primary[500],
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
     borderRadius: 12,
@@ -77,6 +78,6 @@ const styles = StyleSheet.create({
   },
   actionText: {
     ...TYPOGRAPHY.button,
-    color: COLORS.white,
+    color: '#FFFFFF',
   },
 });

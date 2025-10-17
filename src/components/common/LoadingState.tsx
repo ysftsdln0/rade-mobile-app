@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING, TYPOGRAPHY } from '../../constants';
+import { SPACING, TYPOGRAPHY } from '../../constants';
+import { colors } from '../../styles';
 
 interface LoadingStateProps {
   message?: string;
@@ -16,7 +17,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
       <View style={styles.spinnerContainer}>
         <ActivityIndicator 
           size={size} 
-          color={COLORS.primary.main} 
+          color={colors.primary[500]} 
         />
       </View>
       {message && <Text style={styles.text}>{message}</Text>}
@@ -36,7 +37,7 @@ const styles = StyleSheet.create({
   },
   text: {
     ...TYPOGRAPHY.body2,
-    color: COLORS.textSecondary,
+    color: colors.neutral[600],
     textAlign: 'center',
   },
 });
