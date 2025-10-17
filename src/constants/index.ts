@@ -1,4 +1,5 @@
 // App constants and configuration
+import { colors, semanticColors } from '../styles/colors';
 
 export const APP_CONFIG = {
   APP_NAME: 'RADE Mobile',
@@ -25,94 +26,97 @@ export const STORAGE_KEYS = {
   FIRST_LAUNCH: '@rade_first_launch',
 };
 
+// COLORS constant - UPDATED to use new design system
+
+// Re-export colors with backward compatibility mapping
 export const COLORS = {
-  // Primary colors with shades
+  // Primary colors with shades - UPDATED to new professional blue (#135bec)
   primary: {
-    main: '#2196F3',
-    light: '#64B5F6',
-    dark: '#1976D2',
-    gradient: ['#2196F3', '#1976D2'],
+    main: colors.primary[500], // #135bec - Professional blue
+    light: colors.primary[400],
+    dark: colors.primary[600],
+    gradient: [colors.accent.gradient_start, colors.accent.gradient_end],
   },
   secondary: {
-    main: '#9C27B0',
-    light: '#BA68C8',
-    dark: '#7B1FA2',
-    gradient: ['#9C27B0', '#7B1FA2'],
+    main: colors.accent.gradient_end, // #8B5CF6 - Purple
+    light: colors.primary[300],
+    dark: colors.primary[700],
+    gradient: [colors.accent.gradient_end, colors.primary[600]],
   },
   
   // Status colors with shades
   success: {
-    main: '#4CAF50',
-    light: '#81C784',
-    dark: '#388E3C',
-    bg: '#E8F5E9',
+    main: colors.semantic.success,
+    light: colors.semantic.success,
+    dark: colors.semantic.success,
+    bg: colors.semantic.success,
   },
   warning: {
-    main: '#FF9800',
-    light: '#FFB74D',
-    dark: '#F57C00',
-    bg: '#FFF3E0',
+    main: colors.semantic.warning,
+    light: colors.semantic.warning,
+    dark: colors.semantic.warning,
+    bg: colors.semantic.warning,
   },
   error: {
-    main: '#F44336',
-    light: '#E57373',
-    dark: '#D32F2F',
-    bg: '#FFEBEE',
+    main: colors.semantic.error,
+    light: colors.semantic.error,
+    dark: colors.semantic.error,
+    bg: colors.semantic.error,
   },
   info: {
-    main: '#2196F3',
-    light: '#64B5F6',
-    dark: '#1976D2',
-    bg: '#E3F2FD',
+    main: colors.primary[500], // Updated to new primary blue
+    light: colors.primary[400],
+    dark: colors.primary[600],
+    bg: colors.primary[200],
   },
   
   // Service specific colors
   hosting: {
-    main: '#2196F3',
-    gradient: ['#2196F3', '#1565C0'],
+    main: colors.primary[500],
+    gradient: [colors.primary[500], colors.primary[600]],
   },
   domain: {
-    main: '#9C27B0',
-    gradient: ['#9C27B0', '#6A1B9A'],
+    main: colors.accent.gradient_end,
+    gradient: [colors.accent.gradient_end, colors.primary[600]],
   },
   server: {
-    main: '#FF9800',
-    gradient: ['#FF9800', '#E65100'],
+    main: colors.semantic.warning,
+    gradient: [colors.semantic.warning, colors.semantic.warning],
   },
   support: {
-    main: '#795548',
-    gradient: ['#795548', '#4E342E'],
+    main: colors.neutral[500],
+    gradient: [colors.neutral[500], colors.neutral[600]],
   },
   
   // Neutral colors
   white: '#FFFFFF',
   black: '#000000',
-  gray100: '#F5F5F5',
-  gray200: '#EEEEEE',
-  gray300: '#E0E0E0',
-  gray400: '#BDBDBD',
-  gray500: '#9E9E9E',
-  gray600: '#757575',
-  gray700: '#616161',
-  gray800: '#424242',
-  gray900: '#212121',
+  gray100: colors.neutral[100],
+  gray200: colors.neutral[200],
+  gray300: colors.neutral[300],
+  gray400: colors.neutral[400],
+  gray500: colors.neutral[500],
+  gray600: colors.neutral[600],
+  gray700: colors.neutral[700],
+  gray800: colors.neutral[800],
+  gray900: colors.neutral[900],
   
   // Background colors
-  background: '#F8F9FA',
+  background: colors.neutral[50],
   surface: '#FFFFFF',
   overlay: 'rgba(0, 0, 0, 0.5)',
   
   // Text colors
-  textPrimary: '#212121',
-  textSecondary: '#757575',
-  textDisabled: '#BDBDBD',
+  textPrimary: semanticColors.text.primary,
+  textSecondary: semanticColors.text.secondary,
+  textDisabled: colors.neutral[300],
   textInverse: '#FFFFFF',
   
   // Status colors (for backward compatibility)
-  online: '#4CAF50',
-  offline: '#F44336',
-  pending: '#FF9800',
-  suspended: '#9E9E9E',
+  online: colors.semantic.success,
+  offline: colors.status.offline,
+  pending: colors.semantic.pending,
+  suspended: colors.neutral[300],
 };
 
 export const SPACING = {

@@ -15,10 +15,11 @@ import DashboardScreen from '../screens/dashboard/DashboardScreen';
 import ServicesNavigator from './ServicesNavigator';
 import SupportNavigator from './SupportNavigator';
 import AccountNavigator from './AccountNavigator';
+import ChatbotScreen from '../screens/support/ChatbotScreen';
 
 // Navigation types
 import { RootStackParamList, MainTabParamList } from '../types';
-import { COLORS } from '../constants';
+import { colors } from '../styles';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -40,6 +41,8 @@ const MainTabNavigator = () => {
             iconName = focused ? 'server' : 'server-outline';
           } else if (route.name === 'Support') {
             iconName = focused ? 'headset' : 'headset-outline';
+          } else if (route.name === 'Chatbot') {
+            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
           } else if (route.name === 'Account') {
             iconName = focused ? 'person' : 'person-outline';
           } else {
@@ -48,16 +51,19 @@ const MainTabNavigator = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: COLORS.primary.main,
-        tabBarInactiveTintColor: COLORS.gray500,
+        tabBarActiveTintColor: colors.primary[500],
+        tabBarInactiveTintColor: colors.neutral[500],
+        tabBarIconStyle: {
+          marginTop: 4,
+        },
         tabBarStyle: {
           position: 'absolute',
           backgroundColor: Platform.OS === 'ios' ? 'rgba(255, 255, 255, 0.95)' : '#FFFFFF',
           borderTopWidth: 0,
           paddingBottom: Math.max(insets.bottom, 8),
-          paddingTop: 12,
+          paddingTop: 8,
           height: Math.max(70 + insets.bottom, 80),
-          paddingHorizontal: 10,
+          paddingHorizontal: 4,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -4 },
           shadowOpacity: 0.1,
@@ -65,8 +71,9 @@ const MainTabNavigator = () => {
           elevation: 8,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '600',
+          marginTop: -2,
         },
         headerShown: false,
       })}
@@ -75,32 +82,40 @@ const MainTabNavigator = () => {
         name="Dashboard" 
         component={DashboardScreen} 
         options={{ 
-          title: 'Ana Sayfa',
-          tabBarLabel: 'Ana Sayfa'
+          title: 'Dashboard',
+          tabBarLabel: 'Home'
         }} 
       />
       <Tab.Screen 
         name="Services" 
         component={ServicesNavigator} 
         options={{ 
-          title: 'Hizmetler',
-          tabBarLabel: 'Hizmetler'
+          title: 'Servers',
+          tabBarLabel: 'Servers'
         }} 
       />
       <Tab.Screen 
         name="Support" 
         component={SupportNavigator} 
         options={{ 
-          title: 'Destek',
-          tabBarLabel: 'Destek'
+          title: 'Billing',
+          tabBarLabel: 'Billing'
+        }} 
+      />
+      <Tab.Screen 
+        name="Chatbot" 
+        component={ChatbotScreen} 
+        options={{ 
+          title: 'Support',
+          tabBarLabel: 'Support'
         }} 
       />
       <Tab.Screen 
         name="Account" 
         component={AccountNavigator} 
         options={{ 
-          title: 'Hesap',
-          tabBarLabel: 'Hesap'
+          title: 'Profile',
+          tabBarLabel: 'Profile'
         }} 
       />
     </Tab.Navigator>

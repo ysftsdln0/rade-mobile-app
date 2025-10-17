@@ -1,13 +1,14 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
-// Import support screens
+// Import billing/support screens
+import BillingMainScreen from '../screens/finance/BillingMainScreen';
 import SupportMainScreen from '../screens/support/SupportMainScreen';
 import TicketListScreen from '../screens/support/TicketListScreen';
+import ChatbotScreen from '../screens/support/ChatbotScreen';
 import {
   TicketDetailsScreen,
   CreateTicketScreen,
-  ChatbotScreen,
 } from '../screens/PlaceholderScreens';
 
 const Stack = createStackNavigator();
@@ -15,7 +16,7 @@ const Stack = createStackNavigator();
 const SupportNavigator = () => {
   return (
     <Stack.Navigator
-      initialRouteName="SupportMain"
+      initialRouteName="BillingMain"
       screenOptions={{
         headerStyle: {
           backgroundColor: '#795548',
@@ -24,8 +25,14 @@ const SupportNavigator = () => {
         headerTitleStyle: {
           fontWeight: 'bold',
         },
+        headerShown: false,
       }}
     >
+      <Stack.Screen 
+        name="BillingMain" 
+        component={BillingMainScreen}
+        options={{ title: 'Billing' }}
+      />
       <Stack.Screen 
         name="SupportMain" 
         component={SupportMainScreen}
