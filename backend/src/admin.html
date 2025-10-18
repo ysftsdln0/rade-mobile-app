@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RADE Backend — Database Viewer</title>
+
+  <style>
+    /* ---------- GLOBAL RESET ---------- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #0087fe;
+      --primary-dark: #4f46e5;
+      --accent: #000dff;
+      --bg: #f5f6fa;
+      --text: #1e1e2f;
+      --muted: #6b7280;
+      --card: #fff;
+      --radius: 10px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1400px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---------- HEADER ---------- */
+    header {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    header h1 {
+      font-size: 2.3rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      opacity: 0.85;
+      font-size: 1rem;
+      letter-spacing: 0.3px;
+    }
+
+    /* ---------- SUMMARY ---------- */
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      background: #fafafa;
+      padding: 25px 30px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .summary-card {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      transition: transform 0.15s ease;
+      text-align: center;
+    }
+
+    .summary-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .summary-card .count {
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 5px;
+    }
+
+    .summary-card .label {
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    /* ---------- CONTROLS ---------- */
+    .controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 15px 25px;
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: #f1f3f5;
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+
+    .btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ---------- CONTENT ---------- */
+    .content {
+      padding: 30px;
+      overflow-y: auto;
+      max-height: 70vh;
+      background: #fafafa;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      color: var(--primary-dark);
+      margin-bottom: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      font-size: 0.9rem;
+      margin-bottom: 40px;
+    }
+
+    thead {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+    }
+
+    th {
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: #f9fafb;
+    }
+
+    tbody tr:hover {
+      background: #eef2ff;
+      transition: background 0.2s;
+    }
+
+    /* ---------- STATES ---------- */
+    .loading, .empty-state, .error {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .spinner {
+      border: 4px solid #e5e7eb;
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    pre {
+      background: #f3f4f6;
+      border-radius: 6px;
+      padding: 15px;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      border: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header>
+      <h1>🗄️ RADE Backend</h1>
+      <p>Database Tables Dashboard</p>
+    </header>
+
+    <section id="summary" class="summary">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading summary...</p>
+      </div>
+    </section>
+
+    <div class="controls" id="controls" style="display: none;">
+      <button class="btn btn-primary" onclick="loadData()">🔄 Refresh</button>
+    </div>
+
+    <div class="content" id="content">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading tables...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentData = null;
+
+    async function loadData() {
+      const summaryEl = document.getElementById("summary");
+      const contentEl = document.getElementById("content");
+      summaryEl.innerHTML = `
+        <div class="loading"><div class="spinner"></div><p>Loading summary...</p></div>
+      `;
+      contentEl.innerHTML = `
+        <div class="loading"><div class="spinner"></div><p>Loading tables...</p></div>
+      `;
+
+      try {
+        const res = await fetch("http://localhost:3000/api/admin/tables");
+        if (!res.ok) throw new Error("Failed to load data");
+        currentData = await res.json();
+
+        renderSummary(currentData.summary);
+        renderControls(currentData.tables);
+        renderAllTables(currentData.tables);
+      } catch (err) {
+        summaryEl.innerHTML = `
+          <div class="error">
+            ⚠️ ${err.message}<br>
+            Ensure backend is running on <code>http://localhost:3000</code>
+          </div>
+        `;
+        contentEl.innerHTML = "";
+      }
+    }
+
+    function renderSummary(summary) {
+      const html = Object.entries(summary)
+        .map(([key, count]) => `
+          <div class="summary-card">
+            <div class="count">${count}</div>
+            <div class="label">${key}</div>
+          </div>
+        `)
+        .join("");
+      document.getElementById("summary").innerHTML = html;
+    }
+
+    function renderControls(tables) {
+      const controls = document.getElementById("controls");
+      controls.style.display = "flex";
+      const buttons = Object.keys(tables)
+        .map(
+          (name) => `
+          <button class="btn btn-secondary" data-table="${name}" onclick="showTable('${name}')">${name}</button>`
+        )
+        .join("");
+
+      controls.innerHTML = `
+        <button class="btn btn-primary" onclick="loadData()">🔄 Refresh</button>
+        <button class="btn btn-secondary active" data-table="all" onclick="showTable('all')">All Tables</button>
+        ${buttons}
+      `;
+    }
+
+    function showTable(name) {
+      document.querySelectorAll(".controls .btn-secondary").forEach((btn) =>
+        btn.classList.toggle("active", btn.dataset.table === name)
+      );
+
+      if (name === "all") renderAllTables(currentData.tables);
+      else renderSingleTable(name, currentData.tables[name]);
+    }
+
+    function renderAllTables(tables) {
+      const html = Object.entries(tables)
+        .map(([name, data]) => `
+          <div>
+            <h2>${name}</h2>
+            ${renderTableData(data)}
+          </div>
+        `)
+        .join("");
+      document.getElementById("content").innerHTML =
+        html || `<div class="empty-state">No tables available</div>`;
+    }
+
+    function renderSingleTable(name, data) {
+      document.getElementById("content").innerHTML = `
+        <h2>${name}</h2>
+        ${renderTableData(data)}
+      `;
+    }
+
+    function renderTableData(data) {
+      if (!data || (Array.isArray(data) && !data.length)) {
+        return `<div class="empty-state">No data found</div>`;
+      }
+      if (Array.isArray(data)) return renderArrayTable(data);
+      return `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+    }
+
+    function renderArrayTable(data) {
+      const keys = Object.keys(data[0]);
+      return `
+        <table>
+          <thead><tr>${keys.map((k) => `<th>${k}</th>`).join("")}</tr></thead>
+          <tbody>
+            ${data
+              .map(
+                (row) =>
+                  `<tr>${keys
+                    .map((k) => `<td>${formatValue(row[k])}</td>`)
+                    .join("")}</tr>`
+              )
+              .join("")}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function formatValue(v) {
+      if (v === null || v === undefined) return "<em>null</em>";
+      if (typeof v === "object") return `<code>${JSON.stringify(v)}</code>`;
+      if (typeof v === "string" && v.length > 80) return v.slice(0, 80) + "…";
+      return v;
+    }
+
+    loadData();
+  </script>
+</body>
+</html>
