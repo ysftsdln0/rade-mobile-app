@@ -1,27 +1,32 @@
 import { Request, Response, NextFunction, Router } from 'express';
-import { users, refreshTokens } from './store.js';
+import { prisma } from './db.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
-import { ApiResponse, LoginResultData, User } from './types.js';
+import { ApiResponse, LoginResultData } from './types.js';
 import { z } from 'zod';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
 const REFRESH_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
 
-function signAccessToken(user: User) {
+function signAccessToken(user: { id: string; email: string }) {
   return jwt.sign({ sub: user.id, email: user.email }, JWT_SECRET, { expiresIn: '15m' });
 }
 
-function signRefreshToken(user: User) {
+async function signRefreshToken(userId: string) {
   const token = randomUUID();
-  refreshTokens.push({ token, userId: user.id, expiresAt: Date.now() + REFRESH_TTL_MS });
+  const expiresAt = new Date(Date.now() + REFRESH_TTL_MS);
+  await prisma.refreshToken.create({
+    data: {
+      token,
+      userId,
+      expiresAt,
+    },
+  });
   return token;
 }
 
-function toPublicUser(user: User): Omit<User, 'passwordHash'> {
-  // Destructure to remove passwordHash cleanly instead of spreading & overwriting
-  // Ensures we satisfy Omit<User,'passwordHash'> without TS complaints
+function toPublicUser(user: any) {
   const { passwordHash: _ph, ...rest } = user;
   return rest;
 }
@@ -38,85 +43,116 @@ export function authRouter(): Router {
     phone: z.string().optional(),
   });
 
-  router.post('/register', (req: Request, res: Response<ApiResponse<any>>) => {
-    const parsed = registerSchema.safeParse(req.body);
-    if (!parsed.success) {
-      return res.status(400).json({ success: false, data: null as any, message: 'Validation error', errors: parsed.error.errors.map(e=>e.message) });
+  router.post('/register', async (req: Request, res: Response<ApiResponse<any>>) => {
+    try {
+      const parsed = registerSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ success: false, data: null as any, message: 'Validation error', errors: parsed.error.errors.map(e=>e.message) });
+      }
+      const { email, password, firstName, lastName, company, phone } = parsed.data;
+      
+      const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+      if (existing) {
+        return res.status(409).json({ success: false, data: null as any, message: 'Email already registered' });
+      }
+      
+      const passwordHash = await bcrypt.hash(password, 10);
+      const user = await prisma.user.create({
+        data: {
+          email: email.toLowerCase(),
+          passwordHash,
+          firstName,
+          lastName,
+          company,
+          phone,
+          isVerified: true,
+        },
+      });
+      
+      const token = signAccessToken(user);
+      const refreshToken = await signRefreshToken(user.id);
+      const data: LoginResultData = {
+        user: toPublicUser(user),
+        token,
+        refreshToken,
+      };
+      res.status(201).json({ success: true, data });
+    } catch (error) {
+      console.error('Register error:', error);
+      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
     }
-    const { email, password, firstName, lastName, company, phone } = parsed.data;
-    if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
-      return res.status(409).json({ success: false, data: null as any, message: 'Email already registered' });
-    }
-    const passwordHash = bcrypt.hashSync(password, 10);
-    const user: User = {
-      id: randomUUID(),
-      email: email.toLowerCase(),
-      passwordHash,
-      firstName,
-      lastName,
-      company,
-      phone,
-      isVerified: true,
-      createdAt: new Date().toISOString(),
-      lastLogin: new Date().toISOString(),
-    };
-    users.push(user);
-    const token = signAccessToken(user);
-    const refreshToken = signRefreshToken(user);
-    const data: LoginResultData = {
-      user: toPublicUser(user),
-      token,
-      refreshToken,
-    };
-    res.status(201).json({ success: true, data });
   });
 
   const loginSchema = z.object({ email: z.string().email(), password: z.string().min(1) });
-  router.post('/login', (req: Request, res: Response<ApiResponse<LoginResultData>>) => {
-    const parsed = loginSchema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ success: false, data: null as any, message: 'Validation error', errors: parsed.error.errors.map(e=>e.message) });
-    const { email, password } = parsed.data;
-    const user = users.find(u => u.email === email.toLowerCase());
-    if (!user) return res.status(401).json({ success: false, data: null as any, message: 'Invalid credentials' });
-    if (!bcrypt.compareSync(password, user.passwordHash)) return res.status(401).json({ success: false, data: null as any, message: 'Invalid credentials' });
-    user.lastLogin = new Date().toISOString();
-    const token = signAccessToken(user);
-    const refreshToken = signRefreshToken(user);
-    const data: LoginResultData = { user: toPublicUser(user), token, refreshToken };
-    res.json({ success: true, data });
+  router.post('/login', async (req: Request, res: Response<ApiResponse<LoginResultData>>) => {
+    try {
+      const parsed = loginSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ success: false, data: null as any, message: 'Validation error', errors: parsed.error.errors.map(e=>e.message) });
+      const { email, password } = parsed.data;
+      const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+      if (!user) return res.status(401).json({ success: false, data: null as any, message: 'Invalid credentials' });
+      const isValid = await bcrypt.compare(password, user.passwordHash);
+      if (!isValid) return res.status(401).json({ success: false, data: null as any, message: 'Invalid credentials' });
+      
+      // Update last login
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { lastLogin: new Date() },
+      });
+      
+      const token = signAccessToken(user);
+      const refreshToken = await signRefreshToken(user.id);
+      const data: LoginResultData = { user: toPublicUser(user), token, refreshToken };
+      res.json({ success: true, data });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
+    }
   });
 
   // Optional logout endpoint so frontend's apiService.logout() does not 404
   // Accepts an optional refreshToken to invalidate (best-effort for demo)
-  router.post('/logout', (req: Request, res: Response<ApiResponse<null>>) => {
-    const { refreshToken } = (req.body || {}) as { refreshToken?: string };
-    if (refreshToken) {
-      const idx = refreshTokens.findIndex(r => r.token === refreshToken);
-      if (idx !== -1) refreshTokens.splice(idx, 1);
+  router.post('/logout', async (req: Request, res: Response<ApiResponse<null>>) => {
+    try {
+      const { refreshToken } = (req.body || {}) as { refreshToken?: string };
+      if (refreshToken) {
+        await prisma.refreshToken.deleteMany({ where: { token: refreshToken } });
+      }
+      return res.json({ success: true, data: null, message: 'Logged out' });
+    } catch (error) {
+      console.error('Logout error:', error);
+      res.status(500).json({ success: false, data: null, message: 'Internal server error' });
     }
-    return res.json({ success: true, data: null, message: 'Logged out' });
   });
 
-  router.post('/refresh', (req: Request, res: Response<ApiResponse<any>>) => {
-    const { refreshToken } = req.body || {};
-    if (!refreshToken) return res.status(400).json({ success: false, data: null as any, message: 'Missing refresh token' });
-    const idx = refreshTokens.findIndex(r => r.token === refreshToken);
-    if (idx === -1) return res.status(401).json({ success: false, data: null as any, message: 'Invalid refresh token' });
-    const record = refreshTokens[idx];
-    if (record.expiresAt < Date.now()) {
-      refreshTokens.splice(idx, 1);
-      return res.status(401).json({ success: false, data: null as any, message: 'Expired refresh token' });
+  router.post('/refresh', async (req: Request, res: Response<ApiResponse<any>>) => {
+    try {
+      const { refreshToken } = req.body || {};
+      if (!refreshToken) return res.status(400).json({ success: false, data: null as any, message: 'Missing refresh token' });
+      
+      const record = await prisma.refreshToken.findUnique({ where: { token: refreshToken } });
+      if (!record) return res.status(401).json({ success: false, data: null as any, message: 'Invalid refresh token' });
+      
+      if (record.expiresAt < new Date()) {
+        await prisma.refreshToken.delete({ where: { id: record.id } });
+        return res.status(401).json({ success: false, data: null as any, message: 'Expired refresh token' });
+      }
+      
+      const user = await prisma.user.findUnique({ where: { id: record.userId } });
+      if (!user) {
+        await prisma.refreshToken.delete({ where: { id: record.id } });
+        return res.status(401).json({ success: false, data: null as any, message: 'User not found' });
+      }
+      
+      // Rotate refresh token
+      await prisma.refreshToken.delete({ where: { id: record.id } });
+      const newRefreshToken = await signRefreshToken(user.id);
+      const token = signAccessToken(user);
+      res.json({ success: true, data: { token, refreshToken: newRefreshToken } });
+    } catch (error) {
+      console.error('Refresh error:', error);
+      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
     }
-    const user = users.find(u => u.id === record.userId);
-    if (!user) {
-      refreshTokens.splice(idx, 1);
-      return res.status(401).json({ success: false, data: null as any, message: 'User not found' });
-    }
-    // Rotate refresh token
-    refreshTokens.splice(idx, 1);
-    const newRefreshToken = signRefreshToken(user);
-    const token = signAccessToken(user);
-    res.json({ success: true, data: { token, refreshToken: newRefreshToken } });
   });
 
   return router;
