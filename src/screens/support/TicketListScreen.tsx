@@ -145,7 +145,6 @@ const TicketListScreen = () => {
         {
           text: 'View Ticket',
           onPress: () => {
-            // TODO: Navigate to ticket details
           },
         },
       ]
@@ -322,7 +321,6 @@ const TicketListScreen = () => {
                       variant="secondary"
                       size="sm"
                       onPress={() => {
-                        // TODO: Navigate to ticket details
                       }}
                       style={styles.actionButton}
                     />
@@ -340,7 +338,6 @@ const TicketListScreen = () => {
             variant="primary"
             size="md"
             onPress={() => {
-              // TODO: Navigate to create ticket
             }}
             style={styles.fullWidthButton}
           />

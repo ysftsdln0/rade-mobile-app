@@ -270,7 +270,6 @@ const ServerListScreen = () => {
                       variant="secondary"
                       size="sm"
                       onPress={() => {
-                        // TODO: Navigate to server details
                       }}
                       style={styles.actionButton}
                     />
@@ -288,7 +287,6 @@ const ServerListScreen = () => {
                       variant="ghost"
                       size="sm"
                       onPress={() => {
-                        // TODO: Open console
                       }}
                       style={styles.actionButton}
                     />
@@ -306,7 +304,6 @@ const ServerListScreen = () => {
             variant="primary"
             size="md"
             onPress={() => {
-              // TODO: Navigate to server deployment
             }}
             style={styles.fullWidthButton}
           />
@@ -319,7 +316,6 @@ const ServerListScreen = () => {
       {/* Floating Action Button */}
       <FloatingActionButton
         onPress={() => {
-          // TODO: Navigate to add server
         }}
       />
     </SafeAreaView>

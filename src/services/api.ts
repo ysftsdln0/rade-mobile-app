@@ -1,7 +1,7 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { API_CONFIG, STORAGE_KEYS } from '../constants';
-import { storageService } from './storage';
-import { ApiResponse, ActivityItem } from '../types';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
+import { API_CONFIG } from "../constants";
+import { storageService } from "./storage";
+import { ApiResponse, ActivityItem } from "../types";
 
 class ApiService {
   private client: AxiosInstance;
@@ -11,7 +11,7 @@ class ApiService {
       baseURL: API_CONFIG.BASE_URL,
       timeout: API_CONFIG.TIMEOUT,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
@@ -19,7 +19,6 @@ class ApiService {
   }
 
   private setupInterceptors(): void {
-    // Request interceptor - Add auth token
     this.client.interceptors.request.use(
       async (config) => {
         const token = await storageService.getAuthToken();
@@ -31,7 +30,6 @@ class ApiService {
       (error) => Promise.reject(error)
     );
 
-    // Response interceptor - Handle token refresh
     this.client.interceptors.response.use(
       (response) => response,
       async (error) => {
@@ -45,18 +43,18 @@ class ApiService {
             if (refreshToken) {
               const response = await this.refreshAuthToken(refreshToken);
               const { token, refreshToken: newRefreshToken } = response.data || {};
-              // Backward compatibility: if backend returns only token, keep old refreshToken
+              
               if (token) {
-                await storageService.setAuthTokens(token, newRefreshToken || refreshToken);
+                await storageService.setAuthTokens(
+                  token,
+                  newRefreshToken || refreshToken
+                );
                 originalRequest.headers.Authorization = `Bearer ${token}`;
                 return this.client(originalRequest);
               }
             }
           } catch (refreshError) {
-            // Refresh failed, redirect to login
             await storageService.clearAuthTokens();
-            // You can emit an event here or use a global state to handle logout
-            console.log('Token refresh failed, user needs to login again');
           }
         }
 
@@ -65,62 +63,61 @@ class ApiService {
     );
   }
 
-  // Auth endpoints
   async login(email: string, password: string): Promise<ApiResponse<any>> {
-    const response = await this.client.post('/auth/login', { email, password });
+    const response = await this.client.post("/auth/login", { email, password });
     return response.data;
   }
 
   async register(userData: any): Promise<ApiResponse<any>> {
-    const response = await this.client.post('/auth/register', userData);
+    const response = await this.client.post("/auth/register", userData);
     return response.data;
   }
 
   async refreshAuthToken(refreshToken: string): Promise<ApiResponse<any>> {
-    const response = await this.client.post('/auth/refresh', { refreshToken });
+    const response = await this.client.post("/auth/refresh", { refreshToken });
     return response.data;
   }
 
   async logout(): Promise<void> {
     try {
-      await this.client.post('/auth/logout');
+      await this.client.post("/auth/logout");
+    } catch (error) {
+      // Continue with logout even if API call fails
     } finally {
       await storageService.clearAuthTokens();
     }
   }
 
   async forgotPassword(email: string): Promise<ApiResponse<any>> {
-    const response = await this.client.post('/auth/forgot-password', { email });
+    const response = await this.client.post("/auth/forgot-password", { email });
     return response.data;
   }
 
   async verifyTwoFactor(token: string): Promise<ApiResponse<any>> {
-    const response = await this.client.post('/auth/verify-2fa', { token });
+    const response = await this.client.post("/auth/verify-2fa", { token });
     return response.data;
   }
 
-  // User endpoints
   async getUserProfile(): Promise<ApiResponse<any>> {
-    const response = await this.client.get('/user/profile');
+    const response = await this.client.get("/user/profile");
     return response.data;
   }
 
   async updateUserProfile(userData: any): Promise<ApiResponse<any>> {
-    const response = await this.client.put('/user/profile', userData);
+    const response = await this.client.put("/user/profile", userData);
     return response.data;
   }
 
   async changePassword(currentPassword: string, newPassword: string): Promise<ApiResponse<any>> {
-    const response = await this.client.put('/user/change-password', {
+    const response = await this.client.put("/user/change-password", {
       currentPassword,
       newPassword,
     });
     return response.data;
   }
 
-  // Hosting endpoints
   async getHostingPackages(): Promise<ApiResponse<any[]>> {
-    const response = await this.client.get('/hosting/packages');
+    const response = await this.client.get("/hosting/packages");
     return response.data;
   }
 
@@ -134,8 +131,7 @@ class ApiService {
     return response.data;
   }
 
-  // File Manager endpoints
-  async getFiles(hostingId: string, path: string = '/'): Promise<ApiResponse<any[]>> {
+  async getFiles(hostingId: string, path: string = "/"): Promise<ApiResponse<any[]>> {
     const response = await this.client.get(`/hosting/${hostingId}/files`, {
       params: { path },
     });
@@ -145,9 +141,7 @@ class ApiService {
   async uploadFile(hostingId: string, path: string, file: FormData): Promise<ApiResponse<any>> {
     const response = await this.client.post(`/hosting/${hostingId}/files/upload`, file, {
       params: { path },
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { "Content-Type": "multipart/form-data" },
     });
     return response.data;
   }
@@ -159,7 +153,6 @@ class ApiService {
     return response.data;
   }
 
-  // Database endpoints
   async getDatabases(hostingId: string): Promise<ApiResponse<any[]>> {
     const response = await this.client.get(`/hosting/${hostingId}/databases`);
     return response.data;
@@ -177,7 +170,7 @@ class ApiService {
 
   // Domain endpoints
   async getDomains(): Promise<ApiResponse<any[]>> {
-    const response = await this.client.get('/domains');
+    const response = await this.client.get("/domains");
     return response.data;
   }
 
@@ -196,9 +189,8 @@ class ApiService {
     return response.data;
   }
 
-  // Server endpoints
   async getServers(): Promise<ApiResponse<any[]>> {
-    const response = await this.client.get('/servers');
+    const response = await this.client.get("/servers");
     return response.data;
   }
 
@@ -217,9 +209,8 @@ class ApiService {
     return response.data;
   }
 
-  // Financial endpoints
   async getInvoices(): Promise<ApiResponse<any[]>> {
-    const response = await this.client.get('/finance/invoices');
+    const response = await this.client.get("/finance/invoices");
     return response.data;
   }
 
@@ -229,18 +220,17 @@ class ApiService {
   }
 
   async getPaymentMethods(): Promise<ApiResponse<any[]>> {
-    const response = await this.client.get('/finance/payment-methods');
+    const response = await this.client.get("/finance/payment-methods");
     return response.data;
   }
 
   async makePayment(paymentData: any): Promise<ApiResponse<any>> {
-    const response = await this.client.post('/finance/payments', paymentData);
+    const response = await this.client.post("/finance/payments", paymentData);
     return response.data;
   }
 
-  // Support endpoints
   async getTickets(): Promise<ApiResponse<any[]>> {
-    const response = await this.client.get('/support/tickets');
+    const response = await this.client.get("/support/tickets");
     return response.data;
   }
 
@@ -250,7 +240,7 @@ class ApiService {
   }
 
   async createTicket(ticketData: any): Promise<ApiResponse<any>> {
-    const response = await this.client.post('/support/tickets', ticketData);
+    const response = await this.client.post("/support/tickets", ticketData);
     return response.data;
   }
 
@@ -259,13 +249,11 @@ class ApiService {
     return response.data;
   }
 
-  // Activity endpoints
   async getRecentActivities(): Promise<ApiResponse<ActivityItem[]>> {
-    const response = await this.client.get('/activity/recent');
+    const response = await this.client.get("/activity/recent");
     return response.data;
   }
 
-  // Generic request method
   async request<T>(config: AxiosRequestConfig): Promise<T> {
     const response: AxiosResponse<T> = await this.client.request(config);
     return response.data;
