@@ -14,6 +14,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Avatar } from '../../components/common';
 import { colors, spacing } from '../../styles';
+import { useLanguage } from '../../utils/LanguageContext';
 
 interface Message {
   id: string;
@@ -23,10 +24,12 @@ interface Message {
 }
 
 const ChatbotScreen = ({ navigation }: any) => {
+  const { t } = useLanguage();
+  
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm the RADE support assistant. How can I help you today?",
+      text: t.chatbot.greeting,
       sender: 'bot',
       timestamp: new Date(),
     },
@@ -36,9 +39,9 @@ const ChatbotScreen = ({ navigation }: any) => {
   const scrollViewRef = useRef<ScrollView>(null);
 
   const quickReplies = [
-    { id: 'billing', label: 'Billing', icon: 'card-outline' as const },
-    { id: 'server', label: 'Server Status', icon: 'server-outline' as const },
-    { id: 'troubleshoot', label: 'Troubleshooting', icon: 'build-outline' as const },
+    { id: 'billing', label: t.chatbot.billing, icon: 'card-outline' as const },
+    { id: 'server', label: t.chatbot.serverStatus, icon: 'server-outline' as const },
+    { id: 'troubleshoot', label: t.chatbot.troubleshooting, icon: 'build-outline' as const },
   ];
 
   const handleSend = () => {
@@ -59,7 +62,7 @@ const ChatbotScreen = ({ navigation }: any) => {
     setTimeout(() => {
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: "I'm sorry to hear that. Can you please provide me with your server ID?",
+        text: t.chatbot.serverIdRequest,
         sender: 'bot',
         timestamp: new Date(),
       };
@@ -72,13 +75,13 @@ const ChatbotScreen = ({ navigation }: any) => {
     let text = '';
     switch (type) {
       case 'billing':
-        text = 'I need help with billing';
+        text = t.chatbot.needHelpBilling;
         break;
       case 'server':
-        text = 'Check my server status';
+        text = t.chatbot.checkServerStatus;
         break;
       case 'troubleshoot':
-        text = 'I need troubleshooting help';
+        text = t.chatbot.needTroubleshooting;
         break;
     }
 
@@ -93,9 +96,10 @@ const ChatbotScreen = ({ navigation }: any) => {
     
     setIsTyping(true);
     setTimeout(() => {
+      let topic = type === 'server' ? 'server status' : type;
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: `I'll help you with ${type === 'server' ? 'server status' : type}. Please provide more details.`,
+        text: t.chatbot.botResponse.replace('{topic}', topic),
         sender: 'bot',
         timestamp: new Date(),
       };
@@ -123,7 +127,7 @@ const ChatbotScreen = ({ navigation }: any) => {
               size="md"
             />
           </View>
-          <Text style={styles.headerTitle}>RADE Support</Text>
+          <Text style={styles.headerTitle}>{t.chatbot.title}</Text>
           <TouchableOpacity style={styles.menuButton}>
             <Ionicons name="ellipsis-vertical" size={24} color={colors.neutral[900]} />
           </TouchableOpacity>
@@ -139,10 +143,10 @@ const ChatbotScreen = ({ navigation }: any) => {
         {messages.map((message) => (
           <View key={message.id}>
             {message.sender === 'bot' && (
-              <Text style={styles.botLabel}>RADE Assistant</Text>
+              <Text style={styles.botLabel}>{t.chatbot.assistant}</Text>
             )}
             {message.sender === 'user' && (
-              <Text style={styles.userLabel}>You</Text>
+              <Text style={styles.userLabel}>{t.chatbot.you}</Text>
             )}
             <View
               style={[
@@ -188,7 +192,7 @@ const ChatbotScreen = ({ navigation }: any) => {
         {/* Typing Indicator */}
         {isTyping && (
           <View>
-            <Text style={styles.botLabel}>RADE Assistant</Text>
+            <Text style={styles.botLabel}>{t.chatbot.assistant}</Text>
             <View style={styles.messageRow}>
               <View style={styles.avatarWrapper}>
                 <Avatar
@@ -228,7 +232,7 @@ const ChatbotScreen = ({ navigation }: any) => {
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Ask a question..."
+          placeholder={t.chatbot.askQuestion}
           placeholderTextColor={colors.neutral[400]}
           value={inputText}
           onChangeText={setInputText}

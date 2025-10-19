@@ -9,12 +9,15 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing } from '../../styles';
+import { useLanguage } from '../../utils/LanguageContext';
 
 type Props = {
   navigation?: any;
 };
 
 const BillingMainScreen = ({ navigation }: Props) => {
+  const { t } = useLanguage();
+  
   const paymentMethods = [
     {
       id: '1',
@@ -56,7 +59,7 @@ const BillingMainScreen = ({ navigation }: Props) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Billing</Text>
+        <Text style={styles.headerTitle}>{t.billing.title}</Text>
       </View>
 
       <ScrollView
@@ -66,17 +69,17 @@ const BillingMainScreen = ({ navigation }: Props) => {
       >
         {/* Your Plan */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your Plan</Text>
+          <Text style={styles.sectionTitle}>{t.billing.yourPlan}</Text>
           <LinearGradient
             colors={['#6A82FB', '#B472F9']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.planCard}
           >
-            <Text style={styles.planName}>Pro Plan</Text>
+            <Text style={styles.planName}>{t.billing.proPlan}</Text>
             <View style={styles.planPriceRow}>
               <Text style={styles.planPrice}>$25</Text>
-              <Text style={styles.planPeriod}>/month</Text>
+              <Text style={styles.planPeriod}>{t.billing.perMonth}</Text>
             </View>
           </LinearGradient>
         </View>
@@ -85,8 +88,10 @@ const BillingMainScreen = ({ navigation }: Props) => {
         <View style={styles.paymentDueCard}>
           <View style={styles.paymentDueContent}>
             <View style={styles.paymentDueInfo}>
-              <Text style={styles.paymentDueTitle}>Next Payment</Text>
-              <Text style={styles.paymentDueSubtitle}>$25 due on 24/12/2024</Text>
+              <Text style={styles.paymentDueTitle}>{t.billing.nextPayment}</Text>
+              <Text style={styles.paymentDueSubtitle}>
+                {t.billing.dueOn.replace('{amount}', '$25').replace('{date}', '24/12/2024')}
+              </Text>
             </View>
             <TouchableOpacity style={styles.payNowButton}>
               <LinearGradient
@@ -95,7 +100,7 @@ const BillingMainScreen = ({ navigation }: Props) => {
                 end={{ x: 1, y: 1 }}
                 style={styles.payNowGradient}
               >
-                <Text style={styles.payNowText}>Pay Now</Text>
+                <Text style={styles.payNowText}>{t.invoices.payNow}</Text>
               </LinearGradient>
             </TouchableOpacity>
           </View>
@@ -108,16 +113,20 @@ const BillingMainScreen = ({ navigation }: Props) => {
 
         {/* Payment Methods */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Payment Methods</Text>
+          <Text style={styles.sectionTitle}>{t.billing.paymentMethods}</Text>
           {paymentMethods.map((method) => (
             <View key={method.id} style={styles.paymentMethodCard}>
               <View style={styles.paymentMethodInfo}>
                 <Ionicons name={method.icon} size={32} color={colors.neutral[600]} />
                 <View style={styles.paymentMethodText}>
                   <Text style={styles.paymentMethodName}>
-                    {method.type} ending in {method.last4}
+                    {t.billing.endingIn
+                      .replace('{type}', method.type)
+                      .replace('{last4}', method.last4)}
                   </Text>
-                  <Text style={styles.paymentMethodExpiry}>Expires {method.expiry}</Text>
+                  <Text style={styles.paymentMethodExpiry}>
+                    {t.billing.expires.replace('{expiry}', method.expiry)}
+                  </Text>
                 </View>
               </View>
               <TouchableOpacity>
@@ -127,13 +136,13 @@ const BillingMainScreen = ({ navigation }: Props) => {
           ))}
           <TouchableOpacity style={styles.addMethodButton}>
             <Ionicons name="add" size={20} color={colors.neutral[500]} />
-            <Text style={styles.addMethodText}>Add New Method</Text>
+            <Text style={styles.addMethodText}>{t.billing.addNewMethod}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Billing History */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Billing History</Text>
+          <Text style={styles.sectionTitle}>{t.billing.billingHistory}</Text>
           {billingHistory.map((item) => (
             <View key={item.id} style={styles.historyCard}>
               <View style={styles.historyInfo}>
@@ -141,9 +150,13 @@ const BillingMainScreen = ({ navigation }: Props) => {
                   <Ionicons name="checkmark-circle" size={24} color="#059669" />
                 </View>
                 <View>
-                  <Text style={styles.historyMonth}>{item.month} Invoice</Text>
+                  <Text style={styles.historyMonth}>
+                    {t.billing.invoice.replace('{month}', item.month)}
+                  </Text>
                   <Text style={styles.historyAmount}>
-                    {item.amount} - {item.status}
+                    {t.billing.paidStatus
+                      .replace('{amount}', item.amount)
+                      .replace('{status}', item.status)}
                   </Text>
                 </View>
               </View>

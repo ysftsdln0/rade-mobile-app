@@ -25,6 +25,7 @@ import {
   FloatingActionButton,
 } from '../../components/common';
 import { colors, spacing } from '../../styles';
+import { useLanguage } from '../../utils/LanguageContext';
 
 interface Server {
   id: string;
@@ -82,6 +83,7 @@ const getMetricStatus = (usage: number) => {
 
 const ServerListScreen = () => {
   const navigation = useNavigation<any>();
+  const { t } = useLanguage();
   const [filterStatus, setFilterStatus] = useState<'all' | 'online' | 'offline' | 'maintenance'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -116,26 +118,26 @@ const ServerListScreen = () => {
   }, []);
 
   const statusConfig = {
-    online: { color: 'online' as const, label: 'Online' },
-    offline: { color: 'offline' as const, label: 'Offline' },
-    maintenance: { color: 'warning' as const, label: 'Maintenance' },
+    online: { color: 'online' as const, label: t.servers.online },
+    offline: { color: 'offline' as const, label: t.servers.offline },
+    maintenance: { color: 'warning' as const, label: t.servers.maintenance },
   };
 
   const handleReboot = (server: Server) => {
     if (server.status !== 'online') {
-      Alert.alert('Error', 'Cannot reboot a server that is not online');
+      Alert.alert(t.common.error, t.servers.cannotReboot);
       return;
     }
 
     Alert.alert(
-      'Reboot Server',
-      `Reboot ${server.name}?\n\nThis will temporarily disconnect the server.`,
+      t.servers.rebootServer,
+      t.servers.rebootConfirm.replace('{name}', server.name),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t.common.cancel, style: 'cancel' },
         {
-          text: 'Reboot',
+          text: t.servers.reboot,
           onPress: () => {
-            Alert.alert('Success', 'Reboot initiated successfully!');
+            Alert.alert(t.common.success, t.servers.rebootSuccess);
           },
         },
       ]
@@ -151,60 +153,60 @@ const ServerListScreen = () => {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>My Servers</Text>
-          <Text style={styles.headerSubtitle}>Manage your server infrastructure</Text>
+          <Text style={styles.headerTitle}>{t.servers.myServers}</Text>
+          <Text style={styles.headerSubtitle}>{t.servers.manageInfrastructure}</Text>
         </View>
 
         {/* Search Bar */}
         <SearchBar
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder="Search servers..."
+          placeholder={t.servers.searchServers}
         />
 
         {/* Filter Tabs */}
         <FilterTabs
           tabs={[
-            { id: 'all', label: 'All', count: stats.total },
-            { id: 'online', label: 'Running', count: stats.online },
-            { id: 'offline', label: 'Stopped', count: stats.offline },
-            { id: 'maintenance', label: 'Error', count: stats.maintenance },
+            { id: 'all', label: t.servers.all, count: stats.total },
+            { id: 'online', label: t.servers.running, count: stats.online },
+            { id: 'offline', label: t.servers.stopped, count: stats.offline },
+            { id: 'maintenance', label: t.servers.error, count: stats.maintenance },
           ]}
           activeTab={filterStatus}
           onTabChange={(tabId) => setFilterStatus(tabId as typeof filterStatus)}
         />
 
         {/* Stats */}
-        <Card title="Status Overview" variant="elevated">
+        <Card title={t.servers.statusOverview} variant="elevated">
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: colors.semantic.success }]}>
                 {stats.online}
               </Text>
-              <Text style={styles.statLabel}>Online</Text>
+              <Text style={styles.statLabel}>{t.servers.online}</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: colors.semantic.error }]}>
                 {stats.offline}
               </Text>
-              <Text style={styles.statLabel}>Offline</Text>
+              <Text style={styles.statLabel}>{t.servers.offline}</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: colors.semantic.warning }]}>
                 {stats.maintenance}
               </Text>
-              <Text style={styles.statLabel}>Maintenance</Text>
+              <Text style={styles.statLabel}>{t.servers.maintenance}</Text>
             </View>
           </View>
         </Card>
 
         {/* Servers List */}
         {servers.length === 0 ? (
-          <Card title="No Servers" variant="default">
+          <Card title={t.servers.noServers} variant="default">
             <AlertBanner
               type="info"
-              title="No servers"
-              message={`No ${filterStatus} servers found`}
+              title={t.servers.noServers}
+              message={t.servers.noServersFound.replace('{status}', filterStatus)}
               dismissible={false}
             />
           </Card>
@@ -218,19 +220,19 @@ const ServerListScreen = () => {
                 <Card key={server.id} title={server.name} variant="default">
                   {/* Server Info */}
                   <DataRow
-                    label="Status"
+                    label={t.servers.status}
                     value={status.label}
                     status={status.color}
                     divider
                   />
                   <DataRow
-                    label="IP Address"
+                    label={t.servers.ipAddress}
                     value={server.ip}
                     status="neutral"
                     divider
                   />
                   <DataRow
-                    label="Uptime"
+                    label={t.servers.uptime}
                     value={server.uptime}
                     status="neutral"
                     divider={false}
@@ -244,19 +246,19 @@ const ServerListScreen = () => {
                         <MetricCard
                           value={`${server.cpuUsage}`}
                           unit="%"
-                          label="CPU"
+                          label={t.servers.cpu}
                           status={getMetricStatus(server.cpuUsage)}
                         />
                         <MetricCard
                           value={`${server.memoryUsage}`}
                           unit="%"
-                          label="Memory"
+                          label={t.servers.memory}
                           status={getMetricStatus(server.memoryUsage)}
                         />
                         <MetricCard
                           value={`${server.diskUsage}`}
                           unit="%"
-                          label="Disk"
+                          label={t.servers.disk}
                           status={getMetricStatus(server.diskUsage)}
                         />
                       </View>
@@ -266,7 +268,7 @@ const ServerListScreen = () => {
                   {/* Actions */}
                   <View style={styles.actionsContainer}>
                     <Button
-                      label="Details"
+                      label={t.servers.details}
                       variant="secondary"
                       size="sm"
                       onPress={() => {
@@ -275,7 +277,7 @@ const ServerListScreen = () => {
                     />
                     {isOnline && (
                       <Button
-                        label="Reboot"
+                        label={t.servers.reboot}
                         variant="secondary"
                         size="sm"
                         onPress={() => handleReboot(server)}
@@ -283,7 +285,7 @@ const ServerListScreen = () => {
                       />
                     )}
                     <Button
-                      label="Console"
+                      label={t.servers.console}
                       variant="ghost"
                       size="sm"
                       onPress={() => {
@@ -298,9 +300,9 @@ const ServerListScreen = () => {
         )}
 
         {/* Add Server CTA */}
-        <Card title="Add Server" variant="default">
+        <Card title={t.servers.addServer} variant="default">
           <Button
-            label="Deploy New Server"
+            label={t.servers.deployNewServer}
             variant="primary"
             size="md"
             onPress={() => {
