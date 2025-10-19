@@ -190,8 +190,13 @@ const DashboardScreen = () => {
           </Card>
         )}
 
-        <Card title={language === 'tr' ? 'Sistem Durumu' : 'System Health'} variant="elevated">
-          <View style={styles.healthSection}>
+        <View style={styles.systemHealthContainer}>
+          <Card 
+            title={language === 'tr' ? 'Sistem Durumu' : 'System Health'} 
+            variant="elevated"
+            style={styles.compactCard}
+          >
+            <View style={styles.healthSection}>
             <View style={styles.healthRow}>
               <View style={styles.healthLabel}>
                 <Text style={styles.healthText}>
@@ -225,6 +230,7 @@ const DashboardScreen = () => {
             />
           </View>
         </Card>
+        </View>
 
         {timelineEvents.length > 0 && (
           <Card title={language === 'tr' ? 'Son Aktiviteler' : 'Recent Activity'} variant="default">
@@ -367,29 +373,38 @@ const styles = StyleSheet.create({
   halfButton: {
     flex: 1,
   },
+  systemHealthContainer: {
+    marginTop: spacing[5],
+    paddingHorizontal: spacing[5],
+  },
   healthSection: {
-    gap: spacing[4],
+    gap: spacing[2],
   },
   healthRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginBottom: spacing[1],
   },
   healthLabel: {
     flex: 1,
   },
   healthText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "500",
     color: colors.neutral[700],
   },
   healthMetric: {
-    gap: spacing[2],
+    gap: spacing[1],
   },
   healthMetricLabel: {
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: "500",
     color: colors.neutral[600],
+  },
+  compactCard: {
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[3],
   },
   // Unused styles - might need later
   // loadingContainer: {
