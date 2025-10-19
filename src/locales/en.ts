@@ -45,6 +45,18 @@ export const en = {
     passwordPlaceholder: 'Password',
     demoAccount: 'Demo Account',
     fillDemoCredentials: 'Fill Demo Credentials',
+    loggingIn: 'Logging in...',
+    biometricLogin: 'Biometric Login',
+    orContinueWith: 'Or continue with',
+    loginError: 'Login Error',
+    error: 'Error',
+    errorOccurred: 'An error occurred. Please try again.',
+    sessionExpired: 'Session Expired',
+    sessionExpiredMessage: 'Your session has expired. Please login again.',
+    biometricPrompt: 'Use your fingerprint to login',
+    usePassword: 'Use password',
+    biometricFailed: 'Biometric authentication failed.',
+    pleaseLoginAgain: 'Please login again with your email and password.',
   },
 
   // Dashboard
@@ -56,6 +68,31 @@ export const en = {
     activeServices: 'Active Services',
     recentActivity: 'Recent Activity',
     viewAllActivity: 'View All Activity',
+    goodMorning: 'Good Morning',
+    goodAfternoon: 'Good Afternoon',
+    goodEvening: 'Good Evening',
+    user: 'User',
+    accountOverview: "Here's a quick overview of your account.",
+    totalWebsites: 'Total Websites',
+    uptime: 'Uptime',
+    supportTickets: 'Support Tickets',
+    myServices: 'My Services',
+    activePackages: 'Active Packages',
+    totalServices: 'Total Services',
+    storageUsed: 'Storage Used',
+    yourServices: 'Your Services',
+    expires: 'Expires',
+    viewAllServices: 'View All {count} Services',
+    systemHealth: 'System Health',
+    serverStatus: 'Server Status',
+    operational: 'Operational',
+    systemLoad: 'System Load',
+    diskUsage: 'Disk Usage',
+    servicesRunning: 'Services Running',
+    allServicesOperational: 'All services operational',
+    manageServices: 'Manage Services',
+    viewInvoices: 'View Invoices',
+    support: 'Support',
   },
 
   // Services
@@ -147,6 +184,15 @@ export const en = {
   languages: {
     en: 'English',
     tr: 'Türkçe',
+  },
+
+  // Navigation (Tab Bar Labels)
+  navigation: {
+    home: 'Home',
+    servers: 'Servers',
+    billing: 'Billing',
+    support: 'Support',
+    profile: 'Profile',
   },
 };
 

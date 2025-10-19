@@ -55,9 +55,9 @@ const DashboardScreen = () => {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return language === 'tr' ? "Günaydın" : "Good Morning";
-    if (hour < 18) return language === 'tr' ? "İyi Günler" : "Good Afternoon";
-    return language === 'tr' ? "İyi Akşamlar" : "Good Evening";
+    if (hour < 12) return t.dashboard.goodMorning;
+    if (hour < 18) return t.dashboard.goodAfternoon;
+    return t.dashboard.goodEvening;
   };
 
   return (
@@ -70,12 +70,10 @@ const DashboardScreen = () => {
         {/* Page Header - Figma Design */}
         <View style={styles.customHeader}>
           <Text style={styles.greetingText}>
-            {getGreeting()}, {user?.firstName || "User"}!
+            {getGreeting()}, {user?.firstName || t.dashboard.user}!
           </Text>
           <Text style={styles.overviewText}>
-            {language === 'tr' 
-              ? "Hesabınızın hızlı bir özeti." 
-              : "Here's a quick overview of your account."}
+            {t.dashboard.accountOverview}
           </Text>
         </View>
 
@@ -95,7 +93,7 @@ const DashboardScreen = () => {
             </View>
             <Text style={styles.metricValue}>{hostingCount + 12}</Text>
             <Text style={styles.metricLabel}>
-              {language === 'tr' ? 'Toplam Web Siteleri' : 'Total Websites'}
+              {t.dashboard.totalWebsites}
             </Text>
           </View>
 
@@ -105,7 +103,7 @@ const DashboardScreen = () => {
             </View>
             <Text style={styles.metricValue}>99.9%</Text>
             <Text style={styles.metricLabel}>
-              {language === 'tr' ? 'Çalışma Süresi' : 'Uptime'}
+              {t.dashboard.uptime}
             </Text>
           </View>
 
@@ -115,7 +113,7 @@ const DashboardScreen = () => {
             </View>
             <Text style={styles.metricValue}>2</Text>
             <Text style={styles.metricLabel}>
-              {language === 'tr' ? 'Destek Talepleri' : 'Support Tickets'}
+              {t.dashboard.supportTickets}
             </Text>
           </View>
         </View>
@@ -123,7 +121,7 @@ const DashboardScreen = () => {
         {/* My Services Section */}
         <View style={styles.servicesSection}>
           <Text style={styles.sectionTitle}>
-            {language === 'tr' ? 'Hizmetlerim' : 'My Services'}
+            {t.dashboard.myServices}
           </Text>
           <ScrollView
             horizontal
@@ -131,25 +129,25 @@ const DashboardScreen = () => {
             contentContainerStyle={styles.horizontalScroll}
           >
             <MetricCard
-              label={language === 'tr' ? 'Aktif Paketler' : 'Active Packages'}
+              label={t.dashboard.activePackages}
               value={activeCount}
               status={activeCount > 0 ? "online" : "offline"}
               style={styles.horizontalMetricCard}
             />
             <MetricCard
-              label={language === 'tr' ? 'Toplam Hizmetler' : 'Total Services'}
+              label={t.dashboard.totalServices}
               value={hostingCount}
               change={hostingCount > 0 ? 5 : 0}
               style={styles.horizontalMetricCard}
             />
             <MetricCard
-              label={language === 'tr' ? 'Çalışma Süresi' : 'Uptime'}
+              label={t.dashboard.uptime}
               value="99.9%"
               status="online"
               style={styles.horizontalMetricCard}
             />
             <MetricCard
-              label={language === 'tr' ? 'Kullanılan Depolama' : 'Storage Used'}
+              label={t.dashboard.storageUsed}
               value="150 GB"
               change={12}
               style={styles.horizontalMetricCard}
@@ -159,7 +157,7 @@ const DashboardScreen = () => {
 
         {/* Quick Services Summary */}
         {hostingCount > 0 && (
-          <Card title={language === 'tr' ? 'Hizmetleriniz' : 'Your Services'} variant="default">
+          <Card title={t.dashboard.yourServices} variant="default">
             {hostingQuery.data?.slice(0, 3).map((hosting) => (
               <DataRow
                 key={hosting.id}
@@ -168,7 +166,7 @@ const DashboardScreen = () => {
                 status={hosting.status === "active" ? "online" : "offline"}
                 secondary={
                   hosting.expiryDate
-                    ? `${language === 'tr' ? 'Bitiş' : 'Expires'}: ${new Date(hosting.expiryDate).toLocaleDateString()}`
+                    ? `${t.dashboard.expires}: ${new Date(hosting.expiryDate).toLocaleDateString()}`
                     : ""
                 }
                 divider
@@ -179,9 +177,7 @@ const DashboardScreen = () => {
             ))}
             {hostingCount > 3 && (
               <Button
-                label={language === 'tr' 
-                  ? `Tüm ${hostingCount} Hizmeti Görüntüle` 
-                  : `View All ${hostingCount} Services`}
+                label={t.dashboard.viewAllServices.replace('{count}', hostingCount.toString())}
                 variant="secondary"
                 size="sm"
                 onPress={() => navigation.navigate("Services")}
@@ -192,7 +188,7 @@ const DashboardScreen = () => {
 
         <View style={styles.systemHealthContainer}>
           <Card 
-            title={language === 'tr' ? 'Sistem Durumu' : 'System Health'} 
+            title={t.dashboard.systemHealth} 
             variant="elevated"
             style={styles.compactCard}
           >
@@ -200,32 +196,30 @@ const DashboardScreen = () => {
             <View style={styles.healthRow}>
               <View style={styles.healthLabel}>
                 <Text style={styles.healthText}>
-                  {language === 'tr' ? 'Sunucu Durumu' : 'Server Status'}
+                  {t.dashboard.serverStatus}
                 </Text>
               </View>
               <Badge 
-                label={language === 'tr' ? 'Çalışıyor' : 'Operational'} 
+                label={t.dashboard.operational} 
                 variant="success" 
               />
             </View>
             <View style={styles.healthMetric}>
               <Text style={styles.healthMetricLabel}>
-                {language === 'tr' ? 'Sistem Yükü' : 'System Load'}
+                {t.dashboard.systemLoad}
               </Text>
               <Progress progress={65} showLabel variant="linear" />
             </View>
             <View style={styles.healthMetric}>
               <Text style={styles.healthMetricLabel}>
-                {language === 'tr' ? 'Disk Kullanımı' : 'Disk Usage'}
+                {t.dashboard.diskUsage}
               </Text>
               <Progress progress={45} showLabel variant="linear" />
             </View>
             <DataRow
-              label={language === 'tr' ? 'Çalışan Hizmetler' : 'Services Running'}
+              label={t.dashboard.servicesRunning}
               value={`${hostingCount + 2}`}
-              secondary={language === 'tr' 
-                ? 'Tüm hizmetler çalışıyor' 
-                : 'All services operational'}
+              secondary={t.dashboard.allServicesOperational}
               divider={false}
             />
           </View>
@@ -233,7 +227,7 @@ const DashboardScreen = () => {
         </View>
 
         {timelineEvents.length > 0 && (
-          <Card title={language === 'tr' ? 'Son Aktiviteler' : 'Recent Activity'} variant="default">
+          <Card title={t.dashboard.recentActivity} variant="default">
             <Timeline events={timelineEvents.slice(0, 5)} />
           </Card>
         )}
@@ -242,7 +236,7 @@ const DashboardScreen = () => {
         <View style={styles.actionsSection}>
           <View style={styles.buttonRow}>
             <Button
-              label={language === 'tr' ? 'Hizmetleri Yönet' : 'Manage Services'}
+              label={t.dashboard.manageServices}
               variant="primary"
               onPress={() => navigation.navigate("Services")}
               fullWidth
@@ -250,7 +244,7 @@ const DashboardScreen = () => {
           </View>
           <View style={styles.buttonRow}>
             <Button
-              label={language === 'tr' ? 'Faturaları Görüntüle' : 'View Invoices'}
+              label={t.dashboard.viewInvoices}
               variant="secondary"
               onPress={() =>
                 navigation.navigate("Account", { screen: "InvoiceList" })
@@ -258,7 +252,7 @@ const DashboardScreen = () => {
               style={styles.halfButton}
             />
             <Button
-              label={language === 'tr' ? 'Destek' : 'Support'}
+              label={t.dashboard.support}
               variant="secondary"
               onPress={() => navigation.navigate("Support")}
               style={styles.halfButton}

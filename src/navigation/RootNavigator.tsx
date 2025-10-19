@@ -20,6 +20,7 @@ import ChatbotScreen from '../screens/support/ChatbotScreen';
 // Navigation types
 import { RootStackParamList, MainTabParamList } from '../types';
 import { colors } from '../styles';
+import { useLanguage } from '../utils/LanguageContext';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -28,6 +29,7 @@ const Drawer = createDrawerNavigator();
 // Main Tab Navigator
 const MainTabNavigator = () => {
   const insets = useSafeAreaInsets();
+  const { t } = useLanguage();
   
   return (
     <Tab.Navigator
@@ -82,40 +84,40 @@ const MainTabNavigator = () => {
         name="Dashboard" 
         component={DashboardScreen} 
         options={{ 
-          title: 'Dashboard',
-          tabBarLabel: 'Home'
+          title: t.navigation.home,
+          tabBarLabel: t.navigation.home
         }} 
       />
       <Tab.Screen 
         name="Services" 
         component={ServicesNavigator} 
         options={{ 
-          title: 'Servers',
-          tabBarLabel: 'Servers'
+          title: t.navigation.servers,
+          tabBarLabel: t.navigation.servers
         }} 
       />
       <Tab.Screen 
         name="Support" 
         component={SupportNavigator} 
         options={{ 
-          title: 'Billing',
-          tabBarLabel: 'Billing'
+          title: t.navigation.billing,
+          tabBarLabel: t.navigation.billing
         }} 
       />
       <Tab.Screen 
         name="Chatbot" 
         component={ChatbotScreen} 
         options={{ 
-          title: 'Support',
-          tabBarLabel: 'Support'
+          title: t.navigation.support,
+          tabBarLabel: t.navigation.support
         }} 
       />
       <Tab.Screen 
         name="Account" 
         component={AccountNavigator} 
         options={{ 
-          title: 'Profile',
-          tabBarLabel: 'Profile'
+          title: t.navigation.profile,
+          tabBarLabel: t.navigation.profile
         }} 
       />
     </Tab.Navigator>

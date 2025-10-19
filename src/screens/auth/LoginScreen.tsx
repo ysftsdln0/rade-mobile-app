@@ -39,7 +39,7 @@ const LoginScreen = () => {
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const demoLoginEnabled = process.env.EXPO_PUBLIC_ENABLE_DEMO_LOGIN !== "false";
 
-  // Dynamic schema based on language
+  // Dynamic schema based on language - using hard-coded messages for Zod validation
   const loginSchema = useMemo(() => z.object({
     email: z.string().email(
       language === 'tr' 
@@ -148,16 +148,14 @@ const LoginScreen = () => {
         navigation.replace("Main");
       } else {
         Alert.alert(
-          language === 'tr' ? "Giriş Hatası" : "Login Error", 
+          t.auth.loginError, 
           result.payload as string
         );
       }
     } catch (error) {
       Alert.alert(
-        language === 'tr' ? "Hata" : "Error", 
-        language === 'tr' 
-          ? "Bir hata oluştu. Lütfen tekrar deneyin." 
-          : "An error occurred. Please try again."
+        t.auth.error, 
+        t.auth.errorOccurred
       );
     }
   };
@@ -165,10 +163,8 @@ const LoginScreen = () => {
   const handleBiometricLogin = async () => {
     try {
       const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: language === 'tr' 
-          ? "Giriş yapmak için parmak izinizi kullanın" 
-          : "Use your fingerprint to login",
-        fallbackLabel: language === 'tr' ? "Şifre kullan" : "Use password",
+        promptMessage: t.auth.biometricPrompt,
+        fallbackLabel: t.auth.usePassword,
       });
 
       if (result.success) {
@@ -178,19 +174,15 @@ const LoginScreen = () => {
           navigation.replace("Main");
         } else {
           Alert.alert(
-            language === 'tr' ? "Oturum Süresi Doldu" : "Session Expired", 
-            language === 'tr' 
-              ? "Lütfen e-posta ve şifrenizle tekrar giriş yapın." 
-              : "Please login again with your email and password."
+            t.auth.sessionExpired, 
+            t.auth.pleaseLoginAgain
           );
         }
       }
     } catch (error) {
       Alert.alert(
-        language === 'tr' ? "Hata" : "Error", 
-        language === 'tr' 
-          ? "Biyometrik kimlik doğrulama başarısız oldu." 
-          : "Biometric authentication failed."
+        t.auth.error, 
+        t.auth.biometricFailed
       );
     }
   };
@@ -335,9 +327,7 @@ const LoginScreen = () => {
             </View>
 
             <Button
-              label={isLoading 
-                ? (language === 'tr' ? 'Giriş yapılıyor...' : 'Logging in...') 
-                : t.auth.loginButton}
+              label={isLoading ? t.auth.loggingIn : t.auth.loginButton}
               variant="gradient"
               size="lg"
               onPress={handleSubmit(onSubmit)}
@@ -358,7 +348,7 @@ const LoginScreen = () => {
                   color={colors.primary[500]}
                 />
                 <Text style={styles.biometricText}>
-                  {language === 'tr' ? 'Biyometrik Giriş' : 'Biometric Login'}
+                  {t.auth.biometricLogin}
                 </Text>
               </TouchableOpacity>
             )}
@@ -366,7 +356,7 @@ const LoginScreen = () => {
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
               <Text style={styles.dividerText}>
-                {language === 'tr' ? 'Veya şununla devam et' : 'Or continue with'}
+                {t.auth.orContinueWith}
               </Text>
               <View style={styles.dividerLine} />
             </View>
