@@ -41,6 +41,12 @@ export const tr: TranslationKeys = {
     twoFactorTitle: 'İki Faktörlü Doğrulama',
     twoFactorSubtitle: 'Doğrulama uygulamanızdan 6 haneli kodu girin',
     verifyCode: 'Kodu Doğrula',
+    welcomeBack: 'Tekrar Hoş Geldiniz',
+    loginSubtitle: 'Hosting yönetiminiz için giriş yapın',
+    emailPlaceholder: 'E-posta adresi',
+    passwordPlaceholder: 'Şifre',
+    demoAccount: 'Demo Hesap',
+    fillDemoCredentials: 'Demo Bilgileri Doldur',
   },
 
   // Dashboard

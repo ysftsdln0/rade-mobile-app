@@ -39,6 +39,12 @@ export const en = {
     twoFactorTitle: 'Two-Factor Authentication',
     twoFactorSubtitle: 'Enter the 6-digit code from your authenticator app',
     verifyCode: 'Verify Code',
+    welcomeBack: 'Welcome Back',
+    loginSubtitle: 'Login to manage your hosting',
+    emailPlaceholder: 'Email address',
+    passwordPlaceholder: 'Password',
+    demoAccount: 'Demo Account',
+    fillDemoCredentials: 'Fill Demo Credentials',
   },
 
   // Dashboard

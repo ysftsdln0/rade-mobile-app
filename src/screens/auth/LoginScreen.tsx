@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -27,23 +27,34 @@ import { colors, spacing } from "../../styles";
 import { APP_CONFIG } from "../../constants";
 import { TextInput } from "../../components/common/TextInput";
 import { Button } from "../../components/common/Button";
-
-const loginSchema = z.object({
-  email: z.string().email("Geçerli bir e-posta adresi girin."),
-  password: z.string().min(6, "Şifre en az 6 karakter olmalı."),
-  rememberMe: z.boolean(),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
+import { useLanguage } from "../../utils/LanguageContext";
 
 const LoginScreen = () => {
   const navigation = useNavigation<any>();
   const dispatch = useAppDispatch();
   const { isLoading } = useAppSelector((state) => state.auth);
+  const { t, language } = useLanguage();
 
   const [showPassword, setShowPassword] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const demoLoginEnabled = process.env.EXPO_PUBLIC_ENABLE_DEMO_LOGIN !== "false";
+
+  // Dynamic schema based on language
+  const loginSchema = useMemo(() => z.object({
+    email: z.string().email(
+      language === 'tr' 
+        ? 'Geçerli bir e-posta adresi girin.' 
+        : 'Enter a valid email address.'
+    ),
+    password: z.string().min(6, 
+      language === 'tr' 
+        ? 'Şifre en az 6 karakter olmalı.' 
+        : 'Password must be at least 6 characters.'
+    ),
+    rememberMe: z.boolean(),
+  }), [language]);
+
+  type LoginFormValues = z.infer<typeof loginSchema>;
 
   const {
     control,
@@ -136,18 +147,28 @@ const LoginScreen = () => {
         }
         navigation.replace("Main");
       } else {
-        Alert.alert("Giriş Hatası", result.payload as string);
+        Alert.alert(
+          language === 'tr' ? "Giriş Hatası" : "Login Error", 
+          result.payload as string
+        );
       }
     } catch (error) {
-      Alert.alert("Hata", "Bir hata oluştu. Lütfen tekrar deneyin.");
+      Alert.alert(
+        language === 'tr' ? "Hata" : "Error", 
+        language === 'tr' 
+          ? "Bir hata oluştu. Lütfen tekrar deneyin." 
+          : "An error occurred. Please try again."
+      );
     }
   };
 
   const handleBiometricLogin = async () => {
     try {
       const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: "Giriş yapmak için parmak izinizi kullanın",
-        fallbackLabel: "Şifre kullan",
+        promptMessage: language === 'tr' 
+          ? "Giriş yapmak için parmak izinizi kullanın" 
+          : "Use your fingerprint to login",
+        fallbackLabel: language === 'tr' ? "Şifre kullan" : "Use password",
       });
 
       if (result.success) {
@@ -156,11 +177,21 @@ const LoginScreen = () => {
         if (loadUserFromStorageAsync.fulfilled.match(loadResult)) {
           navigation.replace("Main");
         } else {
-          Alert.alert("Oturum Süresi Doldu", "Lütfen e-posta ve şifrenizle tekrar giriş yapın.");
+          Alert.alert(
+            language === 'tr' ? "Oturum Süresi Doldu" : "Session Expired", 
+            language === 'tr' 
+              ? "Lütfen e-posta ve şifrenizle tekrar giriş yapın." 
+              : "Please login again with your email and password."
+          );
         }
       }
     } catch (error) {
-      Alert.alert("Hata", "Biyometrik kimlik doğrulama başarısız oldu.");
+      Alert.alert(
+        language === 'tr' ? "Hata" : "Error", 
+        language === 'tr' 
+          ? "Biyometrik kimlik doğrulama başarısız oldu." 
+          : "Biometric authentication failed."
+      );
     }
   };
 
@@ -187,9 +218,9 @@ const LoginScreen = () => {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.welcomeText}>Welcome Back</Text>
+            <Text style={styles.welcomeText}>{t.auth.welcomeBack}</Text>
             <Text style={styles.subtitleText}>
-              Login to manage your hosting
+              {t.auth.loginSubtitle}
             </Text>
           </View>
 
@@ -197,10 +228,14 @@ const LoginScreen = () => {
             <View style={styles.demoBox}>
               <View style={styles.demoHeader}>
                 <Ionicons name="information-circle" size={20} color={colors.semantic.info} />
-                <Text style={styles.demoTitle}>Demo Hesap</Text>
+                <Text style={styles.demoTitle}>{t.auth.demoAccount}</Text>
               </View>
-              <Text style={styles.demoText}>E-posta: demo@rade.com</Text>
-              <Text style={styles.demoText}>Şifre: demo123</Text>
+              <Text style={styles.demoText}>
+                {t.auth.email}: demo@rade.com
+              </Text>
+              <Text style={styles.demoText}>
+                {t.auth.password}: demo123
+              </Text>
               <TouchableOpacity
                 style={styles.fillDemoButton}
                 onPress={() => {
@@ -209,7 +244,7 @@ const LoginScreen = () => {
                   clearErrors(["email", "password"]);
                 }}
               >
-                <Text style={styles.fillDemoText}>Demo Bilgileri Doldur</Text>
+                <Text style={styles.fillDemoText}>{t.auth.fillDemoCredentials}</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -220,7 +255,7 @@ const LoginScreen = () => {
               name="email"
               render={({ field: { onChange, onBlur, value } }) => (
                 <TextInput
-                  placeholder="E-posta adresi"
+                  placeholder={t.auth.emailPlaceholder}
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
@@ -247,7 +282,7 @@ const LoginScreen = () => {
               render={({ field: { onChange, onBlur, value } }) => (
                 <View style={styles.passwordWrapper}>
                   <TextInput
-                    placeholder="Şifre"
+                    placeholder={t.auth.passwordPlaceholder}
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
@@ -291,16 +326,18 @@ const LoginScreen = () => {
                   size={20}
                   color={rememberMe ? colors.primary[500] : colors.neutral[400]}
                 />
-                <Text style={styles.rememberMeText}>Beni hatırla</Text>
+                <Text style={styles.rememberMeText}>{t.auth.rememberMe}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity onPress={handleForgotPassword}>
-                <Text style={styles.forgotPasswordText}>Şifremi Unuttum</Text>
+                <Text style={styles.forgotPasswordText}>{t.auth.forgotPassword}</Text>
               </TouchableOpacity>
             </View>
 
             <Button
-              label={isLoading ? "Logging in..." : "Login"}
+              label={isLoading 
+                ? (language === 'tr' ? 'Giriş yapılıyor...' : 'Logging in...') 
+                : t.auth.loginButton}
               variant="gradient"
               size="lg"
               onPress={handleSubmit(onSubmit)}
@@ -320,13 +357,17 @@ const LoginScreen = () => {
                   size={24}
                   color={colors.primary[500]}
                 />
-                <Text style={styles.biometricText}>Biometric Login</Text>
+                <Text style={styles.biometricText}>
+                  {language === 'tr' ? 'Biyometrik Giriş' : 'Biometric Login'}
+                </Text>
               </TouchableOpacity>
             )}
 
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>Or continue with</Text>
+              <Text style={styles.dividerText}>
+                {language === 'tr' ? 'Veya şununla devam et' : 'Or continue with'}
+              </Text>
               <View style={styles.dividerLine} />
             </View>
 
@@ -340,16 +381,15 @@ const LoginScreen = () => {
             </View>
 
             <View style={styles.registerContainer}>
-              <Text style={styles.registerText}>Don't have an account? </Text>
+              <Text style={styles.registerText}>{t.auth.dontHaveAccount} </Text>
               <TouchableOpacity onPress={handleRegister}>
-                <Text style={styles.registerLink}>Sign Up</Text>
+                <Text style={styles.registerLink}>{t.auth.signUpHere}</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>© 2025 {APP_CONFIG.COMPANY}</Text>
-            <Text style={styles.versionText}>v{APP_CONFIG.VERSION}</Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
