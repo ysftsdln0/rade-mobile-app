@@ -72,10 +72,7 @@ const ProfileScreen = () => {
             initials={initials}
             source={user?.avatar}
             showEditButton
-            onEditPress={() => {
-              // TODO: Handle avatar edit
-              console.log('Edit avatar');
-            }}
+            onEditPress={() => {}}
           />
           <Text style={styles.userName}>
             {user?.firstName} {user?.lastName}

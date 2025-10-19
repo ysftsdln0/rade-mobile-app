@@ -202,7 +202,6 @@ const DomainListScreen = () => {
                     status={status.color}
                     divider={index < domains.length - 1}
                     onPress={() => {
-                      // TODO: Navigate to domain details
                     }}
                   />
                   {domain.status !== 'active' && (
@@ -219,7 +218,6 @@ const DomainListScreen = () => {
                         variant="secondary"
                         size="sm"
                         onPress={() => {
-                          // TODO: Navigate to domain details
                         }}
                         style={styles.actionButton}
                       />
@@ -238,7 +236,6 @@ const DomainListScreen = () => {
             variant="primary"
             size="md"
             onPress={() => {
-              // TODO: Navigate to domain registration
             }}
             style={styles.fullWidthButton}
           />
@@ -251,7 +248,6 @@ const DomainListScreen = () => {
       {/* Floating Action Button */}
       <FloatingActionButton
         onPress={() => {
-          // TODO: Navigate to add domain
         }}
       />
     </SafeAreaView>

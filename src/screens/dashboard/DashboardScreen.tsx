@@ -1,13 +1,11 @@
-import React, { useMemo } from 'react';
-import { View, ScrollView, StyleSheet, SafeAreaView, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useQuery } from '@tanstack/react-query';
-import { Ionicons } from '@expo/vector-icons';
-import { useAppSelector } from '../../store';
-import { apiService } from '../../services/api';
-import { transformToTimelineEvents } from '../../utils/activityHelpers';
-
-// Phase 1 Professional Components
+import React, { useMemo } from "react";
+import { View, ScrollView, StyleSheet, SafeAreaView, Text } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useQuery } from "@tanstack/react-query";
+import { Ionicons } from "@expo/vector-icons";
+import { useAppSelector } from "../../store";
+import { apiService } from "../../services/api";
+import { transformToTimelineEvents } from "../../utils/activityHelpers";
 import {
   DashboardHeader,
   Card,
@@ -18,31 +16,16 @@ import {
   Button,
   Badge,
   Progress,
-} from '../../components/common';
+} from "../../components/common";
+import { colors, spacing } from "../../styles";
+import { HostingPackage, ActivityItem } from "../../types";
 
-// Design Tokens
-import { colors, spacing } from '../../styles';
-
-// Types
-import { HostingPackage, ActivityItem } from '../../types';
-
-
-/**
- * DashboardScreen
- * 
- * Main dashboard view showing:
- * - Key metrics (active services, system status)
- * - Recent activity timeline
- * - Quick action buttons
- * - System health alerts
- */
 const DashboardScreen = () => {
   const navigation = useNavigation<any>();
   const { user } = useAppSelector((state) => state.auth);
 
-  // Fetch dashboard data
   const hostingQuery = useQuery({
-    queryKey: ['hostingPackages'],
+    queryKey: ["hostingPackages"],
     queryFn: async () => {
       const res = await apiService.getHostingPackages();
       return res.data as HostingPackage[];
@@ -51,29 +34,28 @@ const DashboardScreen = () => {
   });
 
   const activityQuery = useQuery({
-    queryKey: ['recentActivities'],
+    queryKey: ["recentActivities"],
     queryFn: async () => {
       const res = await apiService.getRecentActivities();
       return res.data as ActivityItem[];
     },
     enabled: !!user,
-    staleTime: 1000 * 60, // 1 minute
+    staleTime: 1000 * 60,
   });
 
-  // Transform activity data for Timeline component using utility function
   const timelineEvents = useMemo(() => {
     return transformToTimelineEvents(activityQuery.data || []);
   }, [activityQuery.data]);
 
   const hostingCount = hostingQuery.data?.length || 0;
-  const activeCount = hostingQuery.data?.filter(h => h.status === 'active').length || 0;
+  const activeCount =
+    hostingQuery.data?.filter((h) => h.status === "active").length || 0;
 
-  // Get greeting based on time
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 18) return 'Good Afternoon';
-    return 'Good Evening';
+    if (hour < 12) return "Good Morning";
+    if (hour < 18) return "Good Afternoon";
+    return "Good Evening";
   };
 
   return (
@@ -85,30 +67,42 @@ const DashboardScreen = () => {
       >
         {/* Page Header - Figma Design */}
         <View style={styles.customHeader}>
-          <Text style={styles.greetingText}>{getGreeting()}, {user?.firstName || 'User'}!</Text>
-          <Text style={styles.overviewText}>Here's a quick overview of your account.</Text>
+          <Text style={styles.greetingText}>
+            {getGreeting()}, {user?.firstName || "User"}!
+          </Text>
+          <Text style={styles.overviewText}>
+            Here's a quick overview of your account.
+          </Text>
         </View>
 
-        {/* Metrics Row - Icon-based rounded boxes */}
         <View style={styles.metricsRow}>
           <View style={styles.metricBox}>
-            <View style={[styles.metricIcon, { backgroundColor: colors.primary[100] }]}>
-              <Ionicons name="globe-outline" size={24} color={colors.primary[500]} />
+            <View
+              style={[
+                styles.metricIcon,
+                { backgroundColor: colors.primary[100] },
+              ]}
+            >
+              <Ionicons
+                name="globe-outline"
+                size={24}
+                color={colors.primary[500]}
+              />
             </View>
             <Text style={styles.metricValue}>{hostingCount + 12}</Text>
             <Text style={styles.metricLabel}>Total Websites</Text>
           </View>
-          
+
           <View style={styles.metricBox}>
-            <View style={[styles.metricIcon, { backgroundColor: '#E8F5E9' }]}>
+            <View style={[styles.metricIcon, { backgroundColor: "#E8F5E9" }]}>
               <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
             </View>
             <Text style={styles.metricValue}>99.9%</Text>
             <Text style={styles.metricLabel}>Uptime</Text>
           </View>
-          
+
           <View style={styles.metricBox}>
-            <View style={[styles.metricIcon, { backgroundColor: '#FFF3E0' }]}>
+            <View style={[styles.metricIcon, { backgroundColor: "#FFF3E0" }]}>
               <Ionicons name="help-circle-outline" size={24} color="#FF9800" />
             </View>
             <Text style={styles.metricValue}>2</Text>
@@ -127,7 +121,7 @@ const DashboardScreen = () => {
             <MetricCard
               label="Active Packages"
               value={activeCount}
-              status={activeCount > 0 ? 'online' : 'offline'}
+              status={activeCount > 0 ? "online" : "offline"}
               style={styles.horizontalMetricCard}
             />
             <MetricCard
@@ -159,10 +153,16 @@ const DashboardScreen = () => {
                 key={hosting.id}
                 label={hosting.name}
                 value={hosting.status}
-                status={hosting.status === 'active' ? 'online' : 'offline'}
-                secondary={hosting.expiryDate ? `Expires: ${new Date(hosting.expiryDate).toLocaleDateString()}` : ''}
+                status={hosting.status === "active" ? "online" : "offline"}
+                secondary={
+                  hosting.expiryDate
+                    ? `Expires: ${new Date(hosting.expiryDate).toLocaleDateString()}`
+                    : ""
+                }
                 divider
-                onPress={() => navigation.navigate('Services', { screen: 'HostingDetails' })}
+                onPress={() =>
+                  navigation.navigate("Services", { screen: "HostingDetails" })
+                }
               />
             ))}
             {hostingCount > 3 && (
@@ -170,13 +170,12 @@ const DashboardScreen = () => {
                 label={`View All ${hostingCount} Services`}
                 variant="secondary"
                 size="sm"
-                onPress={() => navigation.navigate('Services')}
+                onPress={() => navigation.navigate("Services")}
               />
             )}
           </Card>
         )}
 
-        {/* System Health */}
         <Card title="System Health" variant="elevated">
           <View style={styles.healthSection}>
             <View style={styles.healthRow}>
@@ -202,7 +201,6 @@ const DashboardScreen = () => {
           </View>
         </Card>
 
-        {/* Recent Activity */}
         {timelineEvents.length > 0 && (
           <Card title="Recent Activity" variant="default">
             <Timeline events={timelineEvents.slice(0, 5)} />
@@ -215,7 +213,7 @@ const DashboardScreen = () => {
             <Button
               label="Manage Services"
               variant="primary"
-              onPress={() => navigation.navigate('Services')}
+              onPress={() => navigation.navigate("Services")}
               fullWidth
             />
           </View>
@@ -223,13 +221,15 @@ const DashboardScreen = () => {
             <Button
               label="View Invoices"
               variant="secondary"
-              onPress={() => navigation.navigate('Account', { screen: 'InvoiceList' })}
+              onPress={() =>
+                navigation.navigate("Account", { screen: "InvoiceList" })
+              }
               style={styles.halfButton}
             />
             <Button
               label="Support"
               variant="secondary"
-              onPress={() => navigation.navigate('Support')}
+              onPress={() => navigation.navigate("Support")}
               style={styles.halfButton}
             />
           </View>
@@ -242,7 +242,7 @@ const DashboardScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: "#FAFAFA",
   },
   scrollView: {
     flex: 1,
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
   },
   greetingText: {
     fontSize: 28,
-    fontWeight: '700',
+    fontWeight: "700",
     color: colors.neutral[900],
     marginBottom: spacing[1],
   },
@@ -266,18 +266,20 @@ const styles = StyleSheet.create({
     color: colors.neutral[600],
   },
   metricsRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: spacing[5],
     gap: spacing[3],
     marginBottom: spacing[6],
+    // Old style with marginRight instead of gap - keeping for older RN versions
+    // marginRight: -spacing[3],
   },
   metricBox: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     padding: spacing[4],
-    alignItems: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
@@ -287,27 +289,27 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: spacing[2],
   },
   metricValue: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
     color: colors.neutral[900],
     marginBottom: spacing[1],
   },
   metricLabel: {
     fontSize: 12,
     color: colors.neutral[600],
-    textAlign: 'center',
+    textAlign: "center",
   },
   servicesSection: {
     paddingHorizontal: spacing[5],
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: "700",
     color: colors.neutral[900],
     marginBottom: spacing[4],
   },
@@ -323,7 +325,7 @@ const styles = StyleSheet.create({
     marginRight: spacing[2],
   },
   metricsGrid: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: spacing[3],
     marginHorizontal: -spacing[4],
   },
@@ -334,7 +336,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing[6],
   },
   buttonRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: spacing[2],
   },
   halfButton: {
@@ -344,16 +346,16 @@ const styles = StyleSheet.create({
     gap: spacing[4],
   },
   healthRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   healthLabel: {
     flex: 1,
   },
   healthText: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     color: colors.neutral[700],
   },
   healthMetric: {
@@ -361,9 +363,15 @@ const styles = StyleSheet.create({
   },
   healthMetricLabel: {
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: "500",
     color: colors.neutral[600],
   },
+  // Unused styles - might need later
+  // loadingContainer: {
+  //   flex: 1,
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  // },
 });
 
 export default DashboardScreen;

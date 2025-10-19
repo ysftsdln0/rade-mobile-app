@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -10,26 +10,26 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import * as LocalAuthentication from 'expo-local-authentication';
-import { Controller, useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import * as LocalAuthentication from "expo-local-authentication";
+import { Controller, useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-import { useAppDispatch, useAppSelector } from '../../store';
-import { loginAsync, loadUserFromStorageAsync } from '../../store/authThunks';
-import { storageService } from '../../services/storage';
-import { colors, spacing } from '../../styles';
-import { APP_CONFIG } from '../../constants';
-import { TextInput } from '../../components/common/TextInput';
-import { Button } from '../../components/common/Button';
+import { useAppDispatch, useAppSelector } from "../../store";
+import { loginAsync, loadUserFromStorageAsync } from "../../store/authThunks";
+import { storageService } from "../../services/storage";
+import { colors, spacing } from "../../styles";
+import { APP_CONFIG } from "../../constants";
+import { TextInput } from "../../components/common/TextInput";
+import { Button } from "../../components/common/Button";
 
 const loginSchema = z.object({
-  email: z.string().email('Geçerli bir e-posta adresi girin.'),
-  password: z.string().min(6, 'Şifre en az 6 karakter olmalı.'),
+  email: z.string().email("Geçerli bir e-posta adresi girin."),
+  password: z.string().min(6, "Şifre en az 6 karakter olmalı."),
   rememberMe: z.boolean(),
 });
 
@@ -42,7 +42,7 @@ const LoginScreen = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
-  const demoLoginEnabled = process.env.EXPO_PUBLIC_ENABLE_DEMO_LOGIN !== 'false';
+  const demoLoginEnabled = process.env.EXPO_PUBLIC_ENABLE_DEMO_LOGIN !== "false";
 
   const {
     control,
@@ -55,13 +55,13 @@ const LoginScreen = () => {
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
       rememberMe: false,
     },
   });
 
-  const rememberMe = watch('rememberMe');
+  const rememberMe = watch("rememberMe");
 
   useEffect(() => {
     checkBiometricAvailability();
@@ -72,12 +72,11 @@ const LoginScreen = () => {
     const hasHardware = await LocalAuthentication.hasHardwareAsync();
     const isEnrolled = await LocalAuthentication.isEnrolledAsync();
     const biometricEnabled = await storageService.getBiometricEnabled();
-
     setBiometricAvailable(hasHardware && isEnrolled && biometricEnabled);
   };
 
   const loadSavedCredentials = async () => {
-    const savedEmail = await storageService.getItem<string>('saved_email');
+    const savedEmail = await storageService.getItem<string>("saved_email");
     if (savedEmail) {
       reset((prev) => ({ ...prev, email: savedEmail, rememberMe: true }));
     }
@@ -86,109 +85,96 @@ const LoginScreen = () => {
   const onSubmit = async ({ email, password, rememberMe }: LoginFormValues) => {
     const normalizedEmail = email.trim().toLowerCase();
 
-    if (
-      demoLoginEnabled &&
-      normalizedEmail === 'demo@rade.com' &&
-      password === 'demo123'
-    ) {
+    if (demoLoginEnabled && normalizedEmail === "demo@rade.com" && password === "demo123") {
       const demoUser = {
-        id: 'demo-user-1',
-        email: 'demo@rade.com',
-        firstName: 'Demo',
-        lastName: 'Kullanıcı',
-        company: 'RADE Demo Şirket',
-        phone: '+90 555 123 45 67',
-        avatar: '',
+        id: "demo-user-1",
+        email: "demo@rade.com",
+        firstName: "Demo",
+        lastName: "Kullanıcı",
+        company: "RADE Demo Şirket",
+        phone: "+90 555 123 45 67",
+        avatar: "",
         isVerified: true,
         twoFactorEnabled: false,
         createdAt: new Date().toISOString(),
         lastLogin: new Date().toISOString(),
       };
 
-      await storageService.setAuthTokens('demo-token-123', 'demo-refresh-token-456');
+      await storageService.setAuthTokens("demo-token-123", "demo-refresh-token-456");
       await storageService.setUserData(demoUser);
 
       dispatch({
-        type: 'auth/loginSuccess',
+        type: "auth/loginSuccess",
         payload: {
           user: demoUser,
-          token: 'demo-token-123',
-          refreshToken: 'demo-refresh-token-456',
+          token: "demo-token-123",
+          refreshToken: "demo-refresh-token-456",
         },
       });
 
       if (rememberMe) {
-        await storageService.setItem('saved_email', normalizedEmail);
+        await storageService.setItem("saved_email", normalizedEmail);
       }
 
-      navigation.replace('Main');
+      navigation.replace("Main");
       return;
     }
 
     try {
-      const result = await dispatch(
-        loginAsync({
-          email: normalizedEmail,
-          password,
-          rememberMe,
-        })
-      );
+      const result = await dispatch(loginAsync({
+        email: normalizedEmail,
+        password,
+        rememberMe,
+      }));
 
       if (loginAsync.fulfilled.match(result)) {
         if (rememberMe) {
-          await storageService.setItem('saved_email', normalizedEmail);
+          await storageService.setItem("saved_email", normalizedEmail);
         } else {
-          await storageService.removeItem('saved_email');
+          await storageService.removeItem("saved_email");
         }
-
-        navigation.replace('Main');
+        navigation.replace("Main");
       } else {
-        Alert.alert('Giriş Hatası', result.payload as string);
+        Alert.alert("Giriş Hatası", result.payload as string);
       }
     } catch (error) {
-      Alert.alert('Hata', 'Bir hata oluştu. Lütfen tekrar deneyin.');
+      Alert.alert("Hata", "Bir hata oluştu. Lütfen tekrar deneyin.");
     }
   };
 
   const handleBiometricLogin = async () => {
     try {
       const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Giriş yapmak için parmak izinizi kullanın',
-        fallbackLabel: 'Şifre kullan',
+        promptMessage: "Giriş yapmak için parmak izinizi kullanın",
+        fallbackLabel: "Şifre kullan",
       });
 
       if (result.success) {
-        // Load stored user data and validate session
         const loadResult = await dispatch(loadUserFromStorageAsync());
-        
+
         if (loadUserFromStorageAsync.fulfilled.match(loadResult)) {
-          // Token is valid and user loaded successfully
-          navigation.replace('Main');
+          navigation.replace("Main");
         } else {
-          // Token is invalid or expired
-          Alert.alert(
-            'Oturum Süresi Doldu',
-            'Lütfen e-posta ve şifrenizle tekrar giriş yapın.'
-          );
+          Alert.alert("Oturum Süresi Doldu", "Lütfen e-posta ve şifrenizle tekrar giriş yapın.");
         }
       }
     } catch (error) {
-      Alert.alert('Hata', 'Biyometrik kimlik doğrulama başarısız oldu.');
+      Alert.alert("Hata", "Biyometrik kimlik doğrulama başarısız oldu.");
     }
   };
 
   const handleForgotPassword = () => {
-    navigation.navigate('ForgotPassword');
+    navigation.navigate("ForgotPassword");
   };
 
   const handleRegister = () => {
-    navigation.navigate('Register');
+    navigation.navigate("Register");
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoid}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -214,9 +200,9 @@ const LoginScreen = () => {
               <TouchableOpacity
                 style={styles.fillDemoButton}
                 onPress={() => {
-                  setValue('email', 'demo@rade.com');
-                  setValue('password', 'demo123');
-                  clearErrors(['email', 'password']);
+                  setValue("email", "demo@rade.com");
+                  setValue("password", "demo123");
+                  clearErrors(["email", "password"]);
                 }}
               >
                 <Text style={styles.fillDemoText}>Demo Bilgileri Doldur</Text>
@@ -240,7 +226,13 @@ const LoginScreen = () => {
                   textContentType="emailAddress"
                   editable={!isLoading}
                   error={errors.email?.message}
-                  icon={<Ionicons name="mail-outline" size={20} color={colors.neutral[500]} />}
+                  icon={
+                    <Ionicons
+                      name="mail-outline"
+                      size={20}
+                      color={colors.neutral[500]}
+                    />
+                  }
                 />
               )}
             />
@@ -260,7 +252,13 @@ const LoginScreen = () => {
                     textContentType="password"
                     editable={!isLoading}
                     error={errors.password?.message}
-                    icon={<Ionicons name="lock-closed-outline" size={20} color={colors.neutral[500]} />}
+                    icon={
+                      <Ionicons
+                        name="lock-closed-outline"
+                        size={20}
+                        color={colors.neutral[500]}
+                      />
+                    }
                     containerStyle={styles.passwordInputContainer}
                   />
                   <TouchableOpacity
@@ -269,7 +267,7 @@ const LoginScreen = () => {
                     disabled={isLoading}
                   >
                     <Ionicons
-                      name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                      name={showPassword ? "eye-outline" : "eye-off-outline"}
                       size={20}
                       color={colors.neutral[500]}
                     />
@@ -281,11 +279,11 @@ const LoginScreen = () => {
             <View style={styles.optionsRow}>
               <TouchableOpacity
                 style={styles.rememberMe}
-                onPress={() => setValue('rememberMe', !rememberMe)}
+                onPress={() => setValue("rememberMe", !rememberMe)}
                 disabled={isLoading}
               >
                 <Ionicons
-                  name={rememberMe ? 'checkbox' : 'checkbox-outline'}
+                  name={rememberMe ? "checkbox" : "checkbox-outline"}
                   size={20}
                   color={rememberMe ? colors.primary[500] : colors.neutral[400]}
                 />
@@ -309,8 +307,15 @@ const LoginScreen = () => {
             />
 
             {biometricAvailable && (
-              <TouchableOpacity style={styles.biometricButton} onPress={handleBiometricLogin}>
-                <Ionicons name="finger-print" size={24} color={colors.primary[500]} />
+              <TouchableOpacity
+                style={styles.biometricButton}
+                onPress={handleBiometricLogin}
+              >
+                <Ionicons
+                  name="finger-print"
+                  size={24}
+                  color={colors.primary[500]}
+                />
                 <Text style={styles.biometricText}>Biometric Login</Text>
               </TouchableOpacity>
             )}
@@ -351,7 +356,7 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   keyboardAvoid: {
     flex: 1,
@@ -361,41 +366,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[5],
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: spacing[10],
     paddingBottom: spacing[8],
   },
   logoContainer: {
     width: 160,
     height: 160,
-    backgroundColor: '#2C5234',
+    backgroundColor: "#2C5234",
     borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: spacing[6],
   },
   logoText: {
     fontSize: 48,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
+    fontWeight: "bold",
+    color: "#FFFFFF",
     letterSpacing: 2,
   },
   logoSubtext: {
     fontSize: 12,
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     letterSpacing: 2,
     marginTop: spacing[1],
   },
   welcomeText: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.neutral[900],
     marginBottom: spacing[2],
   },
   subtitleText: {
     fontSize: 16,
     color: colors.neutral[600],
-    textAlign: 'center',
+    textAlign: "center",
     lineHeight: 22,
   },
   form: {
@@ -403,27 +408,27 @@ const styles = StyleSheet.create({
     paddingTop: spacing[5],
   },
   passwordWrapper: {
-    position: 'relative',
+    position: "relative",
   },
   passwordInputContainer: {
     marginBottom: 0,
   },
   passwordToggle: {
-    position: 'absolute',
+    position: "absolute",
     right: spacing[3],
     top: spacing[3],
     padding: spacing[2],
     zIndex: 10,
   },
   optionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: spacing[6],
   },
   rememberMe: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   rememberMeText: {
     marginLeft: spacing[2],
@@ -433,12 +438,12 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     fontSize: 14,
     color: colors.primary[500],
-    fontWeight: '600',
+    fontWeight: "600",
   },
   biometricButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1,
     borderColor: colors.primary[500],
     borderRadius: 12,
@@ -449,11 +454,11 @@ const styles = StyleSheet.create({
     marginLeft: spacing[2],
     color: colors.primary[500],
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: spacing[6],
   },
   dividerLine: {
@@ -467,8 +472,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   socialLoginContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     gap: spacing[4],
     marginBottom: spacing[6],
   },
@@ -477,15 +482,15 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 28,
     backgroundColor: colors.neutral[100],
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: 1,
     borderColor: colors.neutral[200],
   },
   registerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   registerText: {
     fontSize: 14,
@@ -494,10 +499,10 @@ const styles = StyleSheet.create({
   registerLink: {
     fontSize: 14,
     color: colors.primary[500],
-    fontWeight: '600',
+    fontWeight: "600",
   },
   footer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: spacing[10],
     marginBottom: spacing[6],
   },
@@ -519,13 +524,13 @@ const styles = StyleSheet.create({
     borderColor: `${colors.semantic.info}30`,
   },
   demoHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: spacing[2],
   },
   demoTitle: {
     marginLeft: spacing[2],
-    fontWeight: '700',
+    fontWeight: "700",
     color: colors.semantic.info,
   },
   demoText: {
@@ -534,7 +539,7 @@ const styles = StyleSheet.create({
   },
   fillDemoButton: {
     marginTop: spacing[3],
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     paddingHorizontal: spacing[3],
     paddingVertical: spacing[1],
     borderRadius: 8,
@@ -542,7 +547,7 @@ const styles = StyleSheet.create({
   },
   fillDemoText: {
     color: colors.semantic.info,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   errorText: {
     color: colors.semantic.error,
