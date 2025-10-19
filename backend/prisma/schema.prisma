@@ -1,0 +1,248 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  company       String?
+  phone         String?
+  isVerified    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  lastLogin     DateTime?
+
+  // Relations
+  hostingPackages  HostingPackage[]
+  activities       ActivityItem[]
+  invoices         Invoice[]
+  paymentMethods   PaymentMethod[]
+  supportTickets   SupportTicket[]
+  domains          Domain[]
+  servers          Server[]
+  refreshTokens    RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model HostingPackage {
+  id              String   @id @default(uuid())
+  userId          String
+  name            String
+  domain          String
+  packageType     String   // 'shared' | 'vps' | 'dedicated'
+  status          String   // 'active' | 'suspended' | 'expired' | 'pending'
+  diskUsage       Int
+  diskLimit       Int
+  bandwidthUsage  Int
+  bandwidthLimit  Int
+  expiryDate      DateTime
+  autoRenew       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  
+  // Extended fields for HostingDetail
+  ipAddress       String?
+  nameservers     String[] @default([])
+  features        String[] @default([])
+  
+  // Relation fields for HostingUsage
+  diskUsed        Int?
+  diskTotal       Int?
+  bandwidthUsed   Int?
+  bandwidthTotal  Int?
+  databases       Int      @default(0)
+  ftpAccounts     Int      @default(0)
+  emailAccounts   Int      @default(0)
+  backupsEnabled  Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("hosting_packages")
+}
+
+model ActivityItem {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  context   String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("activities")
+}
+
+model Invoice {
+  id       String   @id @default(uuid())
+  userId   String
+  number   String   @unique
+  date     DateTime
+  dueDate  DateTime
+  amount   Float
+  currency String   @default("USD")
+  status   String   // 'paid' | 'unpaid' | 'overdue' | 'cancelled'
+
+  items InvoiceItem[]
+  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([date])
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          String  @id @default(uuid())
+  invoiceId   String
+  description String
+  quantity    Int
+  unitPrice   Float
+  total       Float
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@map("invoice_items")
+}
+
+model PaymentMethod {
+  id         String  @id @default(uuid())
+  userId     String
+  type       String  // 'credit_card' | 'bank_transfer' | 'paypal'
+  isDefault  Boolean @default(false)
+  lastFour   String?
+  expiryDate String?
+  cardType   String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("payment_methods")
+}
+
+model SupportTicket {
+  id         String   @id @default(uuid())
+  userId     String
+  subject    String
+  status     String   // 'open' | 'pending' | 'resolved' | 'closed'
+  priority   String   // 'low' | 'medium' | 'high' | 'urgent'
+  department String
+  createdAt  DateTime @default(now())
+  lastReply  DateTime
+
+  replies TicketReply[]
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("support_tickets")
+}
+
+model TicketReply {
+  id            String   @id @default(uuid())
+  ticketId      String
+  message       String   @db.Text
+  isFromSupport Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  ticket SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("ticket_replies")
+}
+
+model Domain {
+  id                 String   @id @default(uuid())
+  userId             String
+  name               String   @unique
+  status             String   // 'active' | 'expired' | 'pending' | 'transferred'
+  registrationDate   DateTime
+  expiryDate         DateTime
+  autoRenew          Boolean  @default(false)
+  nameservers        String[] @default([])
+  isPrivacyProtected Boolean  @default(false)
+
+  dnsRecords DnsRecord[]
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("domains")
+}
+
+model DnsRecord {
+  id       String  @id @default(uuid())
+  domainId String
+  type     String  // 'A' | 'AAAA' | 'CNAME' | 'TXT' | 'MX'
+  host     String
+  value    String
+  ttl      Int     @default(3600)
+  priority Int?
+
+  domain Domain @relation(fields: [domainId], references: [id], onDelete: Cascade)
+
+  @@index([domainId])
+  @@map("dns_records")
+}
+
+model Server {
+  id       String   @id @default(uuid())
+  userId   String
+  name     String
+  type     String   // 'vps' | 'dedicated'
+  status   String   // 'running' | 'stopped' | 'reboot' | 'rescue'
+  os       String
+  location String
+  ip       String
+  
+  // Server specs (embedded JSON in single columns for simplicity)
+  cpu     String
+  ram     String
+  disk    String
+  network String
+  
+  // Monitoring data
+  cpuUsage    Int
+  ramUsage    Int
+  diskUsage   Int
+  networkIn   Int
+  networkOut  Int
+  uptime      Int
+  
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("servers")
+}
