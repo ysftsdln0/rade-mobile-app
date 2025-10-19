@@ -1,5 +1,3 @@
-// Global TypeScript definitions for RADE Mobile App
-
 export interface User {
   id: string;
   email: string;
@@ -40,13 +38,12 @@ export interface RegisterData {
   acceptTerms: boolean;
 }
 
-// Hosting related types
 export interface HostingPackage {
   id: string;
   name: string;
   domain: string;
-  packageType: 'shared' | 'vps' | 'dedicated';
-  status: 'active' | 'suspended' | 'expired' | 'pending';
+  packageType: "shared" | "vps" | "dedicated";
+  status: "active" | "suspended" | "expired" | "pending";
   diskUsage: number;
   diskLimit: number;
   bandwidthUsage: number;
@@ -58,7 +55,7 @@ export interface HostingPackage {
 export interface Domain {
   id: string;
   name: string;
-  status: 'active' | 'expired' | 'pending' | 'transferred';
+  status: "active" | "expired" | "pending" | "transferred";
   registrationDate: string;
   expiryDate: string;
   autoRenew: boolean;
@@ -69,7 +66,7 @@ export interface Domain {
 export interface DatabaseInfo {
   id: string;
   name: string;
-  type: 'mysql' | 'postgresql';
+  type: "mysql" | "postgresql";
   size: number;
   users: DatabaseUser[];
   createdAt: string;
@@ -82,12 +79,11 @@ export interface DatabaseUser {
   host: string;
 }
 
-// Server related types
 export interface Server {
   id: string;
   name: string;
-  type: 'vps' | 'dedicated';
-  status: 'running' | 'stopped' | 'reboot' | 'rescue';
+  type: "vps" | "dedicated";
+  status: "running" | "stopped" | "reboot" | "rescue";
   os: string;
   location: string;
   ip: string;
@@ -111,7 +107,6 @@ export interface ServerMonitoring {
   uptime: number;
 }
 
-// Financial types
 export interface Invoice {
   id: string;
   number: string;
@@ -119,7 +114,7 @@ export interface Invoice {
   dueDate: string;
   amount: number;
   currency: string;
-  status: 'paid' | 'unpaid' | 'overdue' | 'cancelled';
+  status: "paid" | "unpaid" | "overdue" | "cancelled";
   items: InvoiceItem[];
 }
 
@@ -133,28 +128,26 @@ export interface InvoiceItem {
 
 export interface PaymentMethod {
   id: string;
-  type: 'credit_card' | 'bank_transfer' | 'paypal';
+  type: "credit_card" | "bank_transfer" | "paypal";
   isDefault: boolean;
   lastFour?: string;
   expiryDate?: string;
   cardType?: string;
 }
 
-// Activity (recent user/system events)
 export interface ActivityItem {
   id: string;
-  type: string; // e.g., 'ssl' | 'backup' | 'invoice'
+  type: string;
   title: string;
-  context?: string; // domain / server / invoice number
-  createdAt: string; // ISO date
+  context?: string;
+  createdAt: string;
 }
 
-// Support types
 export interface SupportTicket {
   id: string;
   subject: string;
-  status: 'open' | 'pending' | 'resolved' | 'closed';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: "open" | "pending" | "resolved" | "closed";
+  priority: "low" | "medium" | "high" | "urgent";
   department: string;
   createdAt: string;
   lastReply: string;
@@ -169,7 +162,6 @@ export interface TicketReply {
   attachments?: string[];
 }
 
-// Navigation types
 export type RootStackParamList = {
   Splash: undefined;
   Onboarding: undefined;
@@ -204,12 +196,17 @@ export type ServicesStackParamList = {
   ServerDetails: { serverId: string };
 };
 
-// API Response types
 export interface ApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
-  errors?: string[];
+  errors?: ApiError[];
+}
+
+export interface ApiError {
+  code: string;
+  message: string;
+  field?: string;
 }
 
 export interface PaginatedResponse<T> {
@@ -219,5 +216,6 @@ export interface PaginatedResponse<T> {
     limit: number;
     total: number;
     totalPages: number;
+    hasMore?: boolean;
   };
 }
