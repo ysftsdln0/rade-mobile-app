@@ -10,6 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing } from '../../styles';
 import { useLanguage } from '../../utils/LanguageContext';
+import { useTheme } from '../../utils/ThemeContext';
 
 type Props = {
   navigation?: any;
@@ -17,6 +18,7 @@ type Props = {
 
 const BillingMainScreen = ({ navigation }: Props) => {
   const { t } = useLanguage();
+  const { colors: themeColors, isDark } = useTheme();
   
   const paymentMethods = [
     {
@@ -57,10 +59,10 @@ const BillingMainScreen = ({ navigation }: Props) => {
   ];
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: themeColors.background }]}>
+      <View style={[styles.container, { backgroundColor: themeColors.background }]}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t.billing.title}</Text>
+          <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t.billing.title}</Text>
         </View>
 
         <ScrollView
@@ -70,8 +72,8 @@ const BillingMainScreen = ({ navigation }: Props) => {
         >
         {/* Your Plan */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t.billing.yourPlan}</Text>
-          <View style={styles.planCard}>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>{t.billing.yourPlan}</Text>
+          <View style={[styles.planCard, { backgroundColor: themeColors.primary }]}>
             <Text style={styles.planName}>{t.billing.proPlan}</Text>
             <View style={styles.planPriceRow}>
               <Text style={styles.planPrice}>$25</Text>
@@ -166,11 +168,9 @@ const BillingMainScreen = ({ navigation }: Props) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
   },
   header: {
     paddingHorizontal: spacing[5],
@@ -180,7 +180,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: colors.neutral[900],
     textAlign: 'center',
   },
   scrollView: {
@@ -196,13 +195,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: colors.neutral[900],
     marginBottom: spacing[3],
   },
   planCard: {
     borderRadius: 16,
     padding: spacing[6],
-    backgroundColor: colors.primary[500], // #135bec
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,

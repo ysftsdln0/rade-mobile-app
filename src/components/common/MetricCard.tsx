@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text, ViewStyle } from 'react-native';
 import { colors, spacing, shadows } from '../../styles';
+import { useTheme } from '../../utils/ThemeContext';
 
 interface MetricCardProps {
   label: string;
@@ -58,11 +59,16 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 }) => {
   const isPositive = change !== undefined && change > 0;
   const changeText = change !== undefined ? `${isPositive ? '↑' : '↓'} ${Math.abs(change)}%` : '';
+  const { colors: themeColors } = useTheme();
 
   return (
     <View
       style={[
         styles.metricCard,
+        { 
+          backgroundColor: themeColors.card,
+          borderColor: themeColors.cardBorder
+        },
         shadows.subtle,
         style,
       ]}
@@ -73,9 +79,9 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
       {/* Header with label and icon */}
       <View style={styles.metricHeader}>
-        <Text style={styles.metricLabel}>{label}</Text>
+        <Text style={[styles.metricLabel, { color: themeColors.textSecondary }]}>{label}</Text>
         {Icon && (
-          <View style={styles.iconContainer}>
+          <View style={[styles.iconContainer, { backgroundColor: themeColors.surfaceAlt }]}>
             {Icon}
           </View>
         )}
@@ -83,8 +89,8 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
       {/* Main metric value */}
       <View style={styles.metricValue}>
-        <Text style={styles.value}>{value}</Text>
-        {unit && <Text style={styles.unit}>{unit}</Text>}
+        <Text style={[styles.value, { color: themeColors.text }]}>{value}</Text>
+        {unit && <Text style={[styles.unit, { color: themeColors.textSecondary }]}>{unit}</Text>}
       </View>
 
       {/* Change indicator */}
@@ -104,10 +110,8 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
 const styles = StyleSheet.create({
   metricCard: {
-    backgroundColor: colors.neutral[50],
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.neutral[200],
     padding: spacing[4],
     position: 'relative',
     overflow: 'hidden',
@@ -143,7 +147,6 @@ const styles = StyleSheet.create({
   metricLabel: {
     fontSize: 12,
     fontWeight: '600',
-    color: colors.neutral[600],
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -151,7 +154,6 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 6,
-    backgroundColor: colors.primary[50],
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -164,11 +166,9 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 24,
     fontWeight: '700',
-    color: colors.neutral[900],
   },
   unit: {
     fontSize: 12,
-    color: colors.neutral[600],
     fontWeight: '500',
   },
   change: {

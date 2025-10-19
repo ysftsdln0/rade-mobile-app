@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text, Pressable, ViewStyle } from 'react-native';
 import { colors, spacing } from '../../styles';
+import { useTheme } from '../../utils/ThemeContext';
 
 interface DataRowProps {
   label: string;
@@ -55,18 +56,20 @@ export const DataRow: React.FC<DataRowProps> = ({
   style,
   testID,
 }) => {
+  const { colors: themeColors } = useTheme();
+  
   const content = (
     <>
       {/* Left side: icon and label */}
       <View style={styles.leftSection}>
         {Icon && (
-          <View style={styles.iconContainer}>
+          <View style={[styles.iconContainer, { backgroundColor: themeColors.surfaceAlt }]}>
             {Icon}
           </View>
         )}
         <View style={styles.labelSection}>
-          <Text style={styles.label}>{label}</Text>
-          {secondary && <Text style={styles.secondary}>{secondary}</Text>}
+          <Text style={[styles.label, { color: themeColors.text }]}>{label}</Text>
+          {secondary && <Text style={[styles.secondary, { color: themeColors.textSecondary }]}>{secondary}</Text>}
         </View>
       </View>
 
@@ -75,7 +78,7 @@ export const DataRow: React.FC<DataRowProps> = ({
         {status && (
           <View style={[styles.statusBadge, styles[`status_${status}`]]} />
         )}
-        <Text style={styles.value}>{value}</Text>
+        <Text style={[styles.value, { color: themeColors.textSecondary }]}>{value}</Text>
       </View>
     </>
   );
@@ -86,8 +89,9 @@ export const DataRow: React.FC<DataRowProps> = ({
         onPress={onPress}
         style={({ pressed }) => [
           styles.rowContainer,
-          divider && styles.withDivider,
-          pressed && styles.rowPressed,
+          { backgroundColor: themeColors.card },
+          divider && { ...styles.withDivider, borderBottomColor: themeColors.border },
+          pressed && { backgroundColor: themeColors.surfaceAlt },
           style,
         ]}
         testID={testID}
@@ -101,7 +105,8 @@ export const DataRow: React.FC<DataRowProps> = ({
     <View
       style={[
         styles.rowContainer,
-        divider && styles.withDivider,
+        { backgroundColor: themeColors.card },
+        divider && { ...styles.withDivider, borderBottomColor: themeColors.border },
         style,
       ]}
       testID={testID}
@@ -118,14 +123,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[3],
-    backgroundColor: colors.neutral[50],
   },
   withDivider: {
     borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[100],
   },
   rowPressed: {
-    backgroundColor: colors.neutral[100],
+    // Handled dynamically in component
   },
   leftSection: {
     flex: 1,
@@ -137,7 +140,6 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 6,
-    backgroundColor: colors.primary[50],
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -148,11 +150,9 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.neutral[900],
   },
   secondary: {
     fontSize: 12,
-    color: colors.neutral[600],
   },
   rightSection: {
     flexDirection: 'row',
@@ -180,7 +180,6 @@ const styles = StyleSheet.create({
   value: {
     fontSize: 14,
     fontWeight: '500',
-    color: colors.neutral[700],
     minWidth: 60,
     textAlign: 'right',
   },

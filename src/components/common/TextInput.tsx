@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, TextInput as RNTextInput, TextInputProps, ViewStyle, TextStyle } from 'react-native';
 import { colors, spacing, typography } from '../../styles';
+import { useTheme } from '../../utils/ThemeContext';
 
 interface TextInputFieldProps extends Omit<TextInputProps, 'style'> {
   label?: string;
@@ -54,6 +55,7 @@ export const TextInput: React.FC<TextInputFieldProps> = ({
   ...props
 }) => {
   const [focused, setFocused] = useState(false);
+  const { colors: themeColors, isDark } = useTheme();
 
   const handleFocus = (e: any) => {
     setFocused(true);
@@ -67,11 +69,18 @@ export const TextInput: React.FC<TextInputFieldProps> = ({
 
   return (
     <View style={[styles.container, containerStyle]} testID={testID}>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && <Text style={[styles.label, { color: themeColors.textSecondary }]}>{label}</Text>}
       <View
         style={[
           styles.inputWrapper,
-          focused && styles.focused,
+          { 
+            borderColor: themeColors.inputBorder,
+            backgroundColor: themeColors.input
+          },
+          focused && { 
+            borderColor: themeColors.primary,
+            backgroundColor: isDark ? themeColors.surfaceAlt : `${colors.primary[500]}08`
+          },
           error && styles.errorState,
         ]}
       >
@@ -86,10 +95,11 @@ export const TextInput: React.FC<TextInputFieldProps> = ({
           onBlur={handleBlur}
           style={[
             styles.input,
+            { color: themeColors.text },
             Icon ? styles.inputWithIcon : {},
             inputStyle,
           ]}
-          placeholderTextColor={colors.neutral[400]}
+          placeholderTextColor={themeColors.textTertiary}
           accessibilityLabel={label || props.placeholder}
           accessibilityState={{ disabled: props.editable === false }}
         />
@@ -106,7 +116,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: typography.label.fontSize,
     fontWeight: '600',
-    color: colors.neutral[700],
     marginBottom: spacing[2],
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -118,12 +127,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[3],
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: colors.neutral[200],
-    backgroundColor: colors.neutral[50],
   },
   focused: {
-    borderColor: colors.primary[500],
-    backgroundColor: colors.primary[50],
+    // Handled dynamically in component
   },
   errorState: {
     borderColor: colors.semantic.error,
@@ -137,7 +143,6 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 14,
-    color: colors.neutral[900],
     lineHeight: 20,
   },
   inputWithIcon: {

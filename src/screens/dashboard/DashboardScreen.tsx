@@ -7,6 +7,7 @@ import { useAppSelector } from "../../store";
 import { apiService } from "../../services/api";
 import { transformToTimelineEvents } from "../../utils/activityHelpers";
 import { useLanguage } from "../../utils/LanguageContext";
+import { useTheme } from "../../utils/ThemeContext";
 import {
   DashboardHeader,
   Card,
@@ -25,6 +26,7 @@ const DashboardScreen = () => {
   const navigation = useNavigation<any>();
   const { user } = useAppSelector((state) => state.auth);
   const { t, language } = useLanguage();
+  const { colors: themeColors, isDark } = useTheme();
 
   const hostingQuery = useQuery({
     queryKey: ["hostingPackages"],
@@ -61,7 +63,7 @@ const DashboardScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -69,50 +71,50 @@ const DashboardScreen = () => {
       >
         {/* Page Header - Figma Design */}
         <View style={styles.customHeader}>
-          <Text style={styles.greetingText}>
+          <Text style={[styles.greetingText, { color: themeColors.text }]}>
             {getGreeting()}, {user?.firstName || t.dashboard.user}!
           </Text>
-          <Text style={styles.overviewText}>
+          <Text style={[styles.overviewText, { color: themeColors.textSecondary }]}>
             {t.dashboard.accountOverview}
           </Text>
         </View>
 
         <View style={styles.metricsRow}>
-          <View style={styles.metricBox}>
+          <View style={[styles.metricBox, { backgroundColor: themeColors.card }]}>
             <View
               style={[
                 styles.metricIcon,
-                { backgroundColor: colors.primary[100] },
+                { backgroundColor: isDark ? themeColors.surfaceAlt : colors.primary[100] },
               ]}
             >
               <Ionicons
                 name="globe-outline"
                 size={24}
-                color={colors.primary[500]}
+                color={themeColors.primary}
               />
             </View>
-            <Text style={styles.metricValue}>{hostingCount + 12}</Text>
-            <Text style={styles.metricLabel}>
+            <Text style={[styles.metricValue, { color: themeColors.text }]}>{hostingCount + 12}</Text>
+            <Text style={[styles.metricLabel, { color: themeColors.textSecondary }]}>
               {t.dashboard.totalWebsites}
             </Text>
           </View>
 
-          <View style={styles.metricBox}>
-            <View style={[styles.metricIcon, { backgroundColor: "#E8F5E9" }]}>
+          <View style={[styles.metricBox, { backgroundColor: themeColors.card }]}>
+            <View style={[styles.metricIcon, { backgroundColor: isDark ? themeColors.surfaceAlt : "#E8F5E9" }]}>
               <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
             </View>
-            <Text style={styles.metricValue}>99.9%</Text>
-            <Text style={styles.metricLabel}>
+            <Text style={[styles.metricValue, { color: themeColors.text }]}>99.9%</Text>
+            <Text style={[styles.metricLabel, { color: themeColors.textSecondary }]}>
               {t.dashboard.uptime}
             </Text>
           </View>
 
-          <View style={styles.metricBox}>
-            <View style={[styles.metricIcon, { backgroundColor: "#FFF3E0" }]}>
+          <View style={[styles.metricBox, { backgroundColor: themeColors.card }]}>
+            <View style={[styles.metricIcon, { backgroundColor: isDark ? themeColors.surfaceAlt : "#FFF3E0" }]}>
               <Ionicons name="help-circle-outline" size={24} color="#FF9800" />
             </View>
-            <Text style={styles.metricValue}>2</Text>
-            <Text style={styles.metricLabel}>
+            <Text style={[styles.metricValue, { color: themeColors.text }]}>2</Text>
+            <Text style={[styles.metricLabel, { color: themeColors.textSecondary }]}>
               {t.dashboard.supportTickets}
             </Text>
           </View>
@@ -120,7 +122,7 @@ const DashboardScreen = () => {
 
         {/* My Services Section */}
         <View style={styles.servicesSection}>
-          <Text style={styles.sectionTitle}>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>
             {t.dashboard.myServices}
           </Text>
           <ScrollView
@@ -195,7 +197,7 @@ const DashboardScreen = () => {
             <View style={styles.healthSection}>
             <View style={styles.healthRow}>
               <View style={styles.healthLabel}>
-                <Text style={styles.healthText}>
+                <Text style={[styles.healthText, { color: themeColors.textSecondary }]}>
                   {t.dashboard.serverStatus}
                 </Text>
               </View>
@@ -205,13 +207,13 @@ const DashboardScreen = () => {
               />
             </View>
             <View style={styles.healthMetric}>
-              <Text style={styles.healthMetricLabel}>
+              <Text style={[styles.healthMetricLabel, { color: themeColors.textSecondary }]}>
                 {t.dashboard.systemLoad}
               </Text>
               <Progress progress={65} showLabel variant="linear" />
             </View>
             <View style={styles.healthMetric}>
-              <Text style={styles.healthMetricLabel}>
+              <Text style={[styles.healthMetricLabel, { color: themeColors.textSecondary }]}>
                 {t.dashboard.diskUsage}
               </Text>
               <Progress progress={45} showLabel variant="linear" />
@@ -267,7 +269,6 @@ const DashboardScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FAFAFA",
   },
   scrollView: {
     flex: 1,
@@ -283,12 +284,10 @@ const styles = StyleSheet.create({
   greetingText: {
     fontSize: 28,
     fontWeight: "700",
-    color: colors.neutral[900],
     marginBottom: spacing[1],
   },
   overviewText: {
     fontSize: 16,
-    color: colors.neutral[600],
   },
   metricsRow: {
     flexDirection: "row",
@@ -300,7 +299,6 @@ const styles = StyleSheet.create({
   },
   metricBox: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
     borderRadius: 16,
     padding: spacing[4],
     alignItems: "center",
@@ -321,12 +319,10 @@ const styles = StyleSheet.create({
   metricValue: {
     fontSize: 24,
     fontWeight: "700",
-    color: colors.neutral[900],
     marginBottom: spacing[1],
   },
   metricLabel: {
     fontSize: 12,
-    color: colors.neutral[600],
     textAlign: "center",
   },
   servicesSection: {
@@ -335,7 +331,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: colors.neutral[900],
     marginBottom: spacing[4],
   },
   horizontalMetricsContainer: {
@@ -386,7 +381,6 @@ const styles = StyleSheet.create({
   healthText: {
     fontSize: 12,
     fontWeight: "500",
-    color: colors.neutral[700],
   },
   healthMetric: {
     gap: spacing[1],
@@ -394,7 +388,6 @@ const styles = StyleSheet.create({
   healthMetricLabel: {
     fontSize: 11,
     fontWeight: "500",
-    color: colors.neutral[600],
   },
   compactCard: {
     paddingVertical: spacing[2],

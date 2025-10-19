@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
 import { View, StyleSheet, Text, Pressable, ViewStyle } from 'react-native';
 import { colors, spacing, shadows } from '../../styles';
+import { useTheme } from '../../utils/ThemeContext';
 
 interface CardProps {
   title?: string;
@@ -51,19 +52,25 @@ export const Card: React.FC<CardProps> = ({
   style,
   testID,
 }) => {
+  const { colors: themeColors } = useTheme();
+  
   return (
     <View
       style={[
         styles.card,
+        { 
+          backgroundColor: themeColors.card,
+          borderColor: themeColors.cardBorder
+        },
         styles[variant],
         style,
       ]}
       testID={testID}
     >
       {(title || action || status) && (
-        <View style={styles.cardHeader}>
+        <View style={[styles.cardHeader, { borderBottomColor: themeColors.border }]}>
           <View style={styles.headerContent}>
-            {title && <Text style={styles.cardTitle}>{title}</Text>}
+            {title && <Text style={[styles.cardTitle, { color: themeColors.text }]}>{title}</Text>}
             {status && (
               <View style={[styles.badge, styles[`badge_${status}`]]} />
             )}
@@ -91,10 +98,8 @@ export const Card: React.FC<CardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.primary[50],
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.neutral[200],
     overflow: 'hidden',
   },
   default: {
@@ -110,7 +115,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[3],
     borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[100],
   },
   headerContent: {
     flexDirection: 'row',
@@ -121,7 +125,6 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.neutral[900],
   },
   cardContent: {
     padding: spacing[4],

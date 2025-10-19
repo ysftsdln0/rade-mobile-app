@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View, ActivityIndicator, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, spacing } from '../../styles';
+import { useTheme } from '../../utils/ThemeContext';
 
 interface ButtonProps {
   label: string;
@@ -59,6 +60,7 @@ export const Button: React.FC<ButtonProps> = ({
   gradientColors = [colors.primary[500], colors.accent.gradient_end],
 }) => {
   const isDisabledOrLoading = disabled || loading;
+  const { colors: themeColors, isDark } = useTheme();
 
   const baseStyles = [
     styles.button,
@@ -108,20 +110,33 @@ export const Button: React.FC<ButtonProps> = ({
       disabled={isDisabledOrLoading}
       style={({ pressed }) => [
         ...baseStyles,
-        styles[`button_${variant}`],
+        variant === 'primary' && { backgroundColor: themeColors.primary },
+        variant === 'secondary' && { backgroundColor: themeColors.surfaceAlt },
+        variant === 'danger' && { backgroundColor: themeColors.error },
+        variant === 'ghost' && { 
+          backgroundColor: 'transparent',
+          borderWidth: 1.5,
+          borderColor: themeColors.border
+        },
         pressed && !isDisabledOrLoading && styles.buttonPressed,
       ]}
       testID={testID}
     >
       {loading ? (
         <ActivityIndicator
-          color={variant === 'secondary' ? colors.primary[500] : colors.neutral[50]}
+          color={variant === 'secondary' ? themeColors.primary : colors.neutral[50]}
           size="small"
         />
       ) : (
         <View style={styles.buttonContent}>
           {Icon && Icon}
-          <Text style={[styles.buttonText, styles[`text_${variant}`]]}>{label}</Text>
+          <Text style={[
+            styles.buttonText,
+            variant === 'primary' && { color: '#FFFFFF' },
+            variant === 'secondary' && { color: themeColors.text },
+            variant === 'danger' && { color: '#FFFFFF' },
+            variant === 'ghost' && { color: themeColors.primary },
+          ]}>{label}</Text>
         </View>
       )}
     </Pressable>
@@ -139,24 +154,6 @@ const styles = StyleSheet.create({
   gradientContainer: {
     borderRadius: 12,
     overflow: 'hidden',
-  },
-  // Primary: Professional Blue (action color)
-  button_primary: {
-    backgroundColor: colors.primary[500],
-  },
-  // Secondary: Light gray
-  button_secondary: {
-    backgroundColor: colors.neutral[100],
-  },
-  // Danger: Red
-  button_danger: {
-    backgroundColor: colors.semantic.error,
-  },
-  // Ghost: Outline only
-  button_ghost: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: colors.neutral[200],
   },
   // Sizes
   size_sm: {
@@ -182,18 +179,6 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 14,
     fontWeight: '600',
-  },
-  text_primary: {
-    color: colors.neutral[50],
-  },
-  text_secondary: {
-    color: colors.neutral[900],
-  },
-  text_danger: {
-    color: colors.neutral[50],
-  },
-  text_ghost: {
-    color: colors.primary[500],
   },
   text_gradient: {
     color: colors.neutral[50],

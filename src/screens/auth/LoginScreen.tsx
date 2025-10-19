@@ -28,12 +28,14 @@ import { APP_CONFIG } from "../../constants";
 import { TextInput } from "../../components/common/TextInput";
 import { Button } from "../../components/common/Button";
 import { useLanguage } from "../../utils/LanguageContext";
+import { useTheme } from "../../utils/ThemeContext";
 
 const LoginScreen = () => {
   const navigation = useNavigation<any>();
   const dispatch = useAppDispatch();
   const { isLoading } = useAppSelector((state) => state.auth);
   const { t, language } = useLanguage();
+  const { colors: themeColors, isDark } = useTheme();
 
   const [showPassword, setShowPassword] = useState(false);
   const [biometricAvailable, setBiometricAvailable] = useState(false);
@@ -196,7 +198,7 @@ const LoginScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoid}
@@ -210,22 +212,25 @@ const LoginScreen = () => {
                 resizeMode="contain"
               />
             </View>
-            <Text style={styles.welcomeText}>{t.auth.welcomeBack}</Text>
-            <Text style={styles.subtitleText}>
+            <Text style={[styles.welcomeText, { color: themeColors.text }]}>{t.auth.welcomeBack}</Text>
+            <Text style={[styles.subtitleText, { color: themeColors.textSecondary }]}>
               {t.auth.loginSubtitle}
             </Text>
           </View>
 
           {demoLoginEnabled && (
-            <View style={styles.demoBox}>
+            <View style={[styles.demoBox, { 
+              backgroundColor: isDark ? `${colors.semantic.info}20` : `${colors.semantic.info}12`,
+              borderColor: isDark ? `${colors.semantic.info}40` : `${colors.semantic.info}30`
+            }]}>
               <View style={styles.demoHeader}>
                 <Ionicons name="information-circle" size={20} color={colors.semantic.info} />
                 <Text style={styles.demoTitle}>{t.auth.demoAccount}</Text>
               </View>
-              <Text style={styles.demoText}>
+              <Text style={[styles.demoText, { color: themeColors.textSecondary }]}>
                 {t.auth.email}: demo@rade.com
               </Text>
-              <Text style={styles.demoText}>
+              <Text style={[styles.demoText, { color: themeColors.textSecondary }]}>
                 {t.auth.password}: demo123
               </Text>
               <TouchableOpacity
@@ -261,7 +266,7 @@ const LoginScreen = () => {
                     <Ionicons
                       name="mail-outline"
                       size={20}
-                      color={colors.neutral[500]}
+                      color={themeColors.textSecondary}
                     />
                   }
                 />
@@ -287,7 +292,7 @@ const LoginScreen = () => {
                       <Ionicons
                         name="lock-closed-outline"
                         size={20}
-                        color={colors.neutral[500]}
+                        color={themeColors.textSecondary}
                       />
                     }
                     containerStyle={styles.passwordInputContainer}
@@ -300,7 +305,7 @@ const LoginScreen = () => {
                     <Ionicons
                       name={showPassword ? "eye-outline" : "eye-off-outline"}
                       size={20}
-                      color={colors.neutral[500]}
+                      color={themeColors.textSecondary}
                     />
                   </TouchableOpacity>
                 </View>
@@ -316,13 +321,13 @@ const LoginScreen = () => {
                 <Ionicons
                   name={rememberMe ? "checkbox" : "checkbox-outline"}
                   size={20}
-                  color={rememberMe ? colors.primary[500] : colors.neutral[400]}
+                  color={rememberMe ? themeColors.primary : themeColors.textSecondary}
                 />
-                <Text style={styles.rememberMeText}>{t.auth.rememberMe}</Text>
+                <Text style={[styles.rememberMeText, { color: themeColors.textSecondary }]}>{t.auth.rememberMe}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity onPress={handleForgotPassword}>
-                <Text style={styles.forgotPasswordText}>{t.auth.forgotPassword}</Text>
+                <Text style={[styles.forgotPasswordText, { color: themeColors.primary }]}>{t.auth.forgotPassword}</Text>
               </TouchableOpacity>
             </View>
 
@@ -339,47 +344,59 @@ const LoginScreen = () => {
 
             {biometricAvailable && (
               <TouchableOpacity
-                style={styles.biometricButton}
+                style={[styles.biometricButton, { borderColor: themeColors.primary }]}
                 onPress={handleBiometricLogin}
               >
                 <Ionicons
                   name="finger-print"
                   size={24}
-                  color={colors.primary[500]}
+                  color={themeColors.primary}
                 />
-                <Text style={styles.biometricText}>
+                <Text style={[styles.biometricText, { color: themeColors.primary }]}>
                   {t.auth.biometricLogin}
                 </Text>
               </TouchableOpacity>
             )}
 
             <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>
+              <View style={[styles.dividerLine, { backgroundColor: themeColors.border }]} />
+              <Text style={[styles.dividerText, { color: themeColors.textSecondary }]}>
                 {t.auth.orContinueWith}
               </Text>
-              <View style={styles.dividerLine} />
+              <View style={[styles.dividerLine, { backgroundColor: themeColors.border }]} />
             </View>
 
             <View style={styles.socialLoginContainer}>
-              <TouchableOpacity style={styles.socialButton} activeOpacity={0.7}>
-                <Ionicons name="finger-print" size={32} color={colors.neutral[700]} />
+              <TouchableOpacity 
+                style={[styles.socialButton, { 
+                  backgroundColor: themeColors.surfaceAlt,
+                  borderColor: themeColors.border
+                }]} 
+                activeOpacity={0.7}
+              >
+                <Ionicons name="finger-print" size={32} color={themeColors.text} />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton} activeOpacity={0.7}>
-                <Ionicons name="logo-apple" size={32} color={colors.neutral[700]} />
+              <TouchableOpacity 
+                style={[styles.socialButton, { 
+                  backgroundColor: themeColors.surfaceAlt,
+                  borderColor: themeColors.border
+                }]} 
+                activeOpacity={0.7}
+              >
+                <Ionicons name="logo-apple" size={32} color={themeColors.text} />
               </TouchableOpacity>
             </View>
 
             <View style={styles.registerContainer}>
-              <Text style={styles.registerText}>{t.auth.dontHaveAccount} </Text>
+              <Text style={[styles.registerText, { color: themeColors.textSecondary }]}>{t.auth.dontHaveAccount} </Text>
               <TouchableOpacity onPress={handleRegister}>
-                <Text style={styles.registerLink}>{t.auth.signUpHere}</Text>
+                <Text style={[styles.registerLink, { color: themeColors.primary }]}>{t.auth.signUpHere}</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           <View style={styles.footer}>
-            <Text style={styles.footerText}>© 2025 {APP_CONFIG.COMPANY}</Text>
+            <Text style={[styles.footerText, { color: themeColors.textSecondary }]}>© 2025 {APP_CONFIG.COMPANY}</Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -390,7 +407,6 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
   },
   keyboardAvoid: {
     flex: 1,
@@ -418,12 +434,10 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 32,
     fontWeight: "bold",
-    color: colors.neutral[900],
     marginBottom: spacing[2],
   },
   subtitleText: {
     fontSize: 16,
-    color: colors.neutral[600],
     textAlign: "center",
     lineHeight: 22,
   },
@@ -457,11 +471,9 @@ const styles = StyleSheet.create({
   rememberMeText: {
     marginLeft: spacing[2],
     fontSize: 14,
-    color: colors.neutral[600],
   },
   forgotPasswordText: {
     fontSize: 14,
-    color: colors.primary[500],
     fontWeight: "600",
   },
   biometricButton: {
@@ -469,14 +481,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: colors.primary[500],
     borderRadius: 12,
     height: 50,
     marginBottom: spacing[6],
   },
   biometricText: {
     marginLeft: spacing[2],
-    color: colors.primary[500],
     fontSize: 15,
     fontWeight: "600",
   },
@@ -488,11 +498,9 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: colors.neutral[200],
   },
   dividerText: {
     marginHorizontal: spacing[3],
-    color: colors.neutral[600],
     fontSize: 14,
   },
   socialLoginContainer: {
@@ -505,11 +513,9 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: colors.neutral[100],
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: colors.neutral[200],
   },
   registerContainer: {
     flexDirection: "row",
@@ -518,11 +524,9 @@ const styles = StyleSheet.create({
   },
   registerText: {
     fontSize: 14,
-    color: colors.neutral[600],
   },
   registerLink: {
     fontSize: 14,
-    color: colors.primary[500],
     fontWeight: "600",
   },
   footer: {
@@ -532,7 +536,6 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 13,
-    color: colors.neutral[600],
   },
   versionText: {
     fontSize: 12,
@@ -540,12 +543,10 @@ const styles = StyleSheet.create({
     marginTop: spacing[1],
   },
   demoBox: {
-    backgroundColor: `${colors.semantic.info}12`,
     borderRadius: 12,
     padding: spacing[4],
     marginBottom: spacing[6],
     borderWidth: 1,
-    borderColor: `${colors.semantic.info}30`,
   },
   demoHeader: {
     flexDirection: "row",
@@ -559,7 +560,6 @@ const styles = StyleSheet.create({
   },
   demoText: {
     fontSize: 14,
-    color: colors.neutral[600],
   },
   fillDemoButton: {
     marginTop: spacing[3],

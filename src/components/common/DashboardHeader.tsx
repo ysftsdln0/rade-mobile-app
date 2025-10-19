@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text, Pressable, ViewStyle } from 'react-native';
 import { colors, spacing, typography } from '../../styles';
+import { useTheme } from '../../utils/ThemeContext';
 
 interface BreadcrumbItem {
   label: string;
@@ -64,9 +65,18 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   style,
   testID,
 }) => {
+  const { colors: themeColors } = useTheme();
+  
   return (
     <View
-      style={[styles.container, style]}
+      style={[
+        styles.container, 
+        { 
+          backgroundColor: themeColors.surface,
+          borderBottomColor: themeColors.border
+        },
+        style
+      ]}
       testID={testID}
     >
       {/* Breadcrumbs */}
@@ -76,13 +86,13 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <View key={index} style={styles.breadcrumbItem}>
               {crumb.onPress ? (
                 <Pressable onPress={crumb.onPress}>
-                  <Text style={styles.breadcrumbLinkText}>{crumb.label}</Text>
+                  <Text style={[styles.breadcrumbLinkText, { color: themeColors.primary }]}>{crumb.label}</Text>
                 </Pressable>
               ) : (
-                <Text style={styles.breadcrumbCurrentText}>{crumb.label}</Text>
+                <Text style={[styles.breadcrumbCurrentText, { color: themeColors.textSecondary }]}>{crumb.label}</Text>
               )}
               {index < breadcrumbs.length - 1 && (
-                <Text style={styles.breadcrumbSeparator}>/</Text>
+                <Text style={[styles.breadcrumbSeparator, { color: themeColors.textTertiary }]}>/</Text>
               )}
             </View>
           ))}
@@ -92,8 +102,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       {/* Header with title and actions */}
       <View style={styles.headerWrapper}>
         <View style={styles.titleSection}>
-          <Text style={styles.title}>{title}</Text>
-          {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+          <Text style={[styles.title, { color: themeColors.text }]}>{title}</Text>
+          {subtitle && <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>{subtitle}</Text>}
         </View>
 
         {/* Action buttons */}
@@ -105,6 +115,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 onPress={action.onPress}
                 style={({ pressed }) => [
                   styles.actionButton,
+                  { backgroundColor: themeColors.primary },
                   pressed && styles.actionButtonPressed,
                 ]}
               >
@@ -127,9 +138,7 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[4],
-    backgroundColor: colors.neutral[50],
     borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[100],
   },
   breadcrumbContainer: {
     flexDirection: 'row',
@@ -143,17 +152,14 @@ const styles = StyleSheet.create({
   },
   breadcrumbLinkText: {
     fontSize: 12,
-    color: colors.primary[500],
     fontWeight: '500',
   },
   breadcrumbCurrentText: {
     fontSize: 12,
-    color: colors.neutral[600],
     fontWeight: '500',
   },
   breadcrumbSeparator: {
     fontSize: 12,
-    color: colors.neutral[400],
     marginHorizontal: spacing[1],
   },
   headerWrapper: {
@@ -169,12 +175,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: colors.neutral[900],
     lineHeight: 34,
   },
   subtitle: {
     fontSize: 14,
-    color: colors.neutral[600],
     fontWeight: '400',
     lineHeight: 20,
   },
@@ -188,7 +192,6 @@ const styles = StyleSheet.create({
     gap: spacing[2],
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[3],
-    backgroundColor: colors.accent.main,
     borderRadius: 8,
   },
   actionButtonPressed: {

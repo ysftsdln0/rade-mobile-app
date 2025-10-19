@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { useTheme } from '../../utils/ThemeContext';
 
 type StatusType = 'active' | 'pending' | 'suspended' | 'cancelled' | 'expired' | 'open' | 'resolved' | 'closed';
 
@@ -53,9 +54,12 @@ const STATUS_CONFIG: Record<StatusType, { label: string; color: string; bgColor:
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, label }) => {
   const config = STATUS_CONFIG[status];
+  const { isDark } = useTheme();
+
+  const bgColor = isDark ? `${config.color}20` : config.bgColor;
 
   return (
-    <View style={[styles.badge, { backgroundColor: config.bgColor }]}>
+    <View style={[styles.badge, { backgroundColor: bgColor }]}>
       <View style={[styles.dot, { backgroundColor: config.color }]} />
       <Text style={[styles.label, { color: config.color }]}>
         {label || config.label}

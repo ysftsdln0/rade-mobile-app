@@ -20,11 +20,13 @@ import {
 import { colors, spacing } from '../../styles';
 import { HostingPackage, Domain, Server } from '../../types';
 import { useLanguage } from '../../utils/LanguageContext';
+import { useTheme } from '../../utils/ThemeContext';
 
 const ServicesListScreen = () => {
   const navigation = useNavigation<any>();
   const { user } = useAppSelector((state) => state.auth);
   const { t } = useLanguage();
+  const { colors: themeColors, isDark } = useTheme();
 
   // Fetch all services
   const hostingQuery = useQuery({
@@ -61,10 +63,10 @@ const ServicesListScreen = () => {
   }), [hostingQuery.data, domainsQuery.data, serversQuery.data]);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: themeColors.background }]}>
+      <View style={[styles.container, { backgroundColor: themeColors.background }]}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t.services.title}</Text>
+          <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t.services.title}</Text>
         </View>
 
         <ScrollView
@@ -74,9 +76,9 @@ const ServicesListScreen = () => {
         >
           {/* Statistics Overview */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Overview</Text>
+            <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Overview</Text>
             <View style={styles.statsGrid}>
-              <View style={styles.statCard}>
+              <View style={[styles.statCard, { backgroundColor: themeColors.primary }]}>
                 <View style={styles.statIconContainer}>
                   <Ionicons name="server-outline" size={24} color="#FFFFFF" />
                 </View>
@@ -84,7 +86,7 @@ const ServicesListScreen = () => {
                 <Text style={styles.statLabel}>{t.services.hosting}</Text>
               </View>
 
-              <View style={styles.statCard}>
+              <View style={[styles.statCard, { backgroundColor: themeColors.primary }]}>
                 <View style={styles.statIconContainer}>
                   <Ionicons name="globe-outline" size={24} color="#FFFFFF" />
                 </View>
@@ -92,7 +94,7 @@ const ServicesListScreen = () => {
                 <Text style={styles.statLabel}>{t.services.domains}</Text>
               </View>
 
-              <View style={styles.statCard}>
+              <View style={[styles.statCard, { backgroundColor: themeColors.primary }]}>
                 <View style={styles.statIconContainer}>
                   <Ionicons name="hardware-chip-outline" size={24} color="#FFFFFF" />
                 </View>
@@ -104,9 +106,9 @@ const ServicesListScreen = () => {
 
           {/* Hosting Packages Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t.services.hosting}</Text>
+            <Text style={[styles.sectionTitle, { color: themeColors.text }]}>{t.services.hosting}</Text>
             {hostingQuery.isLoading && (
-              <View style={styles.emptyCard}>
+              <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.cardBorder }]}>
                 <AlertBanner
                   type="info"
                   title={t.common.loading}
@@ -116,7 +118,7 @@ const ServicesListScreen = () => {
               </View>
             )}
             {hostingQuery.isError && (
-              <View style={styles.emptyCard}>
+              <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.cardBorder }]}>
                 <AlertBanner
                   type="error"
                   title={t.common.error}
@@ -126,18 +128,18 @@ const ServicesListScreen = () => {
               </View>
             )}
             {hostingQuery.data && hostingQuery.data.length === 0 && (
-              <View style={styles.emptyCard}>
-                <View style={styles.emptyIconContainer}>
-                  <Ionicons name="server-outline" size={48} color={colors.neutral[400]} />
+              <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.cardBorder }]}>
+                <View style={[styles.emptyIconContainer, { backgroundColor: isDark ? themeColors.surfaceAlt : colors.neutral[50] }]}>
+                  <Ionicons name="server-outline" size={48} color={themeColors.textTertiary} />
                 </View>
-                <Text style={styles.emptyTitle}>No Hosting Packages</Text>
-                <Text style={styles.emptyMessage}>You don't have any hosting packages yet</Text>
+                <Text style={[styles.emptyTitle, { color: themeColors.text }]}>No Hosting Packages</Text>
+                <Text style={[styles.emptyMessage, { color: themeColors.textSecondary }]}>You don't have any hosting packages yet</Text>
               </View>
             )}
             {hostingQuery.data && hostingQuery.data.map((hosting) => (
               <TouchableOpacity
                 key={hosting.id}
-                style={styles.serviceCard}
+                style={[styles.serviceCard, { backgroundColor: themeColors.card, borderColor: themeColors.cardBorder }]}
                 onPress={() =>
                   navigation.navigate('Services', {
                     screen: 'HostingDetails',
@@ -146,12 +148,12 @@ const ServicesListScreen = () => {
                 }
               >
                 <View style={styles.serviceCardHeader}>
-                  <View style={styles.serviceIconContainer}>
-                    <Ionicons name="server" size={24} color={colors.primary[500]} />
+                  <View style={[styles.serviceIconContainer, { backgroundColor: isDark ? themeColors.surfaceAlt : '#F0F5FF' }]}>
+                    <Ionicons name="server" size={24} color={themeColors.primary} />
                   </View>
                   <View style={styles.serviceInfo}>
-                    <Text style={styles.serviceName}>{hosting.name}</Text>
-                    <Text style={styles.serviceType}>{hosting.packageType}</Text>
+                    <Text style={[styles.serviceName, { color: themeColors.text }]}>{hosting.name}</Text>
+                    <Text style={[styles.serviceType, { color: themeColors.textSecondary }]}>{hosting.packageType}</Text>
                   </View>
                   <View style={[
                     styles.statusBadge,
@@ -165,16 +167,16 @@ const ServicesListScreen = () => {
                     </Text>
                   </View>
                 </View>
-                <View style={styles.serviceCardFooter}>
-                  <Text style={styles.expiryText}>
+                <View style={[styles.serviceCardFooter, { borderTopColor: themeColors.border }]}>
+                  <Text style={[styles.expiryText, { color: themeColors.textSecondary }]}>
                     {t.dashboard.expires}: {new Date(hosting.expiryDate).toLocaleDateString()}
                   </Text>
-                  <Ionicons name="chevron-forward" size={20} color={colors.neutral[400]} />
+                  <Ionicons name="chevron-forward" size={20} color={themeColors.textTertiary} />
                 </View>
               </TouchableOpacity>
             ))}
             <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('Purchase')}>
-              <View style={styles.addButtonGradient}>
+              <View style={[styles.addButtonGradient, { backgroundColor: themeColors.primary }]}>
                 <Text style={styles.addButtonText}>Browse Hosting Plans</Text>
               </View>
             </TouchableOpacity>
@@ -309,11 +311,9 @@ const ServicesListScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
   },
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
   },
   scrollView: {
     flex: 1,
@@ -330,7 +330,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: colors.neutral[900],
   },
   section: {
     paddingHorizontal: spacing[5],
@@ -339,7 +338,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: colors.neutral[900],
     marginBottom: spacing[3],
   },
   statsGrid: {
@@ -353,7 +351,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 120,
-    backgroundColor: colors.primary[500], // #135bec
   },
   statIconContainer: {
     marginBottom: spacing[2],
@@ -372,7 +369,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   serviceCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: spacing[4],
     marginBottom: spacing[3],
@@ -391,7 +387,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#F0F5FF',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: spacing[3],
@@ -402,12 +397,10 @@ const styles = StyleSheet.create({
   serviceName: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.neutral[900],
     marginBottom: 4,
   },
   serviceType: {
     fontSize: 13,
-    color: colors.neutral[500],
   },
   statusBadge: {
     paddingHorizontal: spacing[2],
@@ -425,14 +418,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: spacing[3],
     borderTopWidth: 1,
-    borderTopColor: colors.neutral[100],
   },
   expiryText: {
     fontSize: 13,
-    color: colors.neutral[600],
   },
   emptyCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: spacing[6],
     alignItems: 'center',
@@ -448,7 +438,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: colors.neutral[50],
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing[3],
@@ -456,12 +445,10 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: colors.neutral[900],
     marginBottom: spacing[2],
   },
   emptyMessage: {
     fontSize: 14,
-    color: colors.neutral[500],
     textAlign: 'center',
   },
   addButton: {
@@ -472,7 +459,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[3],
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.primary[500], // #135bec
   },
   addButtonText: {
     fontSize: 15,
