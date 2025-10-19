@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing } from '../../styles';
 import { useLanguage } from '../../utils/LanguageContext';
@@ -72,18 +71,13 @@ const BillingMainScreen = ({ navigation }: Props) => {
         {/* Your Plan */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t.billing.yourPlan}</Text>
-          <LinearGradient
-            colors={['#6A82FB', '#B472F9']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.planCard}
-          >
+          <View style={styles.planCard}>
             <Text style={styles.planName}>{t.billing.proPlan}</Text>
             <View style={styles.planPriceRow}>
               <Text style={styles.planPrice}>$25</Text>
               <Text style={styles.planPeriod}>{t.billing.perMonth}</Text>
             </View>
-          </LinearGradient>
+          </View>
         </View>
 
         {/* Next Payment */}
@@ -96,14 +90,9 @@ const BillingMainScreen = ({ navigation }: Props) => {
               </Text>
             </View>
             <TouchableOpacity style={styles.payNowButton}>
-              <LinearGradient
-                colors={['#6A82FB', '#B472F9']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.payNowGradient}
-              >
+              <View style={styles.payNowGradient}>
                 <Text style={styles.payNowText}>{t.invoices.payNow}</Text>
-              </LinearGradient>
+              </View>
             </TouchableOpacity>
           </View>
           <View style={styles.paymentIconContainer}>
@@ -213,6 +202,7 @@ const styles = StyleSheet.create({
   planCard: {
     borderRadius: 16,
     padding: spacing[6],
+    backgroundColor: colors.primary[500], // #135bec
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
@@ -276,6 +266,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[4],
     paddingVertical: 10,
     borderRadius: 8,
+    backgroundColor: colors.primary[500], // #135bec
   },
   payNowText: {
     fontSize: 14,
