@@ -121,7 +121,7 @@ export const tr: TranslationKeys = {
     preferences: 'Tercihler',
     personalInformation: 'Kişisel Bilgiler',
     security: 'Güvenlik',
-    billing: 'Faturalama',
+    billing: 'Faturalandırma',
     notifications: 'Bildirimler',
     darkMode: 'Karanlık Mod',
     language: 'Dil',
@@ -145,7 +145,7 @@ export const tr: TranslationKeys = {
 
   // Billing
   billing: {
-    title: 'Faturalama',
+    title: 'Faturalar',
     yourPlan: 'Planınız',
     proPlan: 'Pro Plan',
     perMonth: '/ay',
@@ -188,7 +188,7 @@ export const tr: TranslationKeys = {
     you: 'Siz',
     greeting: "Merhaba! Ben RADE destek asistanıyım. Size bugün nasıl yardımcı olabilirim?",
     askQuestion: 'Bir soru sorun...',
-    billing: 'Faturalama',
+    billing: 'Faturalandırma',
     serverStatus: 'Sunucu Durumu',
     troubleshooting: 'Sorun Giderme',
     needHelpBilling: 'Faturalandırma konusunda yardıma ihtiyacım var',
@@ -241,7 +241,7 @@ export const tr: TranslationKeys = {
   navigation: {
     home: 'Ana Sayfa',
     servers: 'Sunucular',
-    billing: 'Faturalama',
+    billing: 'Faturalar',
     support: 'Destek',
     profile: 'Profil',
   },

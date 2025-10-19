@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  SafeAreaView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -57,16 +58,17 @@ const BillingMainScreen = ({ navigation }: Props) => {
   ];
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t.billing.title}</Text>
-      </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t.billing.title}</Text>
+        </View>
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.contentContainer}
-        showsVerticalScrollIndicator={false}
-      >
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
         {/* Your Plan */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t.billing.yourPlan}</Text>
@@ -167,18 +169,23 @@ const BillingMainScreen = ({ navigation }: Props) => {
           ))}
         </View>
       </ScrollView>
-    </View>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FAFAFA',
+  },
   container: {
     flex: 1,
     backgroundColor: '#FAFAFA',
   },
   header: {
     paddingHorizontal: spacing[5],
-    paddingTop: spacing[6],
+    paddingTop: spacing[2],
     paddingBottom: spacing[4],
   },
   headerTitle: {

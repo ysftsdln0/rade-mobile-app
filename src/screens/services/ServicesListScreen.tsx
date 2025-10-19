@@ -7,13 +7,12 @@
  * - Servers management
  */
 import React, { useMemo } from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView } from 'react-native';
+import { View, StyleSheet, ScrollView, SafeAreaView, Text } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
 import { useAppSelector } from '../../store';
 import { apiService } from '../../services/api';
 import {
-  DashboardHeader,
   Card,
   DataRow,
   Button,
@@ -21,10 +20,12 @@ import {
 } from '../../components/common';
 import { colors, spacing } from '../../styles';
 import { HostingPackage, Domain, Server } from '../../types';
+import { useLanguage } from '../../utils/LanguageContext';
 
 const ServicesListScreen = () => {
   const navigation = useNavigation<any>();
   const { user } = useAppSelector((state) => state.auth);
+  const { t } = useLanguage();
 
   // Fetch all services
   const hostingQuery = useQuery({
@@ -67,40 +68,34 @@ const ServicesListScreen = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
       >
-        {/* Page Header */}
-        <DashboardHeader
-          title="Services"
-          subtitle="Manage all your services in one place"
-        />
+        {/* Simple Header - No Blue Bar */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>{t.services.title}</Text>
+        </View>
 
-        {/* Services Overview */}
-        <Card title="Overview" variant="elevated">
-          <View style={styles.statsRow}>
-            <DataRow
-              label="Hosting Packages"
-              value={stats.hosting.toString()}
-              divider
-            />
-            <DataRow
-              label="Domains"
-              value={stats.domains.toString()}
-              divider
-            />
-            <DataRow
-              label="Servers"
-              value={stats.servers.toString()}
-              divider={false}
-            />
+        {/* Compact Overview Cards */}
+        <View style={styles.overviewGrid}>
+          <View style={styles.overviewCard}>
+            <Text style={styles.overviewLabel}>{t.services.hosting}</Text>
+            <Text style={styles.overviewValue}>{stats.hosting}</Text>
           </View>
-        </Card>
+          <View style={styles.overviewCard}>
+            <Text style={styles.overviewLabel}>{t.services.domains}</Text>
+            <Text style={styles.overviewValue}>{stats.domains}</Text>
+          </View>
+          <View style={styles.overviewCard}>
+            <Text style={styles.overviewLabel}>{t.servers.title}</Text>
+            <Text style={styles.overviewValue}>{stats.servers}</Text>
+          </View>
+        </View>
 
         {/* Hosting Packages Section */}
-        <Card title="Hosting Packages" variant="default">
+        <Card title={t.services.hosting} variant="default" style={styles.compactCard}>
           {hostingQuery.isLoading && (
             <View style={styles.loadingContainer}>
               <AlertBanner
                 type="info"
-                title="Loading..."
+                title={t.common.loading}
                 message="Fetching your hosting packages"
                 dismissible={false}
               />
@@ -109,7 +104,7 @@ const ServicesListScreen = () => {
           {hostingQuery.isError && (
             <AlertBanner
               type="error"
-              title="Error"
+              title={t.common.error}
               message="Failed to load hosting packages"
               dismissible
             />
@@ -128,7 +123,7 @@ const ServicesListScreen = () => {
               label={hosting.name}
               value={hosting.status}
               status={hosting.status === 'active' ? 'online' : 'offline'}
-              secondary={`${hosting.packageType} - Expires: ${new Date(hosting.expiryDate).toLocaleDateString()}`}
+              secondary={`${hosting.packageType} - ${t.dashboard.expires}: ${new Date(hosting.expiryDate).toLocaleDateString()}`}
               divider={index < (hostingQuery.data?.length ?? 0) - 1}
               onPress={() =>
                 navigation.navigate('Services', {
@@ -141,13 +136,14 @@ const ServicesListScreen = () => {
           <Button
             label="Browse Hosting Plans"
             variant="primary"
-            size="lg"
+            size="md"
             onPress={() => navigation.navigate('Purchase')}
+            fullWidth
           />
         </Card>
 
         {/* Domains Section */}
-        <Card title="Domains" variant="default">
+        <Card title={t.services.domains} variant="default" style={styles.compactCard}>
           {domainsQuery.data && domainsQuery.data.length === 0 ? (
             <View style={styles.emptyStateContainer}>
               <AlertBanner
@@ -159,8 +155,9 @@ const ServicesListScreen = () => {
               <Button
                 label="Find a Domain"
                 variant="primary"
-                size="lg"
+                size="md"
                 onPress={() => navigation.navigate('Purchase')}
+                fullWidth
               />
             </View>
           ) : (
@@ -170,7 +167,7 @@ const ServicesListScreen = () => {
                 label={domain.name}
                 value={domain.status}
                 status={domain.status === 'active' ? 'online' : 'offline'}
-                secondary={`Expires: ${new Date(domain.expiryDate).toLocaleDateString()}`}
+                secondary={`${t.dashboard.expires}: ${new Date(domain.expiryDate).toLocaleDateString()}`}
                 divider={index < (domainsQuery.data?.length ?? 0) - 1}
                 onPress={() =>
                   navigation.navigate('Services', {
@@ -183,7 +180,7 @@ const ServicesListScreen = () => {
         </Card>
 
         {/* Servers Section */}
-        <Card title="Servers" variant="default">
+        <Card title={t.servers.title} variant="default" style={styles.compactCard}>
           {serversQuery.data && serversQuery.data.length === 0 ? (
             <View style={styles.emptyStateContainer}>
               <AlertBanner
@@ -195,8 +192,9 @@ const ServicesListScreen = () => {
               <Button
                 label="Deploy Server"
                 variant="primary"
-                size="lg"
+                size="md"
                 onPress={() => navigation.navigate('Purchase')}
+                fullWidth
               />
             </View>
           ) : (
@@ -227,26 +225,72 @@ const ServicesListScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.neutral[50],
+    backgroundColor: '#FAFAFA',
   },
   scrollView: {
     flex: 1,
   },
   contentContainer: {
-    paddingBottom: spacing[6],
+    paddingBottom: spacing[10],
+  },
+  header: {
+    paddingHorizontal: spacing[5],
+    paddingTop: spacing[4],
+    paddingBottom: spacing[5],
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: colors.neutral[900],
+    textAlign: 'center',
+  },
+  overviewGrid: {
+    flexDirection: 'row',
+    paddingHorizontal: spacing[5],
+    gap: spacing[3],
+    marginBottom: spacing[4],
+  },
+  overviewCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: spacing[3],
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  overviewLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.neutral[600],
+    marginBottom: spacing[1],
+    textAlign: 'center',
+  },
+  overviewValue: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.primary[500],
+  },
+  compactCard: {
+    marginHorizontal: spacing[5],
+    marginBottom: spacing[3],
   },
   statsRow: {
     gap: spacing[2],
   },
   loadingContainer: {
-    paddingVertical: spacing[4],
+    paddingVertical: spacing[2],
   },
   emptyStateContainer: {
-    paddingVertical: spacing[4],
+    paddingVertical: spacing[2],
     gap: spacing[3],
   },
   spacer: {
-    height: spacing[6],
+    height: spacing[4],
   },
 });
 

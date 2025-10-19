@@ -20,49 +20,36 @@ const AccountNavigator = () => {
     <Stack.Navigator
       initialRouteName="Profile"
       screenOptions={{
-        headerStyle: {
-          backgroundColor: colors.primary[500],
-        },
-        headerTintColor: '#FFFFFF',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
+        headerShown: false,
       }}
     >
       <Stack.Screen 
         name="Profile" 
         component={ProfileScreen}
-        options={{ title: 'Profile', headerShown: false }}
       />
       <Stack.Screen 
         name="AccountMain" 
         component={AccountMainScreen}
-        options={{ title: 'Account Management' }}
       />
       <Stack.Screen 
         name="Security" 
         component={SecurityScreen}
-        options={{ title: 'Güvenlik Ayarları' }}
       />
       <Stack.Screen 
         name="NotificationSettings" 
         component={NotificationSettingsScreen}
-        options={{ title: 'Bildirim Ayarları' }}
       />
       <Stack.Screen 
         name="Finance" 
         component={FinanceScreen}
-        options={{ title: 'Mali İşlemler' }}
       />
       <Stack.Screen 
         name="InvoiceList" 
         component={InvoiceListScreen}
-        options={{ title: 'Faturalar' }}
       />
       <Stack.Screen 
         name="PaymentMethods" 
         component={PaymentMethodsScreen}
-        options={{ title: 'Ödeme Yöntemleri' }}
       />
     </Stack.Navigator>
   );

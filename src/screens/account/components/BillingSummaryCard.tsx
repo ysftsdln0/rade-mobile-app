@@ -21,7 +21,7 @@ export const BillingSummaryCard: React.FC<Props> = ({
   return (
     <AppCard style={styles.card}>
       <View style={styles.cardHeader}>
-        <Text style={styles.cardTitle}>Faturalama Özeti</Text>
+        <Text style={styles.cardTitle}>Faturalandırma Özeti</Text>
         <Text style={styles.cardSubtitle}>Ödemelerinizi takip edin</Text>
       </View>
 
