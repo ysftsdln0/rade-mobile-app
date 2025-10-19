@@ -7,14 +7,13 @@
  * - Servers management
  */
 import React, { useMemo } from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView, Text } from 'react-native';
+import { View, StyleSheet, ScrollView, SafeAreaView, Text, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@tanstack/react-query';
+import { Ionicons } from '@expo/vector-icons';
 import { useAppSelector } from '../../store';
 import { apiService } from '../../services/api';
 import {
-  Card,
-  DataRow,
   Button,
   AlertBanner,
 } from '../../components/common';
@@ -62,167 +61,256 @@ const ServicesListScreen = () => {
   }), [hostingQuery.data, domainsQuery.data, serversQuery.data]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.contentContainer}
-      >
-        {/* Simple Header - No Blue Bar */}
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>{t.services.title}</Text>
         </View>
 
-        {/* Compact Overview Cards */}
-        <View style={styles.overviewGrid}>
-          <View style={styles.overviewCard}>
-            <Text style={styles.overviewLabel}>{t.services.hosting}</Text>
-            <Text style={styles.overviewValue}>{stats.hosting}</Text>
-          </View>
-          <View style={styles.overviewCard}>
-            <Text style={styles.overviewLabel}>{t.services.domains}</Text>
-            <Text style={styles.overviewValue}>{stats.domains}</Text>
-          </View>
-          <View style={styles.overviewCard}>
-            <Text style={styles.overviewLabel}>{t.servers.title}</Text>
-            <Text style={styles.overviewValue}>{stats.servers}</Text>
-          </View>
-        </View>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Statistics Overview */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Overview</Text>
+            <View style={styles.statsGrid}>
+              <View style={styles.statCard}>
+                <View style={styles.statIconContainer}>
+                  <Ionicons name="server-outline" size={24} color="#FFFFFF" />
+                </View>
+                <Text style={styles.statValue}>{stats.hosting}</Text>
+                <Text style={styles.statLabel}>{t.services.hosting}</Text>
+              </View>
 
-        {/* Hosting Packages Section */}
-        <Card title={t.services.hosting} variant="default" style={styles.compactCard}>
-          {hostingQuery.isLoading && (
-            <View style={styles.loadingContainer}>
-              <AlertBanner
-                type="info"
-                title={t.common.loading}
-                message="Fetching your hosting packages"
-                dismissible={false}
-              />
-            </View>
-          )}
-          {hostingQuery.isError && (
-            <AlertBanner
-              type="error"
-              title={t.common.error}
-              message="Failed to load hosting packages"
-              dismissible
-            />
-          )}
-          {hostingQuery.data && hostingQuery.data.length === 0 && (
-            <AlertBanner
-              type="info"
-              title="No Packages"
-              message="You don't have any hosting packages yet"
-              dismissible={false}
-            />
-          )}
-          {hostingQuery.data && hostingQuery.data.map((hosting, index) => (
-            <DataRow
-              key={hosting.id}
-              label={hosting.name}
-              value={hosting.status}
-              status={hosting.status === 'active' ? 'online' : 'offline'}
-              secondary={`${hosting.packageType} - ${t.dashboard.expires}: ${new Date(hosting.expiryDate).toLocaleDateString()}`}
-              divider={index < (hostingQuery.data?.length ?? 0) - 1}
-              onPress={() =>
-                navigation.navigate('Services', {
-                  screen: 'HostingDetails',
-                  params: { packageId: hosting.id },
-                })
-              }
-            />
-          ))}
-          <Button
-            label="Browse Hosting Plans"
-            variant="primary"
-            size="md"
-            onPress={() => navigation.navigate('Purchase')}
-            fullWidth
-          />
-        </Card>
+              <View style={styles.statCard}>
+                <View style={styles.statIconContainer}>
+                  <Ionicons name="globe-outline" size={24} color="#FFFFFF" />
+                </View>
+                <Text style={styles.statValue}>{stats.domains}</Text>
+                <Text style={styles.statLabel}>{t.services.domains}</Text>
+              </View>
 
-        {/* Domains Section */}
-        <Card title={t.services.domains} variant="default" style={styles.compactCard}>
-          {domainsQuery.data && domainsQuery.data.length === 0 ? (
-            <View style={styles.emptyStateContainer}>
-              <AlertBanner
-                type="info"
-                title="No Domains"
-                message="Register or transfer a domain to get started"
-                dismissible={false}
-              />
-              <Button
-                label="Find a Domain"
-                variant="primary"
-                size="md"
-                onPress={() => navigation.navigate('Purchase')}
-                fullWidth
-              />
+              <View style={styles.statCard}>
+                <View style={styles.statIconContainer}>
+                  <Ionicons name="hardware-chip-outline" size={24} color="#FFFFFF" />
+                </View>
+                <Text style={styles.statValue}>{stats.servers}</Text>
+                <Text style={styles.statLabel}>{t.servers.title}</Text>
+              </View>
             </View>
-          ) : (
-            domainsQuery.data?.map((domain, index) => (
-              <DataRow
-                key={domain.id}
-                label={domain.name}
-                value={domain.status}
-                status={domain.status === 'active' ? 'online' : 'offline'}
-                secondary={`${t.dashboard.expires}: ${new Date(domain.expiryDate).toLocaleDateString()}`}
-                divider={index < (domainsQuery.data?.length ?? 0) - 1}
+          </View>
+
+          {/* Hosting Packages Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>{t.services.hosting}</Text>
+            {hostingQuery.isLoading && (
+              <View style={styles.emptyCard}>
+                <AlertBanner
+                  type="info"
+                  title={t.common.loading}
+                  message="Fetching your hosting packages"
+                  dismissible={false}
+                />
+              </View>
+            )}
+            {hostingQuery.isError && (
+              <View style={styles.emptyCard}>
+                <AlertBanner
+                  type="error"
+                  title={t.common.error}
+                  message="Failed to load hosting packages"
+                  dismissible
+                />
+              </View>
+            )}
+            {hostingQuery.data && hostingQuery.data.length === 0 && (
+              <View style={styles.emptyCard}>
+                <View style={styles.emptyIconContainer}>
+                  <Ionicons name="server-outline" size={48} color={colors.neutral[400]} />
+                </View>
+                <Text style={styles.emptyTitle}>No Hosting Packages</Text>
+                <Text style={styles.emptyMessage}>You don't have any hosting packages yet</Text>
+              </View>
+            )}
+            {hostingQuery.data && hostingQuery.data.map((hosting) => (
+              <TouchableOpacity
+                key={hosting.id}
+                style={styles.serviceCard}
                 onPress={() =>
                   navigation.navigate('Services', {
-                    screen: 'DomainList',
+                    screen: 'HostingDetails',
+                    params: { packageId: hosting.id },
                   })
                 }
-              />
-            ))
-          )}
-        </Card>
+              >
+                <View style={styles.serviceCardHeader}>
+                  <View style={styles.serviceIconContainer}>
+                    <Ionicons name="server" size={24} color={colors.primary[500]} />
+                  </View>
+                  <View style={styles.serviceInfo}>
+                    <Text style={styles.serviceName}>{hosting.name}</Text>
+                    <Text style={styles.serviceType}>{hosting.packageType}</Text>
+                  </View>
+                  <View style={[
+                    styles.statusBadge,
+                    { backgroundColor: hosting.status === 'active' ? '#D1FAE5' : '#FEE2E2' }
+                  ]}>
+                    <Text style={[
+                      styles.statusText,
+                      { color: hosting.status === 'active' ? '#059669' : '#DC2626' }
+                    ]}>
+                      {hosting.status}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.serviceCardFooter}>
+                  <Text style={styles.expiryText}>
+                    {t.dashboard.expires}: {new Date(hosting.expiryDate).toLocaleDateString()}
+                  </Text>
+                  <Ionicons name="chevron-forward" size={20} color={colors.neutral[400]} />
+                </View>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('Purchase')}>
+              <View style={styles.addButtonGradient}>
+                <Text style={styles.addButtonText}>Browse Hosting Plans</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
 
-        {/* Servers Section */}
-        <Card title={t.servers.title} variant="default" style={styles.compactCard}>
-          {serversQuery.data && serversQuery.data.length === 0 ? (
-            <View style={styles.emptyStateContainer}>
-              <AlertBanner
-                type="info"
-                title="No Servers"
-                message="Deploy your first server or VPS"
-                dismissible={false}
-              />
-              <Button
-                label="Deploy Server"
-                variant="primary"
-                size="md"
-                onPress={() => navigation.navigate('Purchase')}
-                fullWidth
-              />
-            </View>
-          ) : (
-            serversQuery.data?.map((server, index) => (
-              <DataRow
-                key={server.id}
-                label={server.name}
-                value={server.status}
-                secondary={`${server.os} - IP: ${server.ip}`}
-                divider={index < (serversQuery.data?.length ?? 0) - 1}
-                onPress={() =>
-                  navigation.navigate('Services', {
-                    screen: 'ServerList',
-                  })
-                }
-              />
-            ))
-          )}
-        </Card>
+          {/* Domains Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>{t.services.domains}</Text>
+            {domainsQuery.data && domainsQuery.data.length === 0 ? (
+              <>
+                <View style={styles.emptyCard}>
+                  <View style={styles.emptyIconContainer}>
+                    <Ionicons name="globe-outline" size={48} color={colors.neutral[400]} />
+                  </View>
+                  <Text style={styles.emptyTitle}>No Domains</Text>
+                  <Text style={styles.emptyMessage}>Register or transfer a domain to get started</Text>
+                </View>
+                <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('Purchase')}>
+                  <View style={styles.addButtonGradient}>
+                    <Text style={styles.addButtonText}>Find a Domain</Text>
+                  </View>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                {domainsQuery.data?.map((domain) => (
+                  <TouchableOpacity
+                    key={domain.id}
+                    style={styles.serviceCard}
+                    onPress={() =>
+                      navigation.navigate('Services', {
+                        screen: 'DomainList',
+                      })
+                    }
+                  >
+                    <View style={styles.serviceCardHeader}>
+                      <View style={styles.serviceIconContainer}>
+                        <Ionicons name="globe" size={24} color={colors.primary[500]} />
+                      </View>
+                      <View style={styles.serviceInfo}>
+                        <Text style={styles.serviceName}>{domain.name}</Text>
+                        <Text style={styles.serviceType}>Domain</Text>
+                      </View>
+                      <View style={[
+                        styles.statusBadge,
+                        { backgroundColor: domain.status === 'active' ? '#D1FAE5' : '#FEE2E2' }
+                      ]}>
+                        <Text style={[
+                          styles.statusText,
+                          { color: domain.status === 'active' ? '#059669' : '#DC2626' }
+                        ]}>
+                          {domain.status}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.serviceCardFooter}>
+                      <Text style={styles.expiryText}>
+                        {t.dashboard.expires}: {new Date(domain.expiryDate).toLocaleDateString()}
+                      </Text>
+                      <Ionicons name="chevron-forward" size={20} color={colors.neutral[400]} />
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </>
+            )}
+          </View>
 
-        {/* Spacer */}
-        <View style={styles.spacer} />
-      </ScrollView>
+          {/* Servers Section */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>{t.servers.title}</Text>
+            {serversQuery.data && serversQuery.data.length === 0 ? (
+              <>
+                <View style={styles.emptyCard}>
+                  <View style={styles.emptyIconContainer}>
+                    <Ionicons name="hardware-chip-outline" size={48} color={colors.neutral[400]} />
+                  </View>
+                  <Text style={styles.emptyTitle}>No Servers</Text>
+                  <Text style={styles.emptyMessage}>Deploy your first server or VPS</Text>
+                </View>
+                <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('Purchase')}>
+                  <View style={styles.addButtonGradient}>
+                    <Text style={styles.addButtonText}>Deploy Server</Text>
+                  </View>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                {serversQuery.data?.map((server) => (
+                  <TouchableOpacity
+                    key={server.id}
+                    style={styles.serviceCard}
+                    onPress={() =>
+                      navigation.navigate('Services', {
+                        screen: 'ServerList',
+                      })
+                    }
+                  >
+                    <View style={styles.serviceCardHeader}>
+                      <View style={styles.serviceIconContainer}>
+                        <Ionicons name="hardware-chip" size={24} color={colors.primary[500]} />
+                      </View>
+                      <View style={styles.serviceInfo}>
+                        <Text style={styles.serviceName}>{server.name}</Text>
+                        <Text style={styles.serviceType}>{server.os} - IP: {server.ip}</Text>
+                      </View>
+                      <View style={[
+                        styles.statusBadge,
+                        { backgroundColor: server.status === 'running' ? '#D1FAE5' : '#FEE2E2' }
+                      ]}>
+                        <Text style={[
+                          styles.statusText,
+                          { color: server.status === 'running' ? '#059669' : '#DC2626' }
+                        ]}>
+                          {server.status}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.serviceCardFooter}>
+                      <Ionicons name="chevron-forward" size={20} color={colors.neutral[400]} />
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </>
+            )}
+          </View>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FAFAFA',
+  },
   container: {
     flex: 1,
     backgroundColor: '#FAFAFA',
@@ -231,66 +319,165 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    paddingBottom: spacing[10],
+    paddingBottom: spacing[6],
   },
   header: {
     paddingHorizontal: spacing[5],
-    paddingTop: spacing[4],
-    paddingBottom: spacing[5],
+    paddingTop: spacing[2],
+    paddingBottom: spacing[4],
     alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: colors.neutral[900],
-    textAlign: 'center',
-  },
-  overviewGrid: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing[5],
-    gap: spacing[3],
-    marginBottom: spacing[4],
-  },
-  overviewCard: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: spacing[3],
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  overviewLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.neutral[600],
-    marginBottom: spacing[1],
-    textAlign: 'center',
-  },
-  overviewValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: colors.primary[500],
+    color: colors.neutral[900],
   },
-  compactCard: {
-    marginHorizontal: spacing[5],
+  section: {
+    paddingHorizontal: spacing[5],
+    marginBottom: spacing[6],
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.neutral[900],
     marginBottom: spacing[3],
   },
-  statsRow: {
-    gap: spacing[2],
-  },
-  loadingContainer: {
-    paddingVertical: spacing[2],
-  },
-  emptyStateContainer: {
-    paddingVertical: spacing[2],
+  statsGrid: {
+    flexDirection: 'row',
     gap: spacing[3],
   },
-  spacer: {
-    height: spacing[4],
+  statCard: {
+    flex: 1,
+    padding: spacing[4],
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 120,
+    backgroundColor: colors.primary[500], // #135bec
+  },
+  statIconContainer: {
+    marginBottom: spacing[2],
+  },
+  statValue: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: spacing[1],
+  },
+  statLabel: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#FFFFFF',
+    opacity: 0.9,
+    textAlign: 'center',
+  },
+  serviceCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: spacing[4],
+    marginBottom: spacing[3],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  serviceCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing[3],
+  },
+  serviceIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F0F5FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing[3],
+  },
+  serviceInfo: {
+    flex: 1,
+  },
+  serviceName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.neutral[900],
+    marginBottom: 4,
+  },
+  serviceType: {
+    fontSize: 13,
+    color: colors.neutral[500],
+  },
+  statusBadge: {
+    paddingHorizontal: spacing[2],
+    paddingVertical: spacing[1],
+    borderRadius: 12,
+  },
+  statusText: {
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'capitalize',
+  },
+  serviceCardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingTop: spacing[3],
+    borderTopWidth: 1,
+    borderTopColor: colors.neutral[100],
+  },
+  expiryText: {
+    fontSize: 13,
+    color: colors.neutral[600],
+  },
+  emptyCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: spacing[6],
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing[3],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.neutral[50],
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing[3],
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.neutral[900],
+    marginBottom: spacing[2],
+  },
+  emptyMessage: {
+    fontSize: 14,
+    color: colors.neutral[500],
+    textAlign: 'center',
+  },
+  addButton: {
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  addButtonGradient: {
+    paddingVertical: spacing[3],
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary[500], // #135bec
+  },
+  addButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
 });
 
