@@ -306,7 +306,6 @@ const HostingDetailsScreen = () => {
               variant="secondary"
               size="md"
               onPress={() => {
-                // TODO: Navigate to file manager
               }}
               style={styles.actionButton}
             />

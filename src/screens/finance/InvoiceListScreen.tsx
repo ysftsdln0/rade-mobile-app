@@ -309,7 +309,6 @@ const InvoiceListScreen = () => {
                         variant="secondary"
                         size="sm"
                         onPress={() => {
-                          // TODO: Navigate to invoice details
                         }}
                         style={styles.detailsButton}
                       />
