@@ -73,7 +73,6 @@ const AccountMainScreen = () => {
   }, [hostingQuery.data, invoicesQuery.data]);
 
   const handleSaveProfile = () => {
-    // TODO: Implement profile save
     setEditMode(false);
   };
 
@@ -245,7 +244,6 @@ const AccountMainScreen = () => {
             value="Update password"
             divider
             onPress={() => {
-              // TODO: Navigate to password change screen
             }}
           />
           <DataRow
