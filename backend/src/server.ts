@@ -6,13 +6,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { authRouter } from './auth.js';
 import { userRouter } from './user.js';
-import { seed, users, hostingPackages, hostingDetails, hostingUsage, activities, refreshTokens, invoices, paymentMethods, supportTickets, domains, domainDnsRecords, servers } from './store.js';
+import { prisma } from './db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config();
-seed();
 
 const app = express();
 app.use(cors());
@@ -34,38 +33,47 @@ app.get('/admin', (_req: Request, res: Response) => {
 });
 
 // Admin endpoint to view all tables
-app.get('/api/admin/tables', (_req: Request, res: Response) => {
-  const tables = {
-    users: users.map(u => ({ ...u, passwordHash: '***HIDDEN***' })), // Hide password hashes
-    hostingPackages: hostingPackages,
-    hostingDetails: hostingDetails,
-    hostingUsage: hostingUsage,
-    activities: activities,
-    refreshTokens: refreshTokens.map(rt => ({ ...rt, token: rt.token.substring(0, 20) + '...' })), // Truncate tokens
-    invoices: invoices,
-    paymentMethods: paymentMethods,
-    supportTickets: supportTickets,
-    domains: domains,
-    domainDnsRecords: domainDnsRecords,
-    servers: servers,
-  };
-  
-  const summary = {
-    users: users.length,
-    hostingPackages: hostingPackages.length,
-    hostingDetails: Object.keys(hostingDetails).length,
-    hostingUsage: Object.keys(hostingUsage).length,
-    activities: activities.length,
-    refreshTokens: refreshTokens.length,
-    invoices: invoices.length,
-    paymentMethods: paymentMethods.length,
-    supportTickets: supportTickets.length,
-    domains: domains.length,
-    domainDnsRecords: Object.keys(domainDnsRecords).length,
-    servers: servers.length,
-  };
+app.get('/api/admin/tables', async (_req: Request, res: Response) => {
+  try {
+    const users = await prisma.user.findMany();
+    const hostingPackages = await prisma.hostingPackage.findMany();
+    const activities = await prisma.activityItem.findMany();
+    const refreshTokens = await prisma.refreshToken.findMany();
+    const invoices = await prisma.invoice.findMany({ include: { items: true } });
+    const paymentMethods = await prisma.paymentMethod.findMany();
+    const supportTickets = await prisma.supportTicket.findMany({ include: { replies: true } });
+    const domains = await prisma.domain.findMany({ include: { dnsRecords: true } });
+    const servers = await prisma.server.findMany();
 
-  res.json({ summary, tables });
+    const tables = {
+      users: users.map(u => ({ ...u, passwordHash: '***HIDDEN***' })),
+      hostingPackages,
+      activities,
+      refreshTokens: refreshTokens.map(rt => ({ ...rt, token: rt.token.substring(0, 20) + '...' })),
+      invoices,
+      paymentMethods,
+      supportTickets,
+      domains,
+      servers,
+    };
+    
+    const summary = {
+      users: users.length,
+      hostingPackages: hostingPackages.length,
+      activities: activities.length,
+      refreshTokens: refreshTokens.length,
+      invoices: invoices.length,
+      paymentMethods: paymentMethods.length,
+      supportTickets: supportTickets.length,
+      domains: domains.length,
+      servers: servers.length,
+    };
+
+    res.json({ summary, tables });
+  } catch (error) {
+    console.error('Admin tables error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 app.use('/api/auth', authRouter());
