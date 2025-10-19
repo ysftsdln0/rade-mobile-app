@@ -16,6 +16,8 @@ import { useAppSelector, useAppDispatch } from '../../store';
 import { logoutAsync } from '../../store/authThunks';
 import { Avatar } from '../../components/common';
 import { colors, spacing } from '../../styles';
+import { useLanguage } from '../../utils/LanguageContext';
+import { Language } from '../../locales';
 
 interface MenuItemProps {
   icon: string;
@@ -42,6 +44,7 @@ const ProfileScreen = () => {
   const navigation = useNavigation<any>();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const { language, setLanguage, t } = useLanguage();
   const [darkMode, setDarkMode] = useState(false);
 
   const initials = user 
@@ -56,6 +59,11 @@ const ProfileScreen = () => {
       console.error('Logout failed:', error);
       navigation.replace('Auth');
     }
+  };
+
+  const toggleLanguage = async () => {
+    const newLanguage: Language = language === 'en' ? 'tr' : 'en';
+    await setLanguage(newLanguage);
   };
 
   return (
@@ -82,23 +90,23 @@ const ProfileScreen = () => {
 
         {/* Account Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account</Text>
+          <Text style={styles.sectionTitle}>{t.profile.account}</Text>
           <View style={styles.card}>
             <MenuItem
               icon="person-outline"
-              title="Personal Information"
+              title={t.profile.personalInformation}
               onPress={() => navigation.navigate('Account', { screen: 'Profile' })}
             />
             <View style={styles.divider} />
             <MenuItem
               icon="lock-closed-outline"
-              title="Security"
+              title={t.profile.security}
               onPress={() => navigation.navigate('Account', { screen: 'Security' })}
             />
             <View style={styles.divider} />
             <MenuItem
               icon="card-outline"
-              title="Billing"
+              title={t.profile.billing}
               onPress={() => navigation.navigate('Account', { screen: 'InvoiceList' })}
             />
           </View>
@@ -106,11 +114,11 @@ const ProfileScreen = () => {
 
         {/* Preferences Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Preferences</Text>
+          <Text style={styles.sectionTitle}>{t.profile.preferences}</Text>
           <View style={styles.card}>
             <MenuItem
               icon="notifications-outline"
-              title="Notifications"
+              title={t.profile.notifications}
               onPress={() => navigation.navigate('Account', { screen: 'NotificationSettings' })}
             />
             <View style={styles.divider} />
@@ -119,11 +127,29 @@ const ProfileScreen = () => {
                 <View style={styles.iconContainer}>
                   <Ionicons name="moon-outline" size={20} color={colors.neutral[700]} />
                 </View>
-                <Text style={styles.menuItemText}>Dark Mode</Text>
+                <Text style={styles.menuItemText}>{t.profile.darkMode}</Text>
               </View>
               <Switch
                 value={darkMode}
                 onValueChange={setDarkMode}
+                trackColor={{ false: colors.neutral[300], true: colors.primary[500] }}
+                thumbColor="#FFFFFF"
+              />
+            </View>
+            <View style={styles.divider} />
+            <View style={styles.menuItem}>
+              <View style={styles.menuItemLeft}>
+                <View style={styles.iconContainer}>
+                  <Ionicons name="language-outline" size={20} color={colors.neutral[700]} />
+                </View>
+                <View style={styles.languageInfo}>
+                  <Text style={styles.menuItemText}>{t.profile.language}</Text>
+                  <Text style={styles.languageValue}>{t.languages[language]}</Text>
+                </View>
+              </View>
+              <Switch
+                value={language === 'tr'}
+                onValueChange={toggleLanguage}
                 trackColor={{ false: colors.neutral[300], true: colors.primary[500] }}
                 thumbColor="#FFFFFF"
               />
@@ -134,7 +160,7 @@ const ProfileScreen = () => {
         {/* Log Out */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout} activeOpacity={0.7}>
           <Ionicons name="log-out-outline" size={20} color={colors.semantic.error} />
-          <Text style={styles.logoutText}>Log Out</Text>
+          <Text style={styles.logoutText}>{t.profile.logout}</Text>
         </TouchableOpacity>
 
         {/* Spacer */}
@@ -216,6 +242,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.neutral[900],
     fontWeight: '500',
+  },
+  languageInfo: {
+    flex: 1,
+  },
+  languageValue: {
+    fontSize: 14,
+    color: colors.neutral[500],
+    marginTop: 2,
   },
   divider: {
     height: 1,

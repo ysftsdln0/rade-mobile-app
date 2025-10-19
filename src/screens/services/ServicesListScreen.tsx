@@ -141,7 +141,7 @@ const ServicesListScreen = () => {
           <Button
             label="Browse Hosting Plans"
             variant="primary"
-            size="sm"
+            size="lg"
             onPress={() => navigation.navigate('Purchase')}
           />
         </Card>
@@ -159,7 +159,7 @@ const ServicesListScreen = () => {
               <Button
                 label="Find a Domain"
                 variant="primary"
-                size="sm"
+                size="lg"
                 onPress={() => navigation.navigate('Purchase')}
               />
             </View>
@@ -195,7 +195,7 @@ const ServicesListScreen = () => {
               <Button
                 label="Deploy Server"
                 variant="primary"
-                size="sm"
+                size="lg"
                 onPress={() => navigation.navigate('Purchase')}
               />
             </View>

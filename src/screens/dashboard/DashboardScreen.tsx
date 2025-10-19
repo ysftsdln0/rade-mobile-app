@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAppSelector } from "../../store";
 import { apiService } from "../../services/api";
 import { transformToTimelineEvents } from "../../utils/activityHelpers";
+import { useLanguage } from "../../utils/LanguageContext";
 import {
   DashboardHeader,
   Card,
@@ -23,6 +24,7 @@ import { HostingPackage, ActivityItem } from "../../types";
 const DashboardScreen = () => {
   const navigation = useNavigation<any>();
   const { user } = useAppSelector((state) => state.auth);
+  const { t, language } = useLanguage();
 
   const hostingQuery = useQuery({
     queryKey: ["hostingPackages"],
@@ -53,9 +55,9 @@ const DashboardScreen = () => {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 18) return "Good Afternoon";
-    return "Good Evening";
+    if (hour < 12) return language === 'tr' ? "Günaydın" : "Good Morning";
+    if (hour < 18) return language === 'tr' ? "İyi Günler" : "Good Afternoon";
+    return language === 'tr' ? "İyi Akşamlar" : "Good Evening";
   };
 
   return (
@@ -71,7 +73,9 @@ const DashboardScreen = () => {
             {getGreeting()}, {user?.firstName || "User"}!
           </Text>
           <Text style={styles.overviewText}>
-            Here's a quick overview of your account.
+            {language === 'tr' 
+              ? "Hesabınızın hızlı bir özeti." 
+              : "Here's a quick overview of your account."}
           </Text>
         </View>
 
@@ -90,7 +94,9 @@ const DashboardScreen = () => {
               />
             </View>
             <Text style={styles.metricValue}>{hostingCount + 12}</Text>
-            <Text style={styles.metricLabel}>Total Websites</Text>
+            <Text style={styles.metricLabel}>
+              {language === 'tr' ? 'Toplam Web Siteleri' : 'Total Websites'}
+            </Text>
           </View>
 
           <View style={styles.metricBox}>
@@ -98,7 +104,9 @@ const DashboardScreen = () => {
               <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
             </View>
             <Text style={styles.metricValue}>99.9%</Text>
-            <Text style={styles.metricLabel}>Uptime</Text>
+            <Text style={styles.metricLabel}>
+              {language === 'tr' ? 'Çalışma Süresi' : 'Uptime'}
+            </Text>
           </View>
 
           <View style={styles.metricBox}>
@@ -106,38 +114,42 @@ const DashboardScreen = () => {
               <Ionicons name="help-circle-outline" size={24} color="#FF9800" />
             </View>
             <Text style={styles.metricValue}>2</Text>
-            <Text style={styles.metricLabel}>Support Tickets</Text>
+            <Text style={styles.metricLabel}>
+              {language === 'tr' ? 'Destek Talepleri' : 'Support Tickets'}
+            </Text>
           </View>
         </View>
 
         {/* My Services Section */}
         <View style={styles.servicesSection}>
-          <Text style={styles.sectionTitle}>My Services</Text>
+          <Text style={styles.sectionTitle}>
+            {language === 'tr' ? 'Hizmetlerim' : 'My Services'}
+          </Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.horizontalScroll}
           >
             <MetricCard
-              label="Active Packages"
+              label={language === 'tr' ? 'Aktif Paketler' : 'Active Packages'}
               value={activeCount}
               status={activeCount > 0 ? "online" : "offline"}
               style={styles.horizontalMetricCard}
             />
             <MetricCard
-              label="Total Services"
+              label={language === 'tr' ? 'Toplam Hizmetler' : 'Total Services'}
               value={hostingCount}
               change={hostingCount > 0 ? 5 : 0}
               style={styles.horizontalMetricCard}
             />
             <MetricCard
-              label="Uptime"
+              label={language === 'tr' ? 'Çalışma Süresi' : 'Uptime'}
               value="99.9%"
               status="online"
               style={styles.horizontalMetricCard}
             />
             <MetricCard
-              label="Storage Used"
+              label={language === 'tr' ? 'Kullanılan Depolama' : 'Storage Used'}
               value="150 GB"
               change={12}
               style={styles.horizontalMetricCard}
@@ -147,7 +159,7 @@ const DashboardScreen = () => {
 
         {/* Quick Services Summary */}
         {hostingCount > 0 && (
-          <Card title="Your Services" variant="default">
+          <Card title={language === 'tr' ? 'Hizmetleriniz' : 'Your Services'} variant="default">
             {hostingQuery.data?.slice(0, 3).map((hosting) => (
               <DataRow
                 key={hosting.id}
@@ -156,7 +168,7 @@ const DashboardScreen = () => {
                 status={hosting.status === "active" ? "online" : "offline"}
                 secondary={
                   hosting.expiryDate
-                    ? `Expires: ${new Date(hosting.expiryDate).toLocaleDateString()}`
+                    ? `${language === 'tr' ? 'Bitiş' : 'Expires'}: ${new Date(hosting.expiryDate).toLocaleDateString()}`
                     : ""
                 }
                 divider
@@ -167,7 +179,9 @@ const DashboardScreen = () => {
             ))}
             {hostingCount > 3 && (
               <Button
-                label={`View All ${hostingCount} Services`}
+                label={language === 'tr' 
+                  ? `Tüm ${hostingCount} Hizmeti Görüntüle` 
+                  : `View All ${hostingCount} Services`}
                 variant="secondary"
                 size="sm"
                 onPress={() => navigation.navigate("Services")}
@@ -176,33 +190,44 @@ const DashboardScreen = () => {
           </Card>
         )}
 
-        <Card title="System Health" variant="elevated">
+        <Card title={language === 'tr' ? 'Sistem Durumu' : 'System Health'} variant="elevated">
           <View style={styles.healthSection}>
             <View style={styles.healthRow}>
               <View style={styles.healthLabel}>
-                <Text style={styles.healthText}>Server Status</Text>
+                <Text style={styles.healthText}>
+                  {language === 'tr' ? 'Sunucu Durumu' : 'Server Status'}
+                </Text>
               </View>
-              <Badge label="Operational" variant="success" />
+              <Badge 
+                label={language === 'tr' ? 'Çalışıyor' : 'Operational'} 
+                variant="success" 
+              />
             </View>
             <View style={styles.healthMetric}>
-              <Text style={styles.healthMetricLabel}>System Load</Text>
+              <Text style={styles.healthMetricLabel}>
+                {language === 'tr' ? 'Sistem Yükü' : 'System Load'}
+              </Text>
               <Progress progress={65} showLabel variant="linear" />
             </View>
             <View style={styles.healthMetric}>
-              <Text style={styles.healthMetricLabel}>Disk Usage</Text>
+              <Text style={styles.healthMetricLabel}>
+                {language === 'tr' ? 'Disk Kullanımı' : 'Disk Usage'}
+              </Text>
               <Progress progress={45} showLabel variant="linear" />
             </View>
             <DataRow
-              label="Services Running"
+              label={language === 'tr' ? 'Çalışan Hizmetler' : 'Services Running'}
               value={`${hostingCount + 2}`}
-              secondary="All services operational"
+              secondary={language === 'tr' 
+                ? 'Tüm hizmetler çalışıyor' 
+                : 'All services operational'}
               divider={false}
             />
           </View>
         </Card>
 
         {timelineEvents.length > 0 && (
-          <Card title="Recent Activity" variant="default">
+          <Card title={language === 'tr' ? 'Son Aktiviteler' : 'Recent Activity'} variant="default">
             <Timeline events={timelineEvents.slice(0, 5)} />
           </Card>
         )}
@@ -211,7 +236,7 @@ const DashboardScreen = () => {
         <View style={styles.actionsSection}>
           <View style={styles.buttonRow}>
             <Button
-              label="Manage Services"
+              label={language === 'tr' ? 'Hizmetleri Yönet' : 'Manage Services'}
               variant="primary"
               onPress={() => navigation.navigate("Services")}
               fullWidth
@@ -219,7 +244,7 @@ const DashboardScreen = () => {
           </View>
           <View style={styles.buttonRow}>
             <Button
-              label="View Invoices"
+              label={language === 'tr' ? 'Faturaları Görüntüle' : 'View Invoices'}
               variant="secondary"
               onPress={() =>
                 navigation.navigate("Account", { screen: "InvoiceList" })
@@ -227,7 +252,7 @@ const DashboardScreen = () => {
               style={styles.halfButton}
             />
             <Button
-              label="Support"
+              label={language === 'tr' ? 'Destek' : 'Support'}
               variant="secondary"
               onPress={() => navigation.navigate("Support")}
               style={styles.halfButton}
