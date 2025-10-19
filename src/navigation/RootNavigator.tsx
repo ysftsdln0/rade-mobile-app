@@ -21,6 +21,7 @@ import ChatbotScreen from '../screens/support/ChatbotScreen';
 import { RootStackParamList, MainTabParamList } from '../types';
 import { colors } from '../styles';
 import { useLanguage } from '../utils/LanguageContext';
+import { useTheme } from '../utils/ThemeContext';
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -30,6 +31,7 @@ const Drawer = createDrawerNavigator();
 const MainTabNavigator = () => {
   const insets = useSafeAreaInsets();
   const { t } = useLanguage();
+  const { colors: themeColors, isDark } = useTheme();
   
   return (
     <Tab.Navigator
@@ -53,22 +55,25 @@ const MainTabNavigator = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: colors.primary[500],
-        tabBarInactiveTintColor: colors.neutral[500],
+        tabBarActiveTintColor: themeColors.primary,
+        tabBarInactiveTintColor: themeColors.textSecondary,
         tabBarIconStyle: {
           marginTop: 4,
         },
         tabBarStyle: {
           position: 'absolute',
-          backgroundColor: Platform.OS === 'ios' ? 'rgba(255, 255, 255, 0.95)' : '#FFFFFF',
-          borderTopWidth: 0,
+          backgroundColor: isDark 
+            ? (Platform.OS === 'ios' ? 'rgba(26, 31, 38, 0.95)' : themeColors.surface)
+            : (Platform.OS === 'ios' ? 'rgba(255, 255, 255, 0.95)' : '#FFFFFF'),
+          borderTopWidth: 1,
+          borderTopColor: themeColors.border,
           paddingBottom: Math.max(insets.bottom, 8),
           paddingTop: 8,
           height: Math.max(70 + insets.bottom, 80),
           paddingHorizontal: 4,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.1,
+          shadowOpacity: isDark ? 0.3 : 0.1,
           shadowRadius: 12,
           elevation: 8,
         },

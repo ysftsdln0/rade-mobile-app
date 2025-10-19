@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, Pressable, ViewStyle } from 'react-native';
 import { colors, spacing } from '../../styles';
+import { useTheme } from '../../utils/ThemeContext';
 
 interface AlertBannerProps {
   type?: 'success' | 'warning' | 'error' | 'info';
@@ -67,6 +68,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
   testID,
 }) => {
   const [dismissed, setDismissed] = useState(false);
+  const { colors: themeColors } = useTheme();
 
   if (dismissed) {
     return null;
@@ -97,7 +99,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
         <View style={styles.textContent}>
           <Text style={[styles.title, styles[`title_${type}`]]}>{title}</Text>
           {message && (
-            <Text style={[styles.message, styles[`message_${type}`]]}>{message}</Text>
+            <Text style={[styles.message, { color: themeColors.textSecondary }]}>{message}</Text>
           )}
         </View>
       </View>
@@ -127,7 +129,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
             ]}
             hitSlop={8}
           >
-            <Text style={styles.dismissIcon}>✕</Text>
+            <Text style={[styles.dismissIcon, { color: themeColors.textSecondary }]}>✕</Text>
           </Pressable>
         )}
       </View>
@@ -204,18 +206,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
   },
-  message_success: {
-    color: colors.neutral[700],
-  },
-  message_warning: {
-    color: colors.neutral[700],
-  },
-  message_error: {
-    color: colors.neutral[700],
-  },
-  message_info: {
-    color: colors.neutral[700],
-  },
   actionContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -259,6 +249,5 @@ const styles = StyleSheet.create({
   dismissIcon: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.neutral[600],
   },
 });

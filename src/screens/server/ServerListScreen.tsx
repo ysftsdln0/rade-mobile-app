@@ -26,6 +26,7 @@ import {
 } from '../../components/common';
 import { colors, spacing } from '../../styles';
 import { useLanguage } from '../../utils/LanguageContext';
+import { useTheme } from '../../utils/ThemeContext';
 
 interface Server {
   id: string;
@@ -84,6 +85,7 @@ const getMetricStatus = (usage: number) => {
 const ServerListScreen = () => {
   const navigation = useNavigation<any>();
   const { t } = useLanguage();
+  const { colors: themeColors, isDark } = useTheme();
   const [filterStatus, setFilterStatus] = useState<'all' | 'online' | 'offline' | 'maintenance'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -145,7 +147,7 @@ const ServerListScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -153,8 +155,8 @@ const ServerListScreen = () => {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>{t.servers.myServers}</Text>
-          <Text style={styles.headerSubtitle}>{t.servers.manageInfrastructure}</Text>
+          <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t.servers.myServers}</Text>
+          <Text style={[styles.headerSubtitle, { color: themeColors.textSecondary }]}>{t.servers.manageInfrastructure}</Text>
         </View>
 
         {/* Search Bar */}
@@ -183,19 +185,19 @@ const ServerListScreen = () => {
               <Text style={[styles.statValue, { color: colors.semantic.success }]}>
                 {stats.online}
               </Text>
-              <Text style={styles.statLabel}>{t.servers.online}</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>{t.servers.online}</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: colors.semantic.error }]}>
                 {stats.offline}
               </Text>
-              <Text style={styles.statLabel}>{t.servers.offline}</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>{t.servers.offline}</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: colors.semantic.warning }]}>
                 {stats.maintenance}
               </Text>
-              <Text style={styles.statLabel}>{t.servers.maintenance}</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>{t.servers.maintenance}</Text>
             </View>
           </View>
         </Card>
@@ -342,13 +344,11 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 28,
-    fontWeight: '700',
-    color: colors.neutral[900],
-    marginBottom: spacing[1],
+    fontWeight: 'bold',
+    marginBottom: spacing[2],
   },
   headerSubtitle: {
     fontSize: 16,
-    color: colors.neutral[600],
   },
   statsRow: {
     flexDirection: 'row',
@@ -366,7 +366,6 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    color: colors.neutral[600],
     fontWeight: '600',
   },
   divider: {

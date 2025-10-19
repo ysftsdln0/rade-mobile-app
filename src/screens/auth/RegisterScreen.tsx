@@ -21,6 +21,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { colors, spacing } from '../../styles';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { registerAsync } from '../../store/authThunks';
+import { useTheme } from '../../utils/ThemeContext';
 
 const phoneRegex = /^\+?[0-9\s-]{7,}$/;
 
@@ -58,6 +59,7 @@ const RegisterScreen = () => {
   const navigation = useNavigation<any>();
   const dispatch = useAppDispatch();
   const { isLoading } = useAppSelector((s) => s.auth);
+  const { colors: themeColors, isDark } = useTheme();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -126,15 +128,15 @@ const RegisterScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-          <Text style={styles.title}>Hesap Oluştur</Text>
-          <Text style={styles.subtitle}>Bilgilerinizi doldurun ve hemen başlayın</Text>
+          <Text style={[styles.title, { color: themeColors.text }]}>Hesap Oluştur</Text>
+          <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>Bilgilerinizi doldurun ve hemen başlayın</Text>
 
           <View style={styles.row}>
             <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
-              <Text style={styles.label}>Ad</Text>
+              <Text style={[styles.label, { color: themeColors.textSecondary }]}>Ad</Text>
               <Controller
                 control={control}
                 name="firstName"
@@ -143,8 +145,9 @@ const RegisterScreen = () => {
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: themeColors.input, color: themeColors.text }]}
                     placeholder="Ad"
+                    placeholderTextColor={themeColors.textTertiary}
                     autoCapitalize="words"
                   />
                 )}
@@ -152,7 +155,7 @@ const RegisterScreen = () => {
               {errors.firstName ? <Text style={styles.errorText}>{errors.firstName.message}</Text> : null}
             </View>
             <View style={[styles.inputGroup, { flex: 1 }]}>
-              <Text style={styles.label}>Soyad</Text>
+              <Text style={[styles.label, { color: themeColors.textSecondary }]}>Soyad</Text>
               <Controller
                 control={control}
                 name="lastName"
@@ -161,8 +164,9 @@ const RegisterScreen = () => {
                     value={value}
                     onChangeText={onChange}
                     onBlur={onBlur}
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: themeColors.input, color: themeColors.text }]}
                     placeholder="Soyad"
+                    placeholderTextColor={themeColors.textTertiary}
                     autoCapitalize="words"
                   />
                 )}
@@ -172,7 +176,7 @@ const RegisterScreen = () => {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>E-posta</Text>
+            <Text style={[styles.label, { color: themeColors.textSecondary }]}>E-posta</Text>
             <Controller
               control={control}
               name="email"
@@ -181,8 +185,9 @@ const RegisterScreen = () => {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  style={styles.input}
+                  style={[styles.input, { backgroundColor: themeColors.input, color: themeColors.text }]}
                   placeholder="ornek@mail.com"
+                  placeholderTextColor={themeColors.textTertiary}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoComplete="email"
@@ -194,7 +199,7 @@ const RegisterScreen = () => {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Şifre</Text>
+            <Text style={[styles.label, { color: themeColors.textSecondary }]}>Şifre</Text>
             <Controller
               control={control}
               name="password"
@@ -203,8 +208,9 @@ const RegisterScreen = () => {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  style={styles.input}
+                  style={[styles.input, { backgroundColor: themeColors.input, color: themeColors.text }]}
                   placeholder="Şifre"
+                  placeholderTextColor={themeColors.textTertiary}
                   secureTextEntry={!showPassword}
                   autoComplete="password"
                   textContentType="newPassword"
@@ -212,24 +218,25 @@ const RegisterScreen = () => {
               )}
             />
             <TouchableOpacity style={styles.toggle} onPress={() => setShowPassword((p) => !p)}>
-              <Text style={styles.toggleText}>{showPassword ? 'Gizle' : 'Göster'}</Text>
+              <Text style={[styles.toggleText, { color: themeColors.primary }]}>{showPassword ? 'Gizle' : 'Göster'}</Text>
             </TouchableOpacity>
             {errors.password ? <Text style={styles.errorText}>{errors.password.message}</Text> : null}
             <Text style={[styles.passwordStrength, { color: passwordStrength.color }]}>
               {passwordStrength.label}
             </Text>
-            <View style={styles.passwordHints}>
+            <View style={[styles.passwordHints, { backgroundColor: themeColors.surfaceAlt }]}>
               {passwordChecks.map((check) => (
                 <View key={check.label} style={styles.requirementRow}>
                   <Ionicons
                     name={check.met ? 'checkmark-circle' : 'ellipse-outline'}
                     size={16}
-                    color={check.met ? colors.semantic.success : colors.neutral[400]}
+                    color={check.met ? colors.semantic.success : themeColors.textTertiary}
                     style={{ marginRight: spacing[2] }}
                   />
                   <Text
                     style={[
                       styles.requirementText,
+                      { color: themeColors.textSecondary },
                       check.met && styles.requirementMet,
                     ]}
                   >
@@ -241,7 +248,7 @@ const RegisterScreen = () => {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Şifre (Tekrar)</Text>
+            <Text style={[styles.label, { color: themeColors.textSecondary }]}>Şifre (Tekrar)</Text>
             <Controller
               control={control}
               name="confirmPassword"
@@ -250,15 +257,16 @@ const RegisterScreen = () => {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  style={styles.input}
+                  style={[styles.input, { backgroundColor: themeColors.input, color: themeColors.text }]}
                   placeholder="Şifreyi tekrar"
+                  placeholderTextColor={themeColors.textTertiary}
                   secureTextEntry={!showConfirmPassword}
                   autoComplete="password"
                 />
               )}
             />
             <TouchableOpacity style={styles.toggle} onPress={() => setShowConfirmPassword((p) => !p)}>
-              <Text style={styles.toggleText}>{showConfirmPassword ? 'Gizle' : 'Göster'}</Text>
+              <Text style={[styles.toggleText, { color: themeColors.primary }]}>{showConfirmPassword ? 'Gizle' : 'Göster'}</Text>
             </TouchableOpacity>
             {errors.confirmPassword ? (
               <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>
@@ -266,7 +274,7 @@ const RegisterScreen = () => {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Şirket (opsiyonel)</Text>
+            <Text style={[styles.label, { color: themeColors.textSecondary }]}>Şirket (opsiyonel)</Text>
             <Controller
               control={control}
               name="company"
@@ -275,8 +283,9 @@ const RegisterScreen = () => {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  style={styles.input}
+                  style={[styles.input, { backgroundColor: themeColors.input, color: themeColors.text }]}
                   placeholder="Şirket Adı"
+                  placeholderTextColor={themeColors.textTertiary}
                   autoCapitalize="words"
                 />
               )}
@@ -285,7 +294,7 @@ const RegisterScreen = () => {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Telefon (opsiyonel)</Text>
+            <Text style={[styles.label, { color: themeColors.textSecondary }]}>Telefon (opsiyonel)</Text>
             <Controller
               control={control}
               name="phone"
@@ -294,8 +303,9 @@ const RegisterScreen = () => {
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
-                  style={styles.input}
+                  style={[styles.input, { backgroundColor: themeColors.input, color: themeColors.text }]}
                   placeholder="+90 ..."
+                  placeholderTextColor={themeColors.textTertiary}
                   keyboardType="phone-pad"
                   autoComplete="tel"
                   textContentType="telephoneNumber"
@@ -309,15 +319,15 @@ const RegisterScreen = () => {
             style={styles.termsRow}
             onPress={() => setValue('acceptTerms', !acceptTerms, { shouldValidate: true })}
           >
-            <View style={[styles.checkbox, acceptTerms && styles.checkboxChecked]} />
-            <Text style={styles.termsText}>Kullanım şartlarını kabul ediyorum</Text>
+            <View style={[styles.checkbox, { borderColor: themeColors.primary }, acceptTerms && { backgroundColor: themeColors.primary }]} />
+            <Text style={[styles.termsText, { color: themeColors.textSecondary }]}>Kullanım şartlarını kabul ediyorum</Text>
           </TouchableOpacity>
           {errors.acceptTerms ? <Text style={styles.errorText}>{errors.acceptTerms.message}</Text> : null}
 
           <TouchableOpacity
             disabled={isLoading || isSubmitting}
             onPress={handleSubmit(onSubmit)}
-            style={[styles.registerButton, (isLoading || isSubmitting) && { opacity: 0.7 }]}
+            style={[styles.registerButton, { backgroundColor: themeColors.primary }, (isLoading || isSubmitting) && { opacity: 0.7 }]}
           >
             {isLoading || isSubmitting ? (
               <ActivityIndicator color="#FFF" />
@@ -327,9 +337,9 @@ const RegisterScreen = () => {
           </TouchableOpacity>
 
           <View style={styles.loginLinkRow}>
-            <Text style={styles.loginText}>Zaten hesabın var mı? </Text>
+            <Text style={[styles.loginText, { color: themeColors.textSecondary }]}>Zaten hesabın var mı? </Text>
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Text style={styles.loginLink}>Giriş Yap</Text>
+              <Text style={[styles.loginLink, { color: themeColors.primary }]}>Giriş Yap</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -339,29 +349,26 @@ const RegisterScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFF' },
+  container: { flex: 1 },
   scroll: { padding: spacing[5], paddingBottom: spacing[10] },
-  title: { fontSize: 28, fontWeight: '700', color: colors.neutral[900], marginBottom: spacing[1] },
-  subtitle: { fontSize: 14, color: colors.neutral[600], marginBottom: spacing[6] },
+  title: { fontSize: 28, fontWeight: '700', marginBottom: spacing[1] },
+  subtitle: { fontSize: 14, marginBottom: spacing[6] },
   inputGroup: { marginBottom: spacing[4], position: 'relative' },
   label: {
     fontSize: 13,
     fontWeight: '600',
-    color: colors.neutral[600],
     marginBottom: 6,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   input: {
-    backgroundColor: colors.neutral[100],
     borderRadius: 10,
     paddingHorizontal: 14,
     height: 50,
     fontSize: 15,
-    color: colors.neutral[900],
   },
   toggle: { position: 'absolute', right: 12, top: 30, padding: spacing[1] },
-  toggleText: { fontSize: 12, color: colors.primary[500], fontWeight: '600' },
+  toggleText: { fontSize: 12, fontWeight: '600' },
   row: { flexDirection: 'row' },
   termsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing[2] },
   checkbox: {
@@ -369,13 +376,10 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 4,
     borderWidth: 1.5,
-    borderColor: colors.primary[500],
     marginRight: 10,
   },
-  checkboxChecked: { backgroundColor: colors.primary[500] },
-  termsText: { flex: 1, fontSize: 13, color: colors.neutral[600] },
+  termsText: { flex: 1, fontSize: 13 },
   registerButton: {
-    backgroundColor: colors.primary[500],
     borderRadius: 12,
     height: 54,
     alignItems: 'center',
@@ -385,8 +389,8 @@ const styles = StyleSheet.create({
   },
   registerButtonText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
   loginLinkRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  loginText: { fontSize: 14, color: colors.neutral[600] },
-  loginLink: { fontSize: 14, color: colors.primary[500], fontWeight: '600' },
+  loginText: { fontSize: 14 },
+  loginLink: { fontSize: 14, fontWeight: '600' },
   errorText: {
     color: colors.semantic.error,
     fontSize: 12,
@@ -394,7 +398,6 @@ const styles = StyleSheet.create({
   },
   passwordHints: {
     marginTop: spacing[2],
-    backgroundColor: colors.neutral[100],
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: spacing[3],
@@ -406,7 +409,6 @@ const styles = StyleSheet.create({
   },
   requirementText: {
     fontSize: 13,
-    color: colors.neutral[600],
   },
   requirementMet: {
     color: colors.semantic.success,

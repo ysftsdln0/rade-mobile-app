@@ -8,6 +8,7 @@ import { EmptyState } from '../../components/common/EmptyState';
 import { apiService } from '../../services/api';
 import { HostingPackage } from '../../types';
 import { COLORS, FONT_SIZES, SPACING } from '../../constants';
+import { useTheme } from '../../utils/ThemeContext';
 
 const statusMeta = {
 	active: { label: 'Aktif', color: COLORS.success.main },
@@ -24,6 +25,7 @@ const packageLabel = {
 
 const HostingListScreen: React.FC = () => {
 	const navigation = useNavigation<any>();
+	const { colors: themeColors } = useTheme();
 
 	const hostingQuery = useQuery({
 		queryKey: ['hostingPackages'],
@@ -60,7 +62,7 @@ const HostingListScreen: React.FC = () => {
 	}
 
 	return (
-		<ScrollView style={styles.container} contentContainerStyle={styles.content}>
+		<ScrollView style={[styles.container, { backgroundColor: themeColors.background }]} contentContainerStyle={styles.content}>
 			{packages.map((item) => {
 				const status = statusMeta[item.status] ?? statusMeta.pending;
 				return (
@@ -70,31 +72,31 @@ const HostingListScreen: React.FC = () => {
 						onPress={() => navigation.navigate('HostingDetails', { hostingId: item.id })}
 					>
 						<View style={styles.headerRow}>
-							<Text style={styles.title}>{item.name}</Text>
+							<Text style={[styles.title, { color: themeColors.text }]}>{item.name}</Text>
 							<View style={[styles.badge, { backgroundColor: `${status.color}20` }]}>
 								<Text style={[styles.badgeText, { color: status.color }]}>{status.label}</Text>
 							</View>
 						</View>
-						<Text style={styles.domain}>{item.domain}</Text>
+						<Text style={[styles.domain, { color: themeColors.textSecondary }]}>{item.domain}</Text>
 									<View style={styles.metaRow}>
-										<Text style={styles.metaLabel}>Paket Türü</Text>
-										<Text style={styles.metaValue}>{packageLabel[item.packageType] ?? item.packageType}</Text>
+										<Text style={[styles.metaLabel, { color: themeColors.textSecondary }]}>Paket Türü</Text>
+										<Text style={[styles.metaValue, { color: themeColors.text }]}>{packageLabel[item.packageType] ?? item.packageType}</Text>
 									</View>
 									<View style={styles.metaRow}>
-										<Text style={styles.metaLabel}>Disk Kullanımı</Text>
-										<Text style={styles.metaValue}>
+										<Text style={[styles.metaLabel, { color: themeColors.textSecondary }]}>Disk Kullanımı</Text>
+										<Text style={[styles.metaValue, { color: themeColors.text }]}>
 											{item.diskUsage} / {item.diskLimit} GB
 										</Text>
 									</View>
 									<View style={styles.metaRow}>
-										<Text style={styles.metaLabel}>Bant Genişliği</Text>
-										<Text style={styles.metaValue}>
+										<Text style={[styles.metaLabel, { color: themeColors.textSecondary }]}>Bant Genişliği</Text>
+										<Text style={[styles.metaValue, { color: themeColors.text }]}>
 											{item.bandwidthUsage} / {item.bandwidthLimit} GB
 										</Text>
 									</View>
 									<View style={styles.metaRow}>
-										<Text style={styles.metaLabel}>Bitiş Tarihi</Text>
-										<Text style={styles.metaValue}>{formatDate(item.expiryDate)}</Text>
+										<Text style={[styles.metaLabel, { color: themeColors.textSecondary }]}>Bitiş Tarihi</Text>
+										<Text style={[styles.metaValue, { color: themeColors.text }]}>{formatDate(item.expiryDate)}</Text>
 									</View>
 					</AppCard>
 				);
@@ -116,7 +118,6 @@ const formatDate = (date: string) => {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: COLORS.background,
 	},
 	content: {
 		padding: SPACING.lg,
@@ -132,12 +133,10 @@ const styles = StyleSheet.create({
 	title: {
 		fontSize: FONT_SIZES.lg,
 		fontWeight: '700',
-		color: COLORS.textPrimary,
 	},
 	domain: {
 		marginTop: SPACING.sm,
 		fontSize: FONT_SIZES.md,
-		color: COLORS.textSecondary,
 	},
 	badge: {
 		paddingHorizontal: SPACING.md,
@@ -155,11 +154,9 @@ const styles = StyleSheet.create({
 		marginTop: SPACING.sm,
 	},
 	metaLabel: {
-		color: COLORS.textSecondary,
 		fontSize: FONT_SIZES.sm,
 	},
 	metaValue: {
-		color: COLORS.textPrimary,
 		fontSize: FONT_SIZES.sm,
 		fontWeight: '600',
 	},

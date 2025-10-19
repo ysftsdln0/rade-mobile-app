@@ -23,6 +23,7 @@ import {
   FloatingActionButton,
 } from '../../components/common';
 import { colors, spacing } from '../../styles';
+import { useTheme } from '../../utils/ThemeContext';
 
 const formatDate = (date: string) => {
   const d = new Date(date);
@@ -71,6 +72,7 @@ const mockDomains: Domain[] = [
 
 const DomainListScreen = () => {
   const navigation = useNavigation<any>();
+  const { colors: themeColors } = useTheme();
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'expiring' | 'expired'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -126,7 +128,7 @@ const DomainListScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -134,8 +136,8 @@ const DomainListScreen = () => {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>My Domains</Text>
-          <Text style={styles.headerSubtitle}>Manage your domain portfolio</Text>
+          <Text style={[styles.headerTitle, { color: themeColors.text }]}>My Domains</Text>
+          <Text style={[styles.headerSubtitle, { color: themeColors.textSecondary }]}>Manage your domain portfolio</Text>
         </View>
 
         {/* Search Bar */}
@@ -161,20 +163,20 @@ const DomainListScreen = () => {
         <Card title="Summary" variant="elevated">
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>{stats.active}</Text>
-              <Text style={styles.statLabel}>Active</Text>
+              <Text style={[styles.statValue, { color: colors.semantic.success }]}>{stats.active}</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>Active</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: colors.semantic.warning }]}>
                 {stats.expiring}
               </Text>
-              <Text style={styles.statLabel}>Expiring</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>Expiring</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: colors.semantic.error }]}>
                 {stats.expired}
               </Text>
-              <Text style={styles.statLabel}>Expired</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>Expired</Text>
             </View>
           </View>
         </Card>
@@ -257,7 +259,6 @@ const DomainListScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFAFA',
   },
   scrollView: {
     flex: 1,
@@ -273,12 +274,10 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: colors.neutral[900],
     marginBottom: spacing[1],
   },
   headerSubtitle: {
     fontSize: 16,
-    color: colors.neutral[600],
   },
   statsRow: {
     flexDirection: 'row',
@@ -292,12 +291,10 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: colors.semantic.success,
     marginBottom: spacing[1],
   },
   statLabel: {
     fontSize: 12,
-    color: colors.neutral[600],
     fontWeight: '600',
   },
   domainActions: {

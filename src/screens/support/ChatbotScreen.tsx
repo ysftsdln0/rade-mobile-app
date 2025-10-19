@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Avatar } from '../../components/common';
 import { colors, spacing } from '../../styles';
 import { useLanguage } from '../../utils/LanguageContext';
+import { useTheme } from '../../utils/ThemeContext';
 
 interface Message {
   id: string;
@@ -25,6 +26,7 @@ interface Message {
 
 const ChatbotScreen = ({ navigation }: any) => {
   const { t } = useLanguage();
+  const { colors: themeColors, isDark } = useTheme();
   
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -113,23 +115,23 @@ const ChatbotScreen = ({ navigation }: any) => {
   }, [messages, isTyping]);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: themeColors.surface }]}>
       <KeyboardAvoidingView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: themeColors.background }]}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
         {/* Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: themeColors.surface, borderBottomColor: themeColors.border }]}>
           <View style={styles.headerAvatarContainer}>
             <Avatar
               initials="RA"
               size="md"
             />
           </View>
-          <Text style={styles.headerTitle}>{t.chatbot.title}</Text>
+          <Text style={[styles.headerTitle, { color: themeColors.text }]}>{t.chatbot.title}</Text>
           <TouchableOpacity style={styles.menuButton}>
-            <Ionicons name="ellipsis-vertical" size={24} color={colors.neutral[900]} />
+            <Ionicons name="ellipsis-vertical" size={24} color={themeColors.text} />
           </TouchableOpacity>
         </View>
 
@@ -143,10 +145,10 @@ const ChatbotScreen = ({ navigation }: any) => {
         {messages.map((message) => (
           <View key={message.id}>
             {message.sender === 'bot' && (
-              <Text style={styles.botLabel}>{t.chatbot.assistant}</Text>
+              <Text style={[styles.botLabel, { color: themeColors.textSecondary }]}>{t.chatbot.assistant}</Text>
             )}
             {message.sender === 'user' && (
-              <Text style={styles.userLabel}>{t.chatbot.you}</Text>
+              <Text style={[styles.userLabel, { color: themeColors.textSecondary }]}>{t.chatbot.you}</Text>
             )}
             <View
               style={[
@@ -165,13 +167,13 @@ const ChatbotScreen = ({ navigation }: any) => {
               <View
                 style={[
                   styles.messageBubble,
-                  message.sender === 'user' ? styles.userBubble : styles.botBubble,
+                  message.sender === 'user' ? [styles.userBubble, { backgroundColor: themeColors.primary }] : [styles.botBubble, { backgroundColor: isDark ? themeColors.surfaceAlt : '#E8EAF6' }],
                 ]}
               >
                 <Text
                   style={[
                     styles.messageText,
-                    message.sender === 'user' && styles.userMessageText,
+                    { color: message.sender === 'user' ? '#FFFFFF' : themeColors.text },
                   ]}
                 >
                   {message.text}
@@ -192,7 +194,7 @@ const ChatbotScreen = ({ navigation }: any) => {
         {/* Typing Indicator */}
         {isTyping && (
           <View>
-            <Text style={styles.botLabel}>{t.chatbot.assistant}</Text>
+            <Text style={[styles.botLabel, { color: themeColors.textSecondary }]}>{t.chatbot.assistant}</Text>
             <View style={styles.messageRow}>
               <View style={styles.avatarWrapper}>
                 <Avatar
@@ -200,8 +202,8 @@ const ChatbotScreen = ({ navigation }: any) => {
                   size="sm"
                 />
               </View>
-              <View style={[styles.messageBubble, styles.botBubble, styles.typingBubble]}>
-                <TypingIndicator />
+              <View style={[styles.messageBubble, styles.botBubble, styles.typingBubble, { backgroundColor: isDark ? themeColors.surfaceAlt : '#E8EAF6' }]}>
+                <TypingIndicator themeColors={themeColors} />
               </View>
             </View>
           </View>
@@ -209,7 +211,7 @@ const ChatbotScreen = ({ navigation }: any) => {
       </ScrollView>
 
       {/* Quick Replies */}
-      <View style={styles.quickRepliesContainer}>
+      <View style={[styles.quickRepliesContainer, { backgroundColor: themeColors.surface, borderTopColor: themeColors.border }]}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -218,36 +220,36 @@ const ChatbotScreen = ({ navigation }: any) => {
           {quickReplies.map((reply) => (
             <TouchableOpacity
               key={reply.id}
-              style={styles.quickReplyButton}
+              style={[styles.quickReplyButton, { backgroundColor: isDark ? themeColors.surfaceAlt : '#E3F2FD' }]}
               onPress={() => handleQuickReply(reply.id)}
             >
-              <Ionicons name={reply.icon} size={16} color={colors.primary[500]} />
-              <Text style={styles.quickReplyText}>{reply.label}</Text>
+              <Ionicons name={reply.icon} size={16} color={themeColors.primary} />
+              <Text style={[styles.quickReplyText, { color: themeColors.primary }]}>{reply.label}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
 
       {/* Input Area */}
-      <View style={styles.inputContainer}>
+      <View style={[styles.inputContainer, { backgroundColor: themeColors.surface, borderTopColor: themeColors.border }]}>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: themeColors.input, color: themeColors.text }]}
           placeholder={t.chatbot.askQuestion}
-          placeholderTextColor={colors.neutral[400]}
+          placeholderTextColor={themeColors.textTertiary}
           value={inputText}
           onChangeText={setInputText}
           multiline
           maxLength={500}
         />
         <TouchableOpacity
-          style={[styles.sendButton, inputText.trim() === '' && styles.sendButtonDisabled]}
+          style={[styles.sendButton, { backgroundColor: inputText.trim() === '' ? themeColors.inputBorder : themeColors.primary }]}
           onPress={handleSend}
           disabled={inputText.trim() === ''}
         >
           <Ionicons
             name="send"
             size={20}
-            color={inputText.trim() === '' ? colors.neutral[400] : '#FFFFFF'}
+            color={inputText.trim() === '' ? themeColors.textTertiary : '#FFFFFF'}
           />
         </TouchableOpacity>
       </View>
@@ -257,7 +259,7 @@ const ChatbotScreen = ({ navigation }: any) => {
 };
 
 // Typing Indicator Component
-const TypingIndicator = () => {
+const TypingIndicator = ({ themeColors }: { themeColors: any }) => {
   const dot1 = useRef(new Animated.Value(0)).current;
   const dot2 = useRef(new Animated.Value(0)).current;
   const dot3 = useRef(new Animated.Value(0)).current;
@@ -289,13 +291,13 @@ const TypingIndicator = () => {
   return (
     <View style={styles.typingContainer}>
       <Animated.View
-        style={[styles.typingDot, { transform: [{ translateY: dot1 }] }]}
+        style={[styles.typingDot, { backgroundColor: themeColors.textSecondary, transform: [{ translateY: dot1 }] }]}
       />
       <Animated.View
-        style={[styles.typingDot, { transform: [{ translateY: dot2 }] }]}
+        style={[styles.typingDot, { backgroundColor: themeColors.textSecondary, transform: [{ translateY: dot2 }] }]}
       />
       <Animated.View
-        style={[styles.typingDot, { transform: [{ translateY: dot3 }] }]}
+        style={[styles.typingDot, { backgroundColor: themeColors.textSecondary, transform: [{ translateY: dot3 }] }]}
       />
     </View>
   );
@@ -304,20 +306,16 @@ const TypingIndicator = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F7',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[3],
     borderBottomWidth: 1,
-    borderBottomColor: colors.neutral[200],
   },
   backButton: {
     width: 40,
@@ -333,7 +331,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 20,
     fontWeight: '700',
-    color: colors.neutral[900],
     marginLeft: spacing[3],
   },
   menuButton: {
@@ -352,13 +349,11 @@ const styles = StyleSheet.create({
   },
   botLabel: {
     fontSize: 13,
-    color: colors.neutral[500],
     marginBottom: spacing[2],
     marginTop: spacing[4],
   },
   userLabel: {
     fontSize: 13,
-    color: colors.neutral[500],
     marginBottom: spacing[2],
     marginTop: spacing[4],
     textAlign: 'right',
@@ -381,11 +376,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   botBubble: {
-    backgroundColor: '#E8EAF6',
     borderBottomLeftRadius: 4,
   },
   userBubble: {
-    backgroundColor: colors.primary[500],
     borderBottomRightRadius: 4,
   },
   typingBubble: {
@@ -394,10 +387,6 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 16,
     lineHeight: 22,
-    color: colors.neutral[900],
-  },
-  userMessageText: {
-    color: '#FFFFFF',
   },
   typingContainer: {
     flexDirection: 'row',
@@ -408,12 +397,9 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: colors.neutral[500],
   },
   quickRepliesContainer: {
-    backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: colors.neutral[200],
     paddingVertical: spacing[3],
   },
   quickRepliesContent: {
@@ -426,40 +412,33 @@ const styles = StyleSheet.create({
     gap: spacing[2],
     paddingHorizontal: spacing[4],
     paddingVertical: 10,
-    backgroundColor: '#E3F2FD',
     borderRadius: 20,
     marginRight: spacing[2],
   },
   quickReplyText: {
     fontSize: 14,
     fontWeight: '500',
-    color: colors.primary[500],
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    backgroundColor: '#FFFFFF',
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[3],
     borderTopWidth: 1,
-    borderTopColor: colors.neutral[200],
     gap: spacing[3],
   },
   input: {
     flex: 1,
-    backgroundColor: '#F5F5F7',
     borderRadius: 24,
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[3],
     fontSize: 16,
-    color: colors.neutral[900],
     maxHeight: 100,
   },
   sendButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.primary[500],
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: colors.primary[500],
@@ -467,10 +446,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 4,
-  },
-  sendButtonDisabled: {
-    backgroundColor: colors.neutral[200],
-    shadowOpacity: 0,
   },
 });
 

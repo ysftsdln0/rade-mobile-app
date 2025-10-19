@@ -184,18 +184,18 @@ const ServicesListScreen = () => {
 
           {/* Domains Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t.services.domains}</Text>
+            <Text style={[styles.sectionTitle, { color: themeColors.text }]}>{t.services.domains}</Text>
             {domainsQuery.data && domainsQuery.data.length === 0 ? (
               <>
-                <View style={styles.emptyCard}>
-                  <View style={styles.emptyIconContainer}>
-                    <Ionicons name="globe-outline" size={48} color={colors.neutral[400]} />
+                <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.cardBorder }]}>
+                  <View style={[styles.emptyIconContainer, { backgroundColor: isDark ? themeColors.surfaceAlt : colors.neutral[50] }]}>
+                    <Ionicons name="globe-outline" size={48} color={themeColors.textTertiary} />
                   </View>
-                  <Text style={styles.emptyTitle}>No Domains</Text>
-                  <Text style={styles.emptyMessage}>Register or transfer a domain to get started</Text>
+                  <Text style={[styles.emptyTitle, { color: themeColors.text }]}>No Domains</Text>
+                  <Text style={[styles.emptyMessage, { color: themeColors.textSecondary }]}>Register or transfer a domain to get started</Text>
                 </View>
                 <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('Purchase')}>
-                  <View style={styles.addButtonGradient}>
+                  <View style={[styles.addButtonGradient, { backgroundColor: themeColors.primary }]}>
                     <Text style={styles.addButtonText}>Find a Domain</Text>
                   </View>
                 </TouchableOpacity>
@@ -205,7 +205,7 @@ const ServicesListScreen = () => {
                 {domainsQuery.data?.map((domain) => (
                   <TouchableOpacity
                     key={domain.id}
-                    style={styles.serviceCard}
+                    style={[styles.serviceCard, { backgroundColor: themeColors.card, borderColor: themeColors.cardBorder }]}
                     onPress={() =>
                       navigation.navigate('Services', {
                         screen: 'DomainList',
@@ -213,12 +213,12 @@ const ServicesListScreen = () => {
                     }
                   >
                     <View style={styles.serviceCardHeader}>
-                      <View style={styles.serviceIconContainer}>
-                        <Ionicons name="globe" size={24} color={colors.primary[500]} />
+                      <View style={[styles.serviceIconContainer, { backgroundColor: isDark ? themeColors.surfaceAlt : '#F0F5FF' }]}>
+                        <Ionicons name="globe" size={24} color={themeColors.primary} />
                       </View>
                       <View style={styles.serviceInfo}>
-                        <Text style={styles.serviceName}>{domain.name}</Text>
-                        <Text style={styles.serviceType}>Domain</Text>
+                        <Text style={[styles.serviceName, { color: themeColors.text }]}>{domain.name}</Text>
+                        <Text style={[styles.serviceType, { color: themeColors.textSecondary }]}>Domain</Text>
                       </View>
                       <View style={[
                         styles.statusBadge,
@@ -232,11 +232,11 @@ const ServicesListScreen = () => {
                         </Text>
                       </View>
                     </View>
-                    <View style={styles.serviceCardFooter}>
-                      <Text style={styles.expiryText}>
+                    <View style={[styles.serviceCardFooter, { borderTopColor: themeColors.border }]}>
+                      <Text style={[styles.expiryText, { color: themeColors.textSecondary }]}>
                         {t.dashboard.expires}: {new Date(domain.expiryDate).toLocaleDateString()}
                       </Text>
-                      <Ionicons name="chevron-forward" size={20} color={colors.neutral[400]} />
+                      <Ionicons name="chevron-forward" size={20} color={themeColors.textTertiary} />
                     </View>
                   </TouchableOpacity>
                 ))}
@@ -246,18 +246,18 @@ const ServicesListScreen = () => {
 
           {/* Servers Section */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{t.servers.title}</Text>
+            <Text style={[styles.sectionTitle, { color: themeColors.text }]}>{t.servers.title}</Text>
             {serversQuery.data && serversQuery.data.length === 0 ? (
               <>
-                <View style={styles.emptyCard}>
-                  <View style={styles.emptyIconContainer}>
-                    <Ionicons name="hardware-chip-outline" size={48} color={colors.neutral[400]} />
+                <View style={[styles.emptyCard, { backgroundColor: themeColors.card, borderColor: themeColors.cardBorder }]}>
+                  <View style={[styles.emptyIconContainer, { backgroundColor: isDark ? themeColors.surfaceAlt : colors.neutral[50] }]}>
+                    <Ionicons name="hardware-chip-outline" size={48} color={themeColors.textTertiary} />
                   </View>
-                  <Text style={styles.emptyTitle}>No Servers</Text>
-                  <Text style={styles.emptyMessage}>Deploy your first server or VPS</Text>
+                  <Text style={[styles.emptyTitle, { color: themeColors.text }]}>No Servers</Text>
+                  <Text style={[styles.emptyMessage, { color: themeColors.textSecondary }]}>Deploy your first server or VPS</Text>
                 </View>
                 <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('Purchase')}>
-                  <View style={styles.addButtonGradient}>
+                  <View style={[styles.addButtonGradient, { backgroundColor: themeColors.primary }]}>
                     <Text style={styles.addButtonText}>Deploy Server</Text>
                   </View>
                 </TouchableOpacity>
@@ -267,7 +267,7 @@ const ServicesListScreen = () => {
                 {serversQuery.data?.map((server) => (
                   <TouchableOpacity
                     key={server.id}
-                    style={styles.serviceCard}
+                    style={[styles.serviceCard, { backgroundColor: themeColors.card, borderColor: themeColors.cardBorder }]}
                     onPress={() =>
                       navigation.navigate('Services', {
                         screen: 'ServerList',
@@ -275,12 +275,12 @@ const ServicesListScreen = () => {
                     }
                   >
                     <View style={styles.serviceCardHeader}>
-                      <View style={styles.serviceIconContainer}>
-                        <Ionicons name="hardware-chip" size={24} color={colors.primary[500]} />
+                      <View style={[styles.serviceIconContainer, { backgroundColor: isDark ? themeColors.surfaceAlt : '#F0F5FF' }]}>
+                        <Ionicons name="hardware-chip" size={24} color={themeColors.primary} />
                       </View>
                       <View style={styles.serviceInfo}>
-                        <Text style={styles.serviceName}>{server.name}</Text>
-                        <Text style={styles.serviceType}>{server.os} - IP: {server.ip}</Text>
+                        <Text style={[styles.serviceName, { color: themeColors.text }]}>{server.name}</Text>
+                        <Text style={[styles.serviceType, { color: themeColors.textSecondary }]}>{server.os} - IP: {server.ip}</Text>
                       </View>
                       <View style={[
                         styles.statusBadge,
@@ -294,8 +294,8 @@ const ServicesListScreen = () => {
                         </Text>
                       </View>
                     </View>
-                    <View style={styles.serviceCardFooter}>
-                      <Ionicons name="chevron-forward" size={20} color={colors.neutral[400]} />
+                    <View style={[styles.serviceCardFooter, { borderTopColor: themeColors.border }]}>
+                      <Ionicons name="chevron-forward" size={20} color={themeColors.textTertiary} />
                     </View>
                   </TouchableOpacity>
                 ))}
