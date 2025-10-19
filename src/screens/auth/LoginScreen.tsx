@@ -10,6 +10,7 @@ import {
   Platform,
   ScrollView,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
@@ -180,8 +181,11 @@ const LoginScreen = () => {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
             <View style={styles.logoContainer}>
-              <Text style={styles.logoText}>RADE</Text>
-              <Text style={styles.logoSubtext}>RADE HOSTING</Text>
+              <Image 
+                source={require('../../../assets/rade-logo.png')}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
             </View>
             <Text style={styles.welcomeText}>Welcome Back</Text>
             <Text style={styles.subtitleText}>
@@ -371,25 +375,15 @@ const styles = StyleSheet.create({
     paddingBottom: spacing[8],
   },
   logoContainer: {
-    width: 160,
-    height: 160,
-    backgroundColor: "#2C5234",
-    borderRadius: 24,
+    width: 200,
+    height: 100,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: spacing[6],
   },
-  logoText: {
-    fontSize: 48,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-    letterSpacing: 2,
-  },
-  logoSubtext: {
-    fontSize: 12,
-    color: "#FFFFFF",
-    letterSpacing: 2,
-    marginTop: spacing[1],
+  logoImage: {
+    width: '100%',
+    height: '100%',
   },
   welcomeText: {
     fontSize: 32,
