@@ -14,6 +14,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../styles';
 import { SPACING } from '../constants';
+import { useTheme } from '../utils/ThemeContext';
 import {
   Button,
   Badge,
@@ -27,19 +28,20 @@ import {
 export const ComponentShowcaseScreen: React.FC = () => {
   const [selectedChips, setSelectedChips] = useState<string[]>(['modern']);
   const [rating, setRating] = useState(4);
+  const { colors: themeColors } = useTheme();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>UI Components</Text>
-          <Text style={styles.subtitle}>Production-Ready Design System</Text>
+          <Text style={[styles.title, { color: themeColors.text }]}>UI Components</Text>
+          <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>Production-Ready Design System</Text>
         </View>
 
         {/* Buttons Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Buttons</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Buttons</Text>
           <Card style={styles.card}>
             <View style={styles.buttonRow}>
               <Button
@@ -68,7 +70,7 @@ export const ComponentShowcaseScreen: React.FC = () => {
 
         {/* Badges Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Badges</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Badges</Text>
           <Card style={styles.card}>
             <View style={styles.badgeRow}>
               <Badge label="Active" variant="success" />
@@ -81,7 +83,7 @@ export const ComponentShowcaseScreen: React.FC = () => {
 
         {/* Chips Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Chips</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Chips</Text>
           <Card style={styles.card}>
             <View style={styles.chipContainer}>
               {['modern', 'professional', 'responsive'].map((tag) => (
@@ -105,7 +107,7 @@ export const ComponentShowcaseScreen: React.FC = () => {
 
         {/* Progress Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Progress</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Progress</Text>
           <Card style={styles.card}>
             <Progress progress={30} showLabel />
             <View style={styles.spacer} />
@@ -117,7 +119,7 @@ export const ComponentShowcaseScreen: React.FC = () => {
 
         {/* Rating Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Rating</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Rating</Text>
           <Card style={styles.card}>
             <Rating
               value={rating}
@@ -133,7 +135,7 @@ export const ComponentShowcaseScreen: React.FC = () => {
 
         {/* Alerts Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Alerts</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Alerts</Text>
           <View style={styles.alertContainer}>
             <AlertBanner
               type="success"
@@ -155,7 +157,7 @@ export const ComponentShowcaseScreen: React.FC = () => {
 
         {/* Features Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Features</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Features</Text>
           <Card style={styles.card}>
             {[
               { icon: 'checkmark-circle', label: '✓ Material Design 3' },
@@ -170,7 +172,7 @@ export const ComponentShowcaseScreen: React.FC = () => {
                   color={colors.semantic.success}
                   style={styles.featureIcon}
                 />
-                <Text style={styles.featureText}>{feature.label}</Text>
+                <Text style={[styles.featureText, { color: themeColors.text }]}>{feature.label}</Text>
               </View>
             ))}
           </Card>
@@ -178,7 +180,7 @@ export const ComponentShowcaseScreen: React.FC = () => {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>
+          <Text style={[styles.footerText, { color: themeColors.textSecondary }]}>
             Ready for Production Deployment
           </Text>
         </View>
@@ -190,7 +192,6 @@ export const ComponentShowcaseScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.neutral[50],
   },
   header: {
     paddingHorizontal: SPACING.lg,
@@ -217,7 +218,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: colors.primary[700],
     marginBottom: SPACING.md,
   },
   card: {
@@ -255,7 +255,6 @@ const styles = StyleSheet.create({
   featureText: {
     fontSize: 14,
     fontWeight: '500',
-    color: colors.neutral[900],
   },
   footer: {
     paddingVertical: SPACING.xl,
@@ -266,7 +265,6 @@ const styles = StyleSheet.create({
   footerText: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.primary[500],
   },
 });
 

@@ -27,11 +27,13 @@ import { colors, spacing } from '../../styles';
 import { HostingPackage, ActivityItem } from '../../types';
 import { useInvoices } from '../../hooks/useInvoices';
 import { useTwoFactor } from '../../hooks/useTwoFactor';
+import { useTheme } from '../../utils/ThemeContext';
 
 const AccountMainScreen = () => {
   const navigation = useNavigation<any>();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const { colors: themeColors } = useTheme();
   
   const [editMode, setEditMode] = useState(false);
   const [firstName, setFirstName] = useState(user?.firstName || '');
@@ -99,7 +101,7 @@ const AccountMainScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -299,7 +301,6 @@ const AccountMainScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.neutral[50],
   },
   scrollView: {
     flex: 1,
