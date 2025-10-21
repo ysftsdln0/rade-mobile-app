@@ -1,32 +1,33 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { COLORS } from '../constants';
+import { useTheme } from '../utils/ThemeContext';
 
-const PlaceholderScreen = ({ title }: { title: string }) => (
-  <View style={styles.container}>
-    <Text style={styles.title}>{title}</Text>
-    <Text style={styles.subtitle}>Bu sayfa henüz geliştirilme aşamasında</Text>
-  </View>
-);
+const PlaceholderScreen = ({ title }: { title: string }) => {
+  const { colors: themeColors } = useTheme();
+  return (
+    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
+      <Text style={[styles.title, { color: themeColors.text }]}>{title}</Text>
+      <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>Bu sayfa henüz geliştirilme aşamasında</Text>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
     padding: 20,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.textPrimary,
     marginBottom: 8,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
-    color: COLORS.textSecondary,
     textAlign: 'center',
   },
 });

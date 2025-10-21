@@ -8,6 +8,7 @@ import { EmptyState } from '../../components/common/EmptyState';
 import { COLORS, FONT_SIZES, SPACING } from '../../constants';
 import { colors } from '../../styles/colors';
 import { PaymentMethod } from '../../types';
+import { useTheme } from '../../utils/ThemeContext';
 
 const methodIcon = {
   credit_card: 'card-outline',
@@ -17,6 +18,7 @@ const methodIcon = {
 
 const PaymentMethodsScreen: React.FC = () => {
   const { paymentMethodsQuery } = useInvoices();
+  const { colors: themeColors } = useTheme();
 
   if (paymentMethodsQuery.isLoading) {
     return <LoadingState message="Ödeme yöntemleri yükleniyor..." />;
@@ -45,27 +47,27 @@ const PaymentMethodsScreen: React.FC = () => {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={[styles.container, { backgroundColor: themeColors.background }]} contentContainerStyle={styles.content}>
       {methods.map((method) => (
         <AppCard key={method.id} style={styles.card}>
           <View style={styles.headerRow}>
             <View style={styles.titleRow}>
-              <View style={styles.iconWrapper}>
+              <View style={[styles.iconWrapper, { backgroundColor: themeColors.surfaceAlt }]}>
                 <Ionicons
                   name={methodIcon[method.type] ?? 'card-outline'}
                   size={22}
-                  color={COLORS.primary.main}
+                  color={themeColors.primary}
                 />
               </View>
-              <Text style={styles.methodTitle}>{formatMethodTitle(method)}</Text>
+              <Text style={[styles.methodTitle, { color: themeColors.text }]}>{formatMethodTitle(method)}</Text>
             </View>
             {method.isDefault ? (
-              <View style={styles.badge}>
+              <View style={[styles.badge, { backgroundColor: themeColors.primary }]}>
                 <Text style={styles.badgeText}>Varsayılan</Text>
               </View>
             ) : null}
           </View>
-          <Text style={styles.methodSubtitle}>{formatMethodSubtitle(method)}</Text>
+          <Text style={[styles.methodSubtitle, { color: themeColors.textSecondary }]}>{formatMethodSubtitle(method)}</Text>
         </AppCard>
       ))}
     </ScrollView>
@@ -101,7 +103,6 @@ const formatMethodSubtitle = (method: PaymentMethod) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
   },
   content: {
     padding: SPACING.lg,
@@ -123,22 +124,18 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: `${COLORS.primary.main}15`,
     justifyContent: 'center',
     alignItems: 'center',
   },
   methodTitle: {
     fontSize: FONT_SIZES.lg,
     fontWeight: '600',
-    color: COLORS.textPrimary,
   },
   methodSubtitle: {
     marginTop: SPACING.sm,
     fontSize: FONT_SIZES.sm,
-    color: COLORS.textSecondary,
   },
   badge: {
-    backgroundColor: `${COLORS.primary.main}20`,
     paddingHorizontal: SPACING.md,
     paddingVertical: 6,
     borderRadius: 24,

@@ -20,6 +20,7 @@ import {
   AlertBanner,
 } from '../../components/common';
 import { colors, spacing } from '../../styles';
+import { useTheme } from '../../utils/ThemeContext';
 
 const formatDate = (date: string) => {
   const d = new Date(date);
@@ -88,6 +89,7 @@ const mockTickets: Ticket[] = [
 
 const TicketListScreen = () => {
   const navigation = useNavigation<any>();
+  const { colors: themeColors } = useTheme();
   const [filterStatus, setFilterStatus] = useState<'all' | 'open' | 'in-progress' | 'resolved' | 'closed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -152,7 +154,7 @@ const TicketListScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -166,18 +168,18 @@ const TicketListScreen = () => {
 
         {/* Search and Filter */}
         <View style={styles.searchContainer}>
-          <View style={styles.searchInputWrapper}>
-            <Ionicons name="search" size={20} color={colors.neutral[500]} />
+          <View style={[styles.searchInputWrapper, { backgroundColor: themeColors.input, borderColor: themeColors.inputBorder }]}>
+            <Ionicons name="search" size={20} color={themeColors.textSecondary} />
             <TextInput
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: themeColors.text }]}
               placeholder="Ticket ara..."
               value={searchQuery}
               onChangeText={setSearchQuery}
-              placeholderTextColor={colors.neutral[400]}
+              placeholderTextColor={themeColors.textTertiary}
             />
             {searchQuery.length > 0 && (
               <Pressable onPress={() => setSearchQuery('')}>
-                <Ionicons name="close-circle" size={20} color={colors.neutral[400]} />
+                <Ionicons name="close-circle" size={20} color={themeColors.textTertiary} />
               </Pressable>
             )}
           </View>
@@ -190,14 +192,16 @@ const TicketListScreen = () => {
               key={status}
               style={[
                 styles.filterChip,
-                filterStatus === status && styles.filterChipActive,
+                { backgroundColor: themeColors.surfaceAlt, borderColor: themeColors.border },
+                filterStatus === status && { backgroundColor: themeColors.primary, borderColor: themeColors.primary },
               ]}
               onPress={() => setFilterStatus(status)}
             >
               <Text
                 style={[
                   styles.filterChipText,
-                  filterStatus === status && styles.filterChipTextActive,
+                  { color: themeColors.textSecondary },
+                  filterStatus === status && { color: '#FFFFFF' },
                 ]}
               >
                 {status === 'in-progress' ? 'In Progress' : status.charAt(0).toUpperCase() + status.slice(1)}
@@ -213,19 +217,19 @@ const TicketListScreen = () => {
               <Text style={[styles.statValue, { color: colors.semantic.error }]}>
                 {stats.open}
               </Text>
-              <Text style={styles.statLabel}>Open</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>Open</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: colors.semantic.warning }]}>
                 {stats.inProgress}
               </Text>
-              <Text style={styles.statLabel}>In Progress</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>In Progress</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={[styles.statValue, { color: colors.semantic.success }]}>
                 {stats.resolved}
               </Text>
-              <Text style={styles.statLabel}>Resolved</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>Resolved</Text>
             </View>
           </View>
         </Card>
@@ -353,7 +357,6 @@ const TicketListScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.neutral[50],
   },
   scrollView: {
     flex: 1,
@@ -368,17 +371,14 @@ const styles = StyleSheet.create({
   searchInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.neutral[100],
     borderRadius: 12,
     paddingHorizontal: spacing[4],
     height: 50,
     borderWidth: 1,
-    borderColor: colors.neutral[200],
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: colors.neutral[900],
     marginLeft: spacing[2],
   },
   filterChipsContainer: {
@@ -392,21 +392,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[2],
     borderRadius: 20,
-    backgroundColor: colors.neutral[200],
     borderWidth: 1,
-    borderColor: colors.neutral[300],
-  },
-  filterChipActive: {
-    backgroundColor: colors.primary[500],
-    borderColor: colors.primary[500],
   },
   filterChipText: {
     fontSize: 14,
     fontWeight: '600',
-    color: colors.neutral[700],
-  },
-  filterChipTextActive: {
-    color: 'white',
   },
   statsRow: {
     flexDirection: 'row',
@@ -424,7 +414,6 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    color: colors.neutral[600],
     fontWeight: '600',
   },
   filterRow: {

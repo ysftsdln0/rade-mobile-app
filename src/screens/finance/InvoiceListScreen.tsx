@@ -23,6 +23,7 @@ import {
   Progress,
 } from '../../components/common';
 import { colors, spacing } from '../../styles';
+import { useTheme } from '../../utils/ThemeContext';
 
 const statusConfig = {
   paid: { label: 'Paid', color: 'online' as const },
@@ -55,6 +56,7 @@ const formatDate = (date: string) => {
 const InvoiceListScreen = () => {
   const navigation = useNavigation<any>();
   const { invoicesQuery, payInvoice, paying, paymentMethodsQuery } = useInvoices();
+  const { colors: themeColors } = useTheme();
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'unpaid' | 'overdue'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -122,14 +124,14 @@ const InvoiceListScreen = () => {
 
   if (invoicesQuery.isLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
         <ScrollView>
           <DashboardHeader title="Invoices" subtitle="Loading..." />
           <Card title="Loading" variant="default">
             <AlertBanner
               type="info"
-              title="Loading invoices..."
-              message="Please wait"
+              title="Loading"
+              message="Fetching your invoices"
               dismissible={false}
             />
           </Card>
@@ -140,7 +142,7 @@ const InvoiceListScreen = () => {
 
   if (invoicesQuery.isError) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
         <ScrollView>
           <DashboardHeader title="Invoices" subtitle="Error loading" />
           <Card title="Error" variant="default">
@@ -157,7 +159,7 @@ const InvoiceListScreen = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -171,18 +173,18 @@ const InvoiceListScreen = () => {
 
         {/* Search and Filter */}
         <View style={styles.searchContainer}>
-          <View style={styles.searchInputWrapper}>
-            <Ionicons name="search" size={20} color={colors.neutral[500]} />
+          <View style={[styles.searchInputWrapper, { backgroundColor: themeColors.input, borderColor: themeColors.inputBorder }]}>
+            <Ionicons name="search" size={20} color={themeColors.textSecondary} />
             <TextInput
-              style={styles.searchInput}
+              style={[styles.searchInput, { color: themeColors.text }]}
               placeholder="Fatura ara..."
               value={searchQuery}
               onChangeText={setSearchQuery}
-              placeholderTextColor={colors.neutral[400]}
+              placeholderTextColor={themeColors.textTertiary}
             />
             {searchQuery.length > 0 && (
               <Pressable onPress={() => setSearchQuery('')}>
-                <Ionicons name="close-circle" size={20} color={colors.neutral[400]} />
+                <Ionicons name="close-circle" size={20} color={themeColors.textTertiary} />
               </Pressable>
             )}
           </View>
@@ -195,14 +197,16 @@ const InvoiceListScreen = () => {
               key={status}
               style={[
                 styles.filterChip,
-                filterStatus === status && styles.filterChipActive,
+                { backgroundColor: themeColors.surfaceAlt, borderColor: themeColors.border },
+                filterStatus === status && { backgroundColor: themeColors.primary, borderColor: themeColors.primary },
               ]}
               onPress={() => setFilterStatus(status)}
             >
               <Text
                 style={[
                   styles.filterChipText,
-                  filterStatus === status && styles.filterChipTextActive,
+                  { color: themeColors.textSecondary },
+                  filterStatus === status && { color: '#FFFFFF' },
                 ]}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -220,7 +224,7 @@ const InvoiceListScreen = () => {
                   {stats.paid}
                 </Text>
               </View>
-              <Text style={styles.statLabel}>Paid</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>Paid</Text>
             </View>
             <View style={styles.statItem}>
               <View style={[styles.statNumber, { backgroundColor: colors.semantic.warning + '20' }]}>
@@ -228,7 +232,7 @@ const InvoiceListScreen = () => {
                   {stats.pending}
                 </Text>
               </View>
-              <Text style={styles.statLabel}>Pending</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>Pending</Text>
             </View>
             <View style={styles.statItem}>
               <View style={[styles.statNumber, { backgroundColor: colors.semantic.error + '20' }]}>
@@ -236,7 +240,7 @@ const InvoiceListScreen = () => {
                   {stats.unpaid - stats.pending}
                 </Text>
               </View>
-              <Text style={styles.statLabel}>Overdue</Text>
+              <Text style={[styles.statLabel, { color: themeColors.textSecondary }]}>Overdue</Text>
             </View>
           </View>
         </Card>
@@ -356,7 +360,6 @@ const InvoiceListScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.neutral[50],
   },
   scrollView: {
     flex: 1,
@@ -371,17 +374,14 @@ const styles = StyleSheet.create({
   searchInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.neutral[100],
     borderRadius: 12,
     paddingHorizontal: spacing[4],
     height: 50,
     borderWidth: 1,
-    borderColor: colors.neutral[200],
   },
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: colors.neutral[900],
     marginLeft: spacing[2],
   },
   filterChipsContainer: {
@@ -395,13 +395,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[2],
     borderRadius: 20,
-    backgroundColor: colors.neutral[200],
     borderWidth: 1,
-    borderColor: colors.neutral[300],
-  },
-  filterChipActive: {
-    backgroundColor: colors.primary[500],
-    borderColor: colors.primary[500],
   },
   filterChipText: {
     fontSize: 14,

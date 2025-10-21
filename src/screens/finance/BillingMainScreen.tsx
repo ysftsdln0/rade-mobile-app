@@ -83,70 +83,70 @@ const BillingMainScreen = ({ navigation }: Props) => {
         </View>
 
         {/* Next Payment */}
-        <View style={styles.paymentDueCard}>
+        <View style={[styles.paymentDueCard, { backgroundColor: themeColors.surface }]}>
           <View style={styles.paymentDueContent}>
             <View style={styles.paymentDueInfo}>
-              <Text style={styles.paymentDueTitle}>{t.billing.nextPayment}</Text>
-              <Text style={styles.paymentDueSubtitle}>
+              <Text style={[styles.paymentDueTitle, { color: themeColors.text }]}>{t.billing.nextPayment}</Text>
+              <Text style={[styles.paymentDueSubtitle, { color: themeColors.textSecondary }]}>
                 {t.billing.dueOn.replace('{amount}', '$25').replace('{date}', '24/12/2024')}
               </Text>
             </View>
-            <TouchableOpacity style={styles.payNowButton}>
+            <TouchableOpacity style={[styles.payNowButton, { backgroundColor: themeColors.primary }]}>
               <View style={styles.payNowGradient}>
                 <Text style={styles.payNowText}>{t.invoices.payNow}</Text>
               </View>
             </TouchableOpacity>
           </View>
           <View style={styles.paymentIconContainer}>
-            <View style={styles.paymentIconCircle}>
-              <Ionicons name="card-outline" size={32} color={colors.primary[500]} />
+            <View style={[styles.paymentIconCircle, { backgroundColor: isDark ? themeColors.surfaceAlt : '#E0F2FE' }]}>
+              <Ionicons name="card-outline" size={32} color={themeColors.primary} />
             </View>
           </View>
         </View>
 
         {/* Payment Methods */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t.billing.paymentMethods}</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>{t.billing.paymentMethods}</Text>
           {paymentMethods.map((method) => (
-            <View key={method.id} style={styles.paymentMethodCard}>
+            <View key={method.id} style={[styles.paymentMethodCard, { backgroundColor: themeColors.surface }]}>
               <View style={styles.paymentMethodInfo}>
-                <Ionicons name={method.icon} size={32} color={colors.neutral[600]} />
+                <Ionicons name={method.icon} size={32} color={themeColors.textSecondary} />
                 <View style={styles.paymentMethodText}>
-                  <Text style={styles.paymentMethodName}>
+                  <Text style={[styles.paymentMethodName, { color: themeColors.text }]}>
                     {t.billing.endingIn
                       .replace('{type}', method.type)
                       .replace('{last4}', method.last4)}
                   </Text>
-                  <Text style={styles.paymentMethodExpiry}>
+                  <Text style={[styles.paymentMethodExpiry, { color: themeColors.textSecondary }]}>
                     {t.billing.expires.replace('{expiry}', method.expiry)}
                   </Text>
                 </View>
               </View>
               <TouchableOpacity>
-                <Ionicons name="ellipsis-horizontal" size={20} color={colors.neutral[500]} />
+                <Ionicons name="ellipsis-horizontal" size={20} color={themeColors.textSecondary} />
               </TouchableOpacity>
             </View>
           ))}
-          <TouchableOpacity style={styles.addMethodButton}>
-            <Ionicons name="add" size={20} color={colors.neutral[500]} />
-            <Text style={styles.addMethodText}>{t.billing.addNewMethod}</Text>
+          <TouchableOpacity style={[styles.addMethodButton, { backgroundColor: themeColors.surface }]}>
+            <Ionicons name="add" size={20} color={themeColors.textSecondary} />
+            <Text style={[styles.addMethodText, { color: themeColors.textSecondary }]}>{t.billing.addNewMethod}</Text>
           </TouchableOpacity>
         </View>
 
         {/* Billing History */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t.billing.billingHistory}</Text>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>{t.billing.billingHistory}</Text>
           {billingHistory.map((item) => (
-            <View key={item.id} style={styles.historyCard}>
+            <View key={item.id} style={[styles.historyCard, { backgroundColor: themeColors.surface }]}>
               <View style={styles.historyInfo}>
                 <View style={styles.historyIconContainer}>
                   <Ionicons name="checkmark-circle" size={24} color="#059669" />
                 </View>
                 <View>
-                  <Text style={styles.historyMonth}>
+                  <Text style={[styles.historyMonth, { color: themeColors.text }]}>
                     {t.billing.invoice.replace('{month}', item.month)}
                   </Text>
-                  <Text style={styles.historyAmount}>
+                  <Text style={[styles.historyAmount, { color: themeColors.textSecondary }]}>
                     {t.billing.paidStatus
                       .replace('{amount}', item.amount)
                       .replace('{status}', item.status)}
@@ -154,7 +154,7 @@ const BillingMainScreen = ({ navigation }: Props) => {
                 </View>
               </View>
               <TouchableOpacity>
-                <Ionicons name="download-outline" size={20} color={colors.neutral[500]} />
+                <Ionicons name="download-outline" size={20} color={themeColors.textSecondary} />
               </TouchableOpacity>
             </View>
           ))}
@@ -230,7 +230,6 @@ const styles = StyleSheet.create({
   },
   paymentDueCard: {
     flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: spacing[4],
     marginBottom: spacing[6],
@@ -249,12 +248,10 @@ const styles = StyleSheet.create({
   paymentDueTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: colors.neutral[900],
     marginBottom: spacing[1],
   },
   paymentDueSubtitle: {
     fontSize: 14,
-    color: colors.neutral[600],
   },
   payNowButton: {
     alignSelf: 'flex-start',
@@ -263,7 +260,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing[4],
     paddingVertical: 10,
     borderRadius: 8,
-    backgroundColor: colors.primary[500], // #135bec
   },
   payNowText: {
     fontSize: 14,
@@ -279,7 +275,6 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#FAFAFA',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -287,7 +282,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: spacing[4],
     marginBottom: spacing[3],
@@ -308,18 +302,15 @@ const styles = StyleSheet.create({
   paymentMethodName: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.neutral[900],
   },
   paymentMethodExpiry: {
     fontSize: 14,
-    color: colors.neutral[600],
   },
   addMethodButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing[2],
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     borderWidth: 2,
     borderStyle: 'dashed',
@@ -328,13 +319,11 @@ const styles = StyleSheet.create({
   },
   addMethodText: {
     fontSize: 16,
-    color: colors.neutral[600],
   },
   historyCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
     padding: spacing[4],
     marginBottom: spacing[3],
@@ -360,11 +349,9 @@ const styles = StyleSheet.create({
   historyMonth: {
     fontSize: 16,
     fontWeight: '600',
-    color: colors.neutral[900],
   },
   historyAmount: {
     fontSize: 14,
-    color: colors.neutral[600],
   },
 });
 
