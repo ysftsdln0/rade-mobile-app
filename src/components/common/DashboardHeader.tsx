@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, Text, Pressable, ViewStyle } from 'react-native';
+import { View, StyleSheet, Text, Pressable, ViewStyle, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { colors, spacing, typography } from '../../styles';
 import { useTheme } from '../../utils/ThemeContext';
 
@@ -19,6 +20,8 @@ interface DashboardHeaderProps {
   subtitle?: string;
   breadcrumbs?: BreadcrumbItem[];
   actions?: DashboardHeaderAction[];
+  showBackButton?: boolean;
+  onBackPress?: () => void;
   style?: ViewStyle;
   testID?: string;
 }
@@ -62,6 +65,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   subtitle,
   breadcrumbs,
   actions,
+  showBackButton = false,
+  onBackPress,
   style,
   testID,
 }) => {
@@ -79,6 +84,17 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       ]}
       testID={testID}
     >
+      {/* Back Button + Title Row */}
+      {showBackButton && (
+        <View style={styles.backButtonRow}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={onBackPress}
+          >
+            <Ionicons name="arrow-back" size={24} color={themeColors.text} />
+          </TouchableOpacity>
+        </View>
+      )}
       {/* Breadcrumbs */}
       {breadcrumbs && breadcrumbs.length > 0 && (
         <View style={styles.breadcrumbContainer}>
@@ -136,9 +152,17 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: spacing[4],
+    paddingHorizontal: spacing[5],
     paddingVertical: spacing[4],
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
+  },
+  backButtonRow: {
+    marginBottom: spacing[2],
+    marginLeft: -spacing[2],
+  },
+  backButton: {
+    padding: spacing[2],
+    alignSelf: 'flex-start',
   },
   breadcrumbContainer: {
     flexDirection: 'row',

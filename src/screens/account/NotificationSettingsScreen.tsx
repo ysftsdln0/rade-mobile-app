@@ -1,34 +1,16 @@
 /**
  * NotificationSettingsScreen
  * 
- * Comprehensive notification preferences:
- * - Email notifications
- * - Push notifications
- * - SMS notifications
- * - Notification categories
+ * Notification preferences matching ProfileScreen design
  */
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  SafeAreaView, 
-  TouchableOpacity,
-  Switch,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Switch } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-
 import { colors, spacing } from '../../styles';
 import { useTheme } from '../../utils/ThemeContext';
-import { useLanguage } from '../../utils/LanguageContext';
-import { 
-  Card, 
-  AlertBanner,
-} from '../../components/common';
 
-interface NotificationToggleProps {
+interface NotificationItemProps {
   icon: string;
   title: string;
   subtitle: string;
@@ -37,25 +19,23 @@ interface NotificationToggleProps {
   iconColor?: string;
 }
 
-const NotificationToggle: React.FC<NotificationToggleProps> = ({
-  icon,
-  title,
+const NotificationItem: React.FC<NotificationItemProps> = ({ 
+  icon, 
+  title, 
   subtitle,
   value,
   onValueChange,
   iconColor,
 }) => {
   const { colors: themeColors } = useTheme();
-
+  
   return (
-    <View style={styles.toggleItem}>
-      <View style={styles.toggleLeft}>
-        <View style={[styles.iconContainer, { backgroundColor: `${iconColor || themeColors.primary}15` }]}>
-          <Ionicons name={icon as any} size={24} color={iconColor || themeColors.primary} />
-        </View>
-        <View style={styles.toggleTextContainer}>
-          <Text style={[styles.toggleTitle, { color: themeColors.text }]}>{title}</Text>
-          <Text style={[styles.toggleSubtitle, { color: themeColors.textSecondary }]}>
+    <View style={styles.notificationItem}>
+      <View style={styles.notificationItemLeft}>
+        <Ionicons name={icon as any} size={20} color={iconColor || themeColors.text} style={styles.itemIcon} />
+        <View style={styles.notificationTextContainer}>
+          <Text style={[styles.notificationItemText, { color: themeColors.text }]}>{title}</Text>
+          <Text style={[styles.notificationItemSubtitle, { color: themeColors.textSecondary }]}>
             {subtitle}
           </Text>
         </View>
@@ -73,18 +53,16 @@ const NotificationToggle: React.FC<NotificationToggleProps> = ({
 const NotificationSettingsScreen = () => {
   const navigation = useNavigation<any>();
   const { colors: themeColors } = useTheme();
-  const { t } = useLanguage();
 
-  // Master toggles
-  const [emailEnabled, setEmailEnabled] = useState(true);
-  const [pushEnabled, setPushEnabled] = useState(true);
-  const [smsEnabled, setSmsEnabled] = useState(false);
+  // Channel preferences
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [pushNotifications, setPushNotifications] = useState(true);
+  const [smsNotifications, setSmsNotifications] = useState(false);
 
   // Service notifications
   const [serviceExpiry, setServiceExpiry] = useState(true);
   const [serviceRenewal, setServiceRenewal] = useState(true);
   const [serviceSuspension, setServiceSuspension] = useState(true);
-  const [serviceActivation, setServiceActivation] = useState(true);
 
   // Billing notifications
   const [invoiceCreated, setInvoiceCreated] = useState(true);
@@ -98,245 +76,218 @@ const NotificationSettingsScreen = () => {
   const [ticketClosed, setTicketClosed] = useState(true);
 
   // Security notifications
-  const [loginAlert, setLoginAlert] = useState(true);
+  const [loginAlerts, setLoginAlerts] = useState(true);
   const [passwordChange, setPasswordChange] = useState(true);
   const [twoFactorChange, setTwoFactorChange] = useState(true);
 
   // Marketing
   const [promotions, setPromotions] = useState(false);
-  const [newsletter, setNewsletter] = useState(true);
-  const [productUpdates, setProductUpdates] = useState(true);
+  const [newsletter, setNewsletter] = useState(false);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color={themeColors.text} />
-        </TouchableOpacity>
-        <View style={styles.headerTextContainer}>
-          <Text style={[styles.headerTitle, { color: themeColors.text }]}>Bildirim Ayarları</Text>
-          <Text style={[styles.headerSubtitle, { color: themeColors.textSecondary }]}>
-            Bildirim tercihlerinizi yönetin
-          </Text>
-        </View>
-      </View>
-
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
       >
-
-        {/* Info Alert */}
-        <View style={styles.section}>
-          <AlertBanner
-            type="info"
-            title="Bildirim İzni"
-            message="Bazı bildirimler cihaz ayarlarından da yönetilebilir."
-            dismissible={false}
-          />
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="arrow-back" size={24} color={themeColors.text} />
+          </TouchableOpacity>
+          <View style={styles.headerTextContainer}>
+            <Text style={[styles.headerTitle, { color: themeColors.text }]}>Bildirimler</Text>
+            <Text style={[styles.headerSubtitle, { color: themeColors.textSecondary }]}>
+              Bildirim tercihlerinizi yönetin
+            </Text>
+          </View>
         </View>
 
-        {/* Master Toggles */}
+        {/* Notification Channels */}
         <View style={styles.section}>
-          <Card title="Bildirim Kanalları" variant="elevated">
-            <NotificationToggle
-              icon="mail"
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Bildirim Kanalları</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <NotificationItem
+              icon="mail-outline"
               title="E-posta Bildirimleri"
               subtitle="E-posta ile bildirim al"
-              value={emailEnabled}
-              onValueChange={setEmailEnabled}
-              iconColor={colors.semantic.info}
+              value={emailNotifications}
+              onValueChange={setEmailNotifications}
+              iconColor={colors.primary[500]}
             />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <NotificationToggle
-              icon="notifications"
+            <NotificationItem
+              icon="notifications-outline"
               title="Push Bildirimleri"
-              subtitle="Mobil cihazınıza anında bildirim"
-              value={pushEnabled}
-              onValueChange={setPushEnabled}
-              iconColor={themeColors.primary}
+              subtitle="Mobil bildirim al"
+              value={pushNotifications}
+              onValueChange={setPushNotifications}
+              iconColor={colors.primary[500]}
             />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <NotificationToggle
-              icon="chatbox"
+            <NotificationItem
+              icon="chatbubble-outline"
               title="SMS Bildirimleri"
-              subtitle="Önemli bildirimleri SMS ile al"
-              value={smsEnabled}
-              onValueChange={setSmsEnabled}
-              iconColor={colors.semantic.success}
+              subtitle="SMS ile bildirim al"
+              value={smsNotifications}
+              onValueChange={setSmsNotifications}
+              iconColor={colors.primary[500]}
             />
-          </Card>
+          </View>
         </View>
 
         {/* Service Notifications */}
         <View style={styles.section}>
-          <Card title="Hizmet Bildirimleri" variant="elevated">
-            <NotificationToggle
-              icon="time"
-              title="Hizmet Sona Erme"
-              subtitle="Hizmet bitiş tarihinden önce hatırlatma"
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Hizmet Bildirimleri</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <NotificationItem
+              icon="calendar-outline"
+              title="Hizmet Süresi"
+              subtitle="Süre dolmadan 7 gün önce hatırlat"
               value={serviceExpiry}
               onValueChange={setServiceExpiry}
             />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <NotificationToggle
-              icon="refresh"
+            <NotificationItem
+              icon="refresh-outline"
               title="Otomatik Yenileme"
-              subtitle="Hizmet yenilendiğinde bildirim"
+              subtitle="Yenileme işlemlerinden haberdar ol"
               value={serviceRenewal}
               onValueChange={setServiceRenewal}
             />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <NotificationToggle
-              icon="pause-circle"
-              title="Hizmet Askıya Alınması"
-              subtitle="Hizmet askıya alındığında bildirim"
+            <NotificationItem
+              icon="pause-outline"
+              title="Hizmet Askıya Alma"
+              subtitle="Askıya alınma durumunda bildir"
               value={serviceSuspension}
               onValueChange={setServiceSuspension}
             />
-            <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <NotificationToggle
-              icon="checkmark-circle"
-              title="Hizmet Aktivasyonu"
-              subtitle="Yeni hizmet aktif olduğunda bildirim"
-              value={serviceActivation}
-              onValueChange={setServiceActivation}
-            />
-          </Card>
+          </View>
         </View>
 
         {/* Billing Notifications */}
         <View style={styles.section}>
-          <Card title="Fatura Bildirimleri" variant="elevated">
-            <NotificationToggle
-              icon="document-text"
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Fatura Bildirimleri</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <NotificationItem
+              icon="document-text-outline"
               title="Yeni Fatura"
-              subtitle="Yeni fatura oluşturulduğunda"
+              subtitle="Fatura oluşturulduğunda bildir"
               value={invoiceCreated}
               onValueChange={setInvoiceCreated}
             />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <NotificationToggle
-              icon="checkmark-circle"
+            <NotificationItem
+              icon="checkmark-circle-outline"
               title="Ödeme Alındı"
-              subtitle="Ödeme başarıyla alındığında"
+              subtitle="Ödeme tamamlandığında bildir"
               value={invoicePaid}
               onValueChange={setInvoicePaid}
             />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <NotificationToggle
-              icon="alert-circle"
-              title="Gecikmiş Fatura"
-              subtitle="Fatura vadesi geçtiğinde"
+            <NotificationItem
+              icon="time-outline"
+              title="Geciken Ödemeler"
+              subtitle="Ödeme tarihi geçtiğinde hatırlat"
               value={invoiceOverdue}
               onValueChange={setInvoiceOverdue}
             />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <NotificationToggle
-              icon="close-circle"
-              title="Ödeme Hatası"
-              subtitle="Ödeme başarısız olduğunda"
+            <NotificationItem
+              icon="close-circle-outline"
+              title="Başarısız Ödeme"
+              subtitle="Ödeme başarısız olduğunda bildir"
               value={paymentFailed}
               onValueChange={setPaymentFailed}
             />
-          </Card>
+          </View>
         </View>
 
         {/* Support Notifications */}
         <View style={styles.section}>
-          <Card title="Destek Bildirimleri" variant="elevated">
-            <NotificationToggle
-              icon="add-circle"
-              title="Yeni Talep"
-              subtitle="Destek talebi oluşturulduğunda"
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Destek Bildirimleri</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <NotificationItem
+              icon="create-outline"
+              title="Yeni Ticket"
+              subtitle="Ticket oluşturulduğunda bildir"
               value={ticketCreated}
               onValueChange={setTicketCreated}
             />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <NotificationToggle
-              icon="chatbubble"
-              title="Yeni Yanıt"
-              subtitle="Destek ekibinden yanıt geldiğinde"
+            <NotificationItem
+              icon="chatbubbles-outline"
+              title="Yanıt Geldi"
+              subtitle="Destek yanıt verdiğinde bildir"
               value={ticketReply}
               onValueChange={setTicketReply}
             />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <NotificationToggle
-              icon="checkmark-done-circle"
-              title="Talep Kapatıldı"
-              subtitle="Destek talebi çözümlendiğinde"
+            <NotificationItem
+              icon="checkmark-done-outline"
+              title="Ticket Kapatıldı"
+              subtitle="Ticket çözüldüğünde bildir"
               value={ticketClosed}
               onValueChange={setTicketClosed}
             />
-          </Card>
+          </View>
         </View>
 
         {/* Security Notifications */}
         <View style={styles.section}>
-          <Card title="Güvenlik Bildirimleri" variant="elevated">
-            <NotificationToggle
-              icon="shield-checkmark"
-              title="Giriş Uyarıları"
-              subtitle="Yeni cihazdan giriş yapıldığında"
-              value={loginAlert}
-              onValueChange={setLoginAlert}
-              iconColor={colors.semantic.warning}
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Güvenlik Bildirimleri</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <NotificationItem
+              icon="log-in-outline"
+              title="Yeni Giriş"
+              subtitle="Hesabınıza giriş yapıldığında bildir"
+              value={loginAlerts}
+              onValueChange={setLoginAlerts}
             />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <NotificationToggle
-              icon="key"
+            <NotificationItem
+              icon="key-outline"
               title="Şifre Değişikliği"
-              subtitle="Şifre değiştirildiğinde"
+              subtitle="Şifre değiştirildiğinde bildir"
               value={passwordChange}
               onValueChange={setPasswordChange}
-              iconColor={colors.semantic.warning}
             />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <NotificationToggle
-              icon="finger-print"
+            <NotificationItem
+              icon="shield-checkmark-outline"
               title="2FA Değişikliği"
-              subtitle="İki faktörlü doğrulama ayarları değiştiğinde"
+              subtitle="2FA ayarları değiştiğinde bildir"
               value={twoFactorChange}
               onValueChange={setTwoFactorChange}
-              iconColor={colors.semantic.warning}
             />
-          </Card>
+          </View>
         </View>
 
         {/* Marketing */}
         <View style={styles.section}>
-          <Card title="Pazarlama & Güncellemeler" variant="elevated">
-            <NotificationToggle
-              icon="pricetag"
-              title="Kampanyalar"
-              subtitle="Özel teklifler ve indirimler"
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Pazarlama</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <NotificationItem
+              icon="pricetag-outline"
+              title="Promosyonlar"
+              subtitle="İndirim ve kampanyalardan haberdar ol"
               value={promotions}
               onValueChange={setPromotions}
-              iconColor="#9333ea"
             />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <NotificationToggle
-              icon="newspaper"
+            <NotificationItem
+              icon="newspaper-outline"
               title="Bülten"
-              subtitle="Haftalık/aylık RADE bülteni"
+              subtitle="Haftalık bülten al"
               value={newsletter}
               onValueChange={setNewsletter}
-              iconColor="#9333ea"
             />
-            <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <NotificationToggle
-              icon="rocket"
-              title="Ürün Güncellemeleri"
-              subtitle="Yeni özellik ve hizmetler hakkında"
-              value={productUpdates}
-              onValueChange={setProductUpdates}
-              iconColor="#9333ea"
-            />
-          </Card>
+          </View>
         </View>
 
         <View style={styles.spacer} />
@@ -349,16 +300,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  scrollView: {
+    flex: 1,
+  },
+  contentContainer: {
+    paddingBottom: spacing[10],
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing[5],
-    paddingTop: spacing[4],
-    paddingBottom: spacing[3],
+    paddingTop: spacing[6],
+    paddingBottom: spacing[6],
   },
   backButton: {
     padding: spacing[2],
     marginRight: spacing[2],
+    marginLeft: -spacing[2],
   },
   headerTextContainer: {
     flex: 1,
@@ -369,53 +327,56 @@ const styles = StyleSheet.create({
     marginBottom: spacing[1],
   },
   headerSubtitle: {
-    fontSize: 15,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  contentContainer: {
-    paddingBottom: spacing[10],
+    fontSize: 16,
   },
   section: {
     paddingHorizontal: spacing[5],
-    marginBottom: spacing[4],
+    marginBottom: spacing[6],
   },
-  toggleItem: {
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: spacing[3],
+  },
+  card: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  notificationItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: spacing[3],
+    paddingVertical: spacing[4],
+    paddingHorizontal: spacing[4],
   },
-  toggleLeft: {
+  notificationItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
     marginRight: spacing[3],
   },
-  iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
+  itemIcon: {
     marginRight: spacing[3],
   },
-  toggleTextContainer: {
+  notificationTextContainer: {
     flex: 1,
   },
-  toggleTitle: {
+  notificationItemText: {
     fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 2,
+    fontWeight: '500',
   },
-  toggleSubtitle: {
-    fontSize: 14,
-    lineHeight: 18,
+  notificationItemSubtitle: {
+    fontSize: 13,
+    marginTop: 2,
   },
   divider: {
     height: 1,
-    marginVertical: spacing[1],
+    marginLeft: spacing[4],
   },
   spacer: {
     height: spacing[6],

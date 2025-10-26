@@ -1,476 +1,192 @@
 /**
  * SecurityScreen
  * 
- * Comprehensive security settings:
- * - Change password
+ * Security settings matching ProfileScreen design:
+ * - Password change
  * - Two-factor authentication
- * - Active sessions
- * - Login history
- * - Security recommendations
+ * - Biometric login
+ * - Login notifications
  */
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  SafeAreaView, 
-  TouchableOpacity,
-  Alert,
-  Switch,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Switch, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Controller, useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-
 import { colors, spacing } from '../../styles';
 import { useTheme } from '../../utils/ThemeContext';
-import { useLanguage } from '../../utils/LanguageContext';
-import { 
-  Card, 
-  TextInput, 
-  Button, 
-  Badge,
-  AlertBanner,
-} from '../../components/common';
 import { useTwoFactor } from '../../hooks/useTwoFactor';
 
-const passwordSchema = z.object({
-  currentPassword: z.string().min(1, 'Mevcut şifre gerekli'),
-  newPassword: z
-    .string()
-    .min(8, 'Şifre en az 8 karakter olmalı')
-    .regex(/[A-Z]/, 'En az bir büyük harf içermeli')
-    .regex(/[a-z]/, 'En az bir küçük harf içermeli')
-    .regex(/[0-9]/, 'En az bir rakam içermeli')
-    .regex(/[^a-zA-Z0-9]/, 'En az bir özel karakter içermeli'),
-  confirmPassword: z.string(),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: 'Şifreler eşleşmiyor',
-  path: ['confirmPassword'],
-});
-
-type PasswordFormValues = z.infer<typeof passwordSchema>;
-
-interface SecurityItemProps {
+interface MenuItemProps {
   icon: string;
   title: string;
-  subtitle: string;
-  onPress: () => void;
-  status?: 'success' | 'warning' | 'danger';
-  statusText?: string;
+  subtitle?: string;
+  onPress?: () => void;
   showChevron?: boolean;
+  showSwitch?: boolean;
+  switchValue?: boolean;
+  onSwitchChange?: (value: boolean) => void;
+  iconColor?: string;
+  iconBgColor?: string;
 }
 
-const SecurityItem: React.FC<SecurityItemProps> = ({ 
+const MenuItem: React.FC<MenuItemProps> = ({ 
   icon, 
   title, 
   subtitle,
-  onPress,
-  status,
-  statusText,
-  showChevron = true,
+  onPress, 
+  showChevron = false,
+  showSwitch = false,
+  switchValue = false,
+  onSwitchChange,
+  iconColor,
+  iconBgColor,
 }) => {
   const { colors: themeColors } = useTheme();
   
-  const iconColors = {
-    success: colors.semantic.success,
-    warning: colors.semantic.warning,
-    danger: colors.semantic.error,
-  };
-
-  return (
-    <TouchableOpacity style={styles.securityItem} onPress={onPress} activeOpacity={0.7}>
-      <View style={styles.securityItemLeft}>
-        <View style={[
-          styles.securityIconContainer, 
-          { backgroundColor: status ? `${iconColors[status]}15` : themeColors.surfaceAlt }
-        ]}>
-          <Ionicons 
-            name={icon as any} 
-            size={22} 
-            color={status ? iconColors[status] : themeColors.primary} 
-          />
+  const content = (
+    <View style={styles.menuItem}>
+      <View style={styles.menuItemLeft}>
+        <View style={[styles.iconContainer, { backgroundColor: iconBgColor || themeColors.surfaceAlt }]}>
+          <Ionicons name={icon as any} size={20} color={iconColor || themeColors.text} />
         </View>
-        <View style={styles.securityTextContainer}>
-          <Text style={[styles.securityItemTitle, { color: themeColors.text }]}>{title}</Text>
-          <Text style={[styles.securityItemSubtitle, { color: themeColors.textSecondary }]}>
-            {subtitle}
-          </Text>
+        <View style={styles.menuTextContainer}>
+          <Text style={[styles.menuItemText, { color: themeColors.text }]}>{title}</Text>
+          {subtitle && (
+            <Text style={[styles.menuItemSubtitle, { color: themeColors.textSecondary }]}>{subtitle}</Text>
+          )}
         </View>
       </View>
-      <View style={styles.securityItemRight}>
-        {statusText && (
-          <Badge 
-            label={statusText} 
-            variant={status === 'success' ? 'success' : status === 'warning' ? 'warning' : 'error'} 
-          />
-        )}
-        {showChevron && (
-          <Ionicons name="chevron-forward" size={20} color={themeColors.textTertiary} style={{ marginLeft: spacing[2] }} />
-        )}
-      </View>
-    </TouchableOpacity>
+      {showChevron && (
+        <Ionicons name="chevron-forward" size={20} color={themeColors.textTertiary} />
+      )}
+      {showSwitch && (
+        <Switch
+          value={switchValue}
+          onValueChange={onSwitchChange}
+          trackColor={{ false: colors.neutral[300], true: themeColors.primary }}
+          thumbColor="#FFFFFF"
+        />
+      )}
+    </View>
   );
+
+  if (onPress) {
+    return (
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+        {content}
+      </TouchableOpacity>
+    );
+  }
+
+  return content;
 };
 
 const SecurityScreen = () => {
   const navigation = useNavigation<any>();
-  const { colors: themeColors, isDark } = useTheme();
-  const { t } = useLanguage();
-  
-  const [showPasswordSection, setShowPasswordSection] = useState(false);
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { colors: themeColors } = useTheme();
+  const { enabled: twoFactorEnabled } = useTwoFactor();
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [loginNotifications, setLoginNotifications] = useState(true);
 
-  const { enabled: twoFactorEnabled, statusLoading: twoFactorLoading } = useTwoFactor();
-
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<PasswordFormValues>({
-    resolver: zodResolver(passwordSchema),
-    defaultValues: {
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: '',
-    },
-  });
-
-  const onSubmitPassword = async (values: PasswordFormValues) => {
-    try {
-      // API call to change password
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      Alert.alert('Başarılı', 'Şifreniz başarıyla değiştirildi');
-      reset();
-      setShowPasswordSection(false);
-    } catch (error) {
-      Alert.alert('Hata', 'Şifre değiştirme başarısız oldu');
-    }
+  const handleChangePassword = () => {
+    Alert.alert(
+      'Şifre Değiştir',
+      'Şifre değiştirme özelliği yakında eklenecek'
+    );
   };
 
-  // Mock active sessions data
-  const activeSessions = [
-    { 
-      id: '1', 
-      device: 'iPhone 15 Pro', 
-      location: 'Istanbul, Turkey',
-      lastActive: '2 dk önce',
-      current: true,
-    },
-    { 
-      id: '2', 
-      device: 'Chrome on MacBook', 
-      location: 'Istanbul, Turkey',
-      lastActive: '2 saat önce',
-      current: false,
-    },
-  ];
+  const handleTwoFactorSetup = () => {
+    Alert.alert(
+      'İki Faktörlü Doğrulama',
+      twoFactorEnabled 
+        ? 'İki faktörlü doğrulama aktif. Devre dışı bırakmak ister misiniz?' 
+        : 'İki faktörlü doğrulama kurulum sihirbazı yakında eklenecek'
+    );
+  };
+
+  const handleViewSessions = () => {
+    Alert.alert(
+      'Aktif Oturumlar',
+      'Oturum yönetimi özelliği yakında eklenecek'
+    );
+  };
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color={themeColors.text} />
-        </TouchableOpacity>
-        <View style={styles.headerTextContainer}>
-          <Text style={[styles.headerTitle, { color: themeColors.text }]}>Güvenlik</Text>
-          <Text style={[styles.headerSubtitle, { color: themeColors.textSecondary }]}>
-            Hesap güvenliğinizi yönetin
-          </Text>
-        </View>
-      </View>
-
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
       >
-
-        {/* Security Status Alert */}
-        <View style={styles.section}>
-          <AlertBanner
-            type="success"
-            title="Güvenli"
-            message="Hesabınız güvenli. Tüm güvenlik önerileri aktif."
-            dismissible={false}
-          />
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="arrow-back" size={24} color={themeColors.text} />
+          </TouchableOpacity>
+          <View style={styles.headerTextContainer}>
+            <Text style={[styles.headerTitle, { color: themeColors.text }]}>Güvenlik</Text>
+            <Text style={[styles.headerSubtitle, { color: themeColors.textSecondary }]}>
+              Hesap güvenliğinizi yönetin
+            </Text>
+          </View>
         </View>
 
-        {/* Password Section */}
+        {/* Authentication Section */}
         <View style={styles.section}>
-          <Card title="Şifre" variant="elevated">
-            {!showPasswordSection ? (
-              <>
-                <SecurityItem
-                  icon="lock-closed"
-                  title="Şifre Değiştir"
-                  subtitle="Son değişiklik: 30 gün önce"
-                  onPress={() => setShowPasswordSection(true)}
-                  showChevron={false}
-                />
-                <Button
-                  label="Şifremi Değiştir"
-                  variant="primary"
-                  size="sm"
-                  onPress={() => setShowPasswordSection(true)}
-                  fullWidth
-                  style={{ marginTop: spacing[3] }}
-                />
-              </>
-            ) : (
-              <>
-                <Controller
-                  control={control}
-                  name="currentPassword"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <View style={styles.passwordInputWrapper}>
-                      <TextInput
-                        label="Mevcut Şifre"
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                        placeholder="Mevcut şifrenizi girin"
-                        secureTextEntry={!showCurrentPassword}
-                        error={errors.currentPassword?.message}
-                        icon={<Ionicons name="lock-closed-outline" size={20} color={themeColors.textSecondary} />}
-                        containerStyle={styles.passwordInputContainer}
-                      />
-                      <TouchableOpacity
-                        style={styles.eyeToggle}
-                        onPress={() => setShowCurrentPassword(!showCurrentPassword)}
-                      >
-                        <Ionicons
-                          name={showCurrentPassword ? "eye-outline" : "eye-off-outline"}
-                          size={20}
-                          color={themeColors.textSecondary}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                />
-
-                <Controller
-                  control={control}
-                  name="newPassword"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <View style={styles.passwordInputWrapper}>
-                      <TextInput
-                        label="Yeni Şifre"
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                        placeholder="Yeni şifrenizi oluşturun"
-                        secureTextEntry={!showNewPassword}
-                        error={errors.newPassword?.message}
-                        icon={<Ionicons name="key-outline" size={20} color={themeColors.textSecondary} />}
-                        containerStyle={styles.passwordInputContainer}
-                      />
-                      <TouchableOpacity
-                        style={styles.eyeToggle}
-                        onPress={() => setShowNewPassword(!showNewPassword)}
-                      >
-                        <Ionicons
-                          name={showNewPassword ? "eye-outline" : "eye-off-outline"}
-                          size={20}
-                          color={themeColors.textSecondary}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                />
-
-                <Controller
-                  control={control}
-                  name="confirmPassword"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <View style={styles.passwordInputWrapper}>
-                      <TextInput
-                        label="Şifre Tekrar"
-                        value={value}
-                        onChangeText={onChange}
-                        onBlur={onBlur}
-                        placeholder="Yeni şifrenizi tekrar girin"
-                        secureTextEntry={!showConfirmPassword}
-                        error={errors.confirmPassword?.message}
-                        icon={<Ionicons name="key-outline" size={20} color={themeColors.textSecondary} />}
-                        containerStyle={styles.passwordInputContainer}
-                      />
-                      <TouchableOpacity
-                        style={styles.eyeToggle}
-                        onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-                      >
-                        <Ionicons
-                          name={showConfirmPassword ? "eye-outline" : "eye-off-outline"}
-                          size={20}
-                          color={themeColors.textSecondary}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  )}
-                />
-
-                <View style={styles.buttonRow}>
-                  <Button
-                    label="Kaydet"
-                    variant="primary"
-                    size="sm"
-                    onPress={handleSubmit(onSubmitPassword)}
-                    loading={isSubmitting}
-                    style={{ flex: 1 }}
-                  />
-                  <Button
-                    label="İptal"
-                    variant="secondary"
-                    size="sm"
-                    onPress={() => {
-                      reset();
-                      setShowPasswordSection(false);
-                    }}
-                    style={{ flex: 1 }}
-                  />
-                </View>
-              </>
-            )}
-          </Card>
-        </View>
-
-        {/* Two-Factor Authentication */}
-        <View style={styles.section}>
-          <Card title="İki Faktörlü Doğrulama" variant="elevated">
-            <SecurityItem
-              icon="shield-checkmark"
-              title="2FA"
-              subtitle={twoFactorEnabled ? "Hesabınız ekstra güvende" : "Hesabınızı ekstra güvenceye alın"}
-              onPress={() => navigation.navigate('TwoFactor')}
-              status={twoFactorEnabled ? 'success' : 'warning'}
-              statusText={twoFactorEnabled ? 'Aktif' : 'Pasif'}
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Kimlik Doğrulama</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <MenuItem
+              icon="key-outline"
+              title="Şifre Değiştir"
+              subtitle="Hesap şifrenizi güncelleyin"
+              onPress={handleChangePassword}
+              showChevron
             />
-          </Card>
-        </View>
-
-        {/* Biometric & Login Alerts */}
-        <View style={styles.section}>
-          <Card title="Hızlı Giriş & Bildirimler" variant="elevated">
-            <View style={styles.switchItem}>
-              <View style={styles.switchItemLeft}>
-                <Ionicons name="finger-print" size={24} color={themeColors.primary} />
-                <View style={styles.switchTextContainer}>
-                  <Text style={[styles.switchTitle, { color: themeColors.text }]}>
-                    Biyometrik Giriş
-                  </Text>
-                  <Text style={[styles.switchSubtitle, { color: themeColors.textSecondary }]}>
-                    Touch ID / Face ID ile giriş
-                  </Text>
-                </View>
-              </View>
-              <Switch
-                value={biometricEnabled}
-                onValueChange={setBiometricEnabled}
-                trackColor={{ false: colors.neutral[300], true: themeColors.primary }}
-                thumbColor="#FFFFFF"
-              />
-            </View>
-
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-
-            <View style={styles.switchItem}>
-              <View style={styles.switchItemLeft}>
-                <Ionicons name="notifications" size={24} color={themeColors.primary} />
-                <View style={styles.switchTextContainer}>
-                  <Text style={[styles.switchTitle, { color: themeColors.text }]}>
-                    Giriş Bildirimleri
-                  </Text>
-                  <Text style={[styles.switchSubtitle, { color: themeColors.textSecondary }]}>
-                    Yeni giriş yapıldığında bildirim al
-                  </Text>
-                </View>
-              </View>
-              <Switch
-                value={loginNotifications}
-                onValueChange={setLoginNotifications}
-                trackColor={{ false: colors.neutral[300], true: themeColors.primary }}
-                thumbColor="#FFFFFF"
-              />
-            </View>
-          </Card>
+            <MenuItem
+              icon="shield-checkmark-outline"
+              title="İki Faktörlü Doğrulama"
+              subtitle={twoFactorEnabled ? 'Aktif' : 'Devre dışı'}
+              onPress={handleTwoFactorSetup}
+              showChevron
+              iconColor={twoFactorEnabled ? colors.semantic.success : themeColors.text}
+              iconBgColor={twoFactorEnabled ? `${colors.semantic.success}15` : themeColors.surfaceAlt}
+            />
+            <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
+            <MenuItem
+              icon="finger-print-outline"
+              title="Biyometrik Giriş"
+              subtitle={biometricEnabled ? 'Açık' : 'Kapalı'}
+              showSwitch
+              switchValue={biometricEnabled}
+              onSwitchChange={setBiometricEnabled}
+            />
+          </View>
         </View>
 
-        {/* Active Sessions */}
+        {/* Activity Section */}
         <View style={styles.section}>
-          <Card title="Aktif Oturumlar" variant="elevated">
-            {activeSessions.map((session, index) => (
-              <View key={session.id}>
-                {index > 0 && <View style={[styles.divider, { backgroundColor: themeColors.border }]} />}
-                <View style={styles.sessionItem}>
-                  <View style={styles.sessionIconContainer}>
-                    <Ionicons 
-                      name={session.device.includes('iPhone') ? 'phone-portrait' : 'desktop'} 
-                      size={24} 
-                      color={themeColors.text} 
-                    />
-                  </View>
-                  <View style={styles.sessionInfo}>
-                    <View style={styles.sessionHeader}>
-                      <Text style={[styles.sessionDevice, { color: themeColors.text }]}>
-                        {session.device}
-                      </Text>
-                      {session.current && (
-                        <Badge label="Şu an" variant="success" />
-                      )}
-                    </View>
-                    <Text style={[styles.sessionLocation, { color: themeColors.textSecondary }]}>
-                      {session.location}
-                    </Text>
-                    <Text style={[styles.sessionTime, { color: themeColors.textTertiary }]}>
-                      {session.lastActive}
-                    </Text>
-                  </View>
-                  {!session.current && (
-                    <TouchableOpacity 
-                      onPress={() => Alert.alert('Oturumu Sonlandır', `${session.device} oturumunu sonlandırmak istediğinize emin misiniz?`)}
-                    >
-                      <Ionicons name="close-circle" size={24} color={colors.semantic.error} />
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </View>
-            ))}
-          </Card>
-        </View>
-
-        {/* Security Recommendations */}
-        <View style={styles.section}>
-          <Card title="Güvenlik Önerileri" variant="default">
-            <View style={styles.recommendationItem}>
-              <Ionicons name="checkmark-circle" size={24} color={colors.semantic.success} />
-              <Text style={[styles.recommendationText, { color: themeColors.text }]}>
-                Güçlü şifre kullanıyorsunuz
-              </Text>
-            </View>
-            <View style={styles.recommendationItem}>
-              <Ionicons name="checkmark-circle" size={24} color={colors.semantic.success} />
-              <Text style={[styles.recommendationText, { color: themeColors.text }]}>
-                2FA aktif
-              </Text>
-            </View>
-            <View style={styles.recommendationItem}>
-              <Ionicons name="alert-circle" size={24} color={colors.semantic.warning} />
-              <Text style={[styles.recommendationText, { color: themeColors.text }]}>
-                Şifrenizi 30 gün önce değiştirdiniz. 90 günde bir değiştirmeyi öneririz.
-              </Text>
-            </View>
-          </Card>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Aktivite</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <MenuItem
+              icon="time-outline"
+              title="Aktif Oturumlar"
+              subtitle="Bağlı cihazlarınızı görün"
+              onPress={handleViewSessions}
+              showChevron
+            />
+            <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
+            <MenuItem
+              icon="notifications-outline"
+              title="Giriş Bildirimleri"
+              subtitle="Yeni girişlerden haberdar olun"
+              showSwitch
+              switchValue={loginNotifications}
+              onSwitchChange={setLoginNotifications}
+            />
+          </View>
         </View>
 
         <View style={styles.spacer} />
@@ -483,16 +199,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  scrollView: {
+    flex: 1,
+  },
+  contentContainer: {
+    paddingBottom: spacing[10],
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing[5],
-    paddingTop: spacing[4],
-    paddingBottom: spacing[3],
+    paddingTop: spacing[6],
+    paddingBottom: spacing[6],
   },
   backButton: {
     padding: spacing[2],
     marginRight: spacing[2],
+    marginLeft: -spacing[2],
   },
   headerTextContainer: {
     flex: 1,
@@ -503,141 +226,60 @@ const styles = StyleSheet.create({
     marginBottom: spacing[1],
   },
   headerSubtitle: {
-    fontSize: 15,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  contentContainer: {
-    paddingBottom: spacing[10],
+    fontSize: 16,
   },
   section: {
     paddingHorizontal: spacing[5],
-    marginBottom: spacing[4],
+    marginBottom: spacing[6],
   },
-  securityItem: {
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: spacing[3],
+  },
+  card: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: spacing[3],
+    paddingVertical: spacing[4],
+    paddingHorizontal: spacing[4],
   },
-  securityItemLeft: {
+  menuItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
   },
-  securityIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: spacing[3],
   },
-  securityTextContainer: {
+  menuTextContainer: {
     flex: 1,
   },
-  securityItemTitle: {
+  menuItemText: {
     fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 2,
+    fontWeight: '500',
   },
-  securityItemSubtitle: {
+  menuItemSubtitle: {
     fontSize: 14,
-  },
-  securityItemRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  passwordInputWrapper: {
-    position: 'relative',
-    marginBottom: spacing[3],
-  },
-  passwordInputContainer: {
-    marginBottom: 0,
-  },
-  eyeToggle: {
-    position: 'absolute',
-    right: spacing[3],
-    top: 38,
-    padding: spacing[2],
-    zIndex: 10,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: spacing[2],
-    marginTop: spacing[3],
-  },
-  switchItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: spacing[3],
-  },
-  switchItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    marginRight: spacing[3],
-  },
-  switchTextContainer: {
-    marginLeft: spacing[3],
-    flex: 1,
-  },
-  switchTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  switchSubtitle: {
-    fontSize: 14,
+    marginTop: 2,
   },
   divider: {
     height: 1,
-    marginVertical: spacing[2],
-  },
-  sessionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing[3],
-  },
-  sessionIconContainer: {
-    width: 48,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: spacing[3],
-  },
-  sessionInfo: {
-    flex: 1,
-  },
-  sessionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-    gap: spacing[2],
-  },
-  sessionDevice: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  sessionLocation: {
-    fontSize: 14,
-    marginBottom: 2,
-  },
-  sessionTime: {
-    fontSize: 13,
-  },
-  recommendationItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: spacing[3],
-    gap: spacing[3],
-  },
-  recommendationText: {
-    fontSize: 14,
-    lineHeight: 20,
-    flex: 1,
+    marginLeft: spacing[4] + 40 + spacing[3],
   },
   spacer: {
     height: spacing[6],

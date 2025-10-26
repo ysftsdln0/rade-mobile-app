@@ -1,12 +1,9 @@
 /**
  * PersonalInfoScreen
  * 
- * User profile editing screen:
- * - Edit personal information
- * - Change avatar
- * - Update contact details
+ * User profile information matching SecurityScreen design
  */
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { 
   View, 
   Text, 
@@ -15,86 +12,81 @@ import {
   SafeAreaView, 
   TouchableOpacity,
   Alert,
-  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Controller, useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
 
 import { colors, spacing } from '../../styles';
 import { useTheme } from '../../utils/ThemeContext';
 import { useAppSelector } from '../../store';
-import { 
-  Card, 
-  TextInput, 
-  Button,
-  Avatar,
-} from '../../components/common';
+import { Avatar } from '../../components/common';
 
-const phoneRegex = /^\+?[0-9\s-]{7,}$/;
+interface InfoItemProps {
+  icon: string;
+  title: string;
+  value: string;
+  onPress?: () => void;
+  showChevron?: boolean;
+}
 
-const profileSchema = z.object({
-  firstName: z.string().min(1, 'Ad zorunlu'),
-  lastName: z.string().min(1, 'Soyad zorunlu'),
-  email: z.string().email('Geçerli bir e-posta girin'),
-  company: z.string().max(100).optional(),
-  phone: z
-    .string()
-    .optional()
-    .refine((value) => !value || phoneRegex.test(value ?? ''), {
-      message: 'Geçerli bir telefon numarası girin',
-    }),
-});
+const InfoItem: React.FC<InfoItemProps> = ({ 
+  icon, 
+  title, 
+  value,
+  onPress,
+  showChevron = false,
+}) => {
+  const { colors: themeColors } = useTheme();
+  
+  const content = (
+    <View style={styles.infoItem}>
+      <View style={styles.infoItemLeft}>
+        <View style={[styles.iconContainer, { backgroundColor: themeColors.surfaceAlt }]}>
+          <Ionicons name={icon as any} size={20} color={themeColors.text} />
+        </View>
+        <View style={styles.infoTextContainer}>
+          <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>{title}</Text>
+          <Text style={[styles.infoValue, { color: themeColors.text }]}>{value}</Text>
+        </View>
+      </View>
+      {showChevron && (
+        <Ionicons name="chevron-forward" size={20} color={themeColors.textTertiary} />
+      )}
+    </View>
+  );
 
-type ProfileFormValues = z.infer<typeof profileSchema>;
+  if (onPress) {
+    return (
+      <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+        {content}
+      </TouchableOpacity>
+    );
+  }
+
+  return content;
+};
 
 const PersonalInfoScreen = () => {
   const navigation = useNavigation<any>();
   const { colors: themeColors } = useTheme();
   const { user } = useAppSelector((state) => state.auth);
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting, isDirty },
-  } = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileSchema),
-    defaultValues: {
-      firstName: user?.firstName || '',
-      lastName: user?.lastName || '',
-      email: user?.email || '',
-      company: user?.company || '',
-      phone: user?.phone || '',
-    },
-  });
-
-  useEffect(() => {
-    if (user) {
-      reset({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        email: user.email || '',
-        company: user.company || '',
-        phone: user.phone || '',
-      });
-    }
-  }, [user, reset]);
-
   const initials = user 
     ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase()
     : 'U';
 
-  const onSubmit = async (values: ProfileFormValues) => {
-    try {
-      // API call to update profile
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      Alert.alert('Başarılı', 'Profiliniz başarıyla güncellendi');
-    } catch (error) {
-      Alert.alert('Hata', 'Profil güncellenirken bir hata oluştu');
-    }
+  const handleEditPersonalInfo = () => {
+    Alert.alert(
+      'Bilgileri Düzenle',
+      'Profil düzenleme özelliği yakında eklenecek'
+    );
+  };
+
+  const handleEditContact = () => {
+    Alert.alert(
+      'İletişim Bilgileri',
+      'İletişim bilgileri düzenleme özelliği yakında eklenecek'
+    );
   };
 
   const handleAvatarEdit = () => {
@@ -111,26 +103,26 @@ const PersonalInfoScreen = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color={themeColors.text} />
-        </TouchableOpacity>
-        <View style={styles.headerTextContainer}>
-          <Text style={[styles.headerTitle, { color: themeColors.text }]}>Kişisel Bilgiler</Text>
-          <Text style={[styles.headerSubtitle, { color: themeColors.textSecondary }]}>
-            Profil bilgilerinizi düzenleyin
-          </Text>
-        </View>
-      </View>
-
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
       >
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="arrow-back" size={24} color={themeColors.text} />
+          </TouchableOpacity>
+          <View style={styles.headerTextContainer}>
+            <Text style={[styles.headerTitle, { color: themeColors.text }]}>Kişisel Bilgiler</Text>
+            <Text style={[styles.headerSubtitle, { color: themeColors.textSecondary }]}>
+              Profil bilgilerinizi düzenleyin
+            </Text>
+          </View>
+        </View>
 
         {/* Avatar Section */}
         <View style={styles.avatarSection}>
@@ -146,165 +138,79 @@ const PersonalInfoScreen = () => {
           </Text>
         </View>
 
-        {/* Personal Information Form */}
+        {/* Personal Information */}
         <View style={styles.section}>
-          <Card title="Kişisel Bilgiler" variant="elevated">
-            <View style={styles.row}>
-              <View style={[styles.halfInput, { marginRight: spacing[2] }]}>
-                <Controller
-                  control={control}
-                  name="firstName"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      label="AD"
-                      value={value}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                      placeholder="Adınız"
-                      error={errors.firstName?.message}
-                      icon={<Ionicons name="person-outline" size={20} color={themeColors.textSecondary} />}
-                    />
-                  )}
-                />
-              </View>
-              <View style={styles.halfInput}>
-                <Controller
-                  control={control}
-                  name="lastName"
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <TextInput
-                      label="SOYAD"
-                      value={value}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                      placeholder="Soyadınız"
-                      error={errors.lastName?.message}
-                      icon={<Ionicons name="person-outline" size={20} color={themeColors.textSecondary} />}
-                    />
-                  )}
-                />
-              </View>
-            </View>
-
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label="E-POSTA"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="ornek@mail.com"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  error={errors.email?.message}
-                  icon={<Ionicons name="mail-outline" size={20} color={themeColors.textSecondary} />}
-                  editable={false}
-                  containerStyle={{ opacity: 0.6 }}
-                />
-              )}
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Kişisel Bilgiler</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <InfoItem
+              icon="person-outline"
+              title="Ad Soyad"
+              value={`${user?.firstName || ''} ${user?.lastName || ''}`}
+              onPress={handleEditPersonalInfo}
+              showChevron
             />
-            <Text style={[styles.helperText, { color: themeColors.textTertiary }]}>
-              E-posta adresi değiştirilemez
-            </Text>
-          </Card>
+            <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
+            <InfoItem
+              icon="mail-outline"
+              title="E-posta"
+              value={user?.email || '-'}
+            />
+          </View>
         </View>
 
         {/* Contact Information */}
         <View style={styles.section}>
-          <Card title="İletişim Bilgileri" variant="elevated">
-            <Controller
-              control={control}
-              name="company"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label="ŞİRKET (Opsiyonel)"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="Şirket adı"
-                  error={errors.company?.message}
-                  icon={<Ionicons name="business-outline" size={20} color={themeColors.textSecondary} />}
-                />
-              )}
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>İletişim Bilgileri</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <InfoItem
+              icon="business-outline"
+              title="Şirket"
+              value={user?.company || 'Belirtilmemiş'}
+              onPress={handleEditContact}
+              showChevron
             />
-
-            <Controller
-              control={control}
-              name="phone"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  label="TELEFON (Opsiyonel)"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  placeholder="+90 5XX XXX XX XX"
-                  keyboardType="phone-pad"
-                  error={errors.phone?.message}
-                  icon={<Ionicons name="call-outline" size={20} color={themeColors.textSecondary} />}
-                />
-              )}
+            <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
+            <InfoItem
+              icon="call-outline"
+              title="Telefon"
+              value={user?.phone || 'Belirtilmemiş'}
+              onPress={handleEditContact}
+              showChevron
             />
-          </Card>
+          </View>
         </View>
 
         {/* Account Information */}
         <View style={styles.section}>
-          <Card title="Hesap Bilgileri" variant="default">
-            <View style={styles.infoRow}>
-              <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>
-                Üyelik Tarihi
-              </Text>
-              <Text style={[styles.infoValue, { color: themeColors.text }]}>
-                {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('tr-TR') : '-'}
-              </Text>
-            </View>
+          <Text style={[styles.sectionTitle, { color: themeColors.text }]}>Hesap Bilgileri</Text>
+          <View style={[styles.card, { backgroundColor: themeColors.card }]}>
+            <InfoItem
+              icon="calendar-outline"
+              title="Üyelik Tarihi"
+              value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString('tr-TR') : '-'}
+            />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <View style={styles.infoRow}>
-              <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>
-                Son Giriş
-              </Text>
-              <Text style={[styles.infoValue, { color: themeColors.text }]}>
-                {user?.lastLogin ? new Date(user.lastLogin).toLocaleDateString('tr-TR') : '-'}
-              </Text>
-            </View>
+            <InfoItem
+              icon="time-outline"
+              title="Son Giriş"
+              value={user?.lastLogin ? new Date(user.lastLogin).toLocaleDateString('tr-TR') : '-'}
+            />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
-            <View style={styles.infoRow}>
-              <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>
-                Hesap Durumu
-              </Text>
-              <View style={styles.statusBadge}>
-                <View style={[styles.statusDot, { backgroundColor: colors.semantic.success }]} />
-                <Text style={[styles.statusText, { color: colors.semantic.success }]}>Aktif</Text>
+            <View style={styles.infoItem}>
+              <View style={styles.infoItemLeft}>
+                <View style={[styles.iconContainer, { backgroundColor: themeColors.surfaceAlt }]}>
+                  <Ionicons name="shield-checkmark-outline" size={20} color={themeColors.text} />
+                </View>
+                <View style={styles.infoTextContainer}>
+                  <Text style={[styles.infoLabel, { color: themeColors.textSecondary }]}>Hesap Durumu</Text>
+                  <View style={styles.statusBadge}>
+                    <View style={[styles.statusDot, { backgroundColor: colors.semantic.success }]} />
+                    <Text style={[styles.statusText, { color: colors.semantic.success }]}>Aktif</Text>
+                  </View>
+                </View>
               </View>
             </View>
-          </Card>
-        </View>
-
-        {/* Save Button */}
-        <View style={styles.section}>
-          <Button
-            label={isSubmitting ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
-            variant="gradient"
-            size="lg"
-            onPress={handleSubmit(onSubmit)}
-            disabled={!isDirty || isSubmitting}
-            loading={isSubmitting}
-            fullWidth
-          />
-          
-          {isDirty && (
-            <Button
-              label="İptal"
-              variant="secondary"
-              size="lg"
-              onPress={() => reset()}
-              disabled={isSubmitting}
-              fullWidth
-              style={{ marginTop: spacing[2] }}
-            />
-          )}
+          </View>
         </View>
 
         <View style={styles.spacer} />
@@ -317,16 +223,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  scrollView: {
+    flex: 1,
+  },
+  contentContainer: {
+    paddingBottom: spacing[10],
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: spacing[5],
-    paddingTop: spacing[4],
-    paddingBottom: spacing[3],
+    paddingTop: spacing[6],
+    paddingBottom: spacing[4],
   },
   backButton: {
     padding: spacing[2],
     marginRight: spacing[2],
+    marginLeft: -spacing[2],
   },
   headerTextContainer: {
     flex: 1,
@@ -337,13 +250,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing[1],
   },
   headerSubtitle: {
-    fontSize: 15,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  contentContainer: {
-    paddingBottom: spacing[10],
+    fontSize: 16,
   },
   avatarSection: {
     alignItems: 'center',
@@ -355,42 +262,62 @@ const styles = StyleSheet.create({
   },
   section: {
     paddingHorizontal: spacing[5],
-    marginBottom: spacing[4],
+    marginBottom: spacing[6],
   },
-  row: {
-    flexDirection: 'row',
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
     marginBottom: spacing[3],
   },
-  halfInput: {
+  card: {
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing[4],
+    paddingHorizontal: spacing[4],
+  },
+  infoItemLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
     flex: 1,
   },
-  helperText: {
-    fontSize: 12,
-    marginTop: -spacing[2],
-    marginBottom: spacing[3],
-    marginLeft: spacing[1],
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: spacing[3],
+    marginRight: spacing[3],
+  },
+  infoTextContainer: {
+    flex: 1,
   },
   infoLabel: {
-    fontSize: 15,
-    fontWeight: '500',
+    fontSize: 14,
+    marginBottom: 2,
   },
   infoValue: {
-    fontSize: 15,
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: '500',
   },
   divider: {
     height: 1,
+    marginLeft: spacing[4] + 40 + spacing[3],
   },
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing[2],
+    marginTop: 2,
   },
   statusDot: {
     width: 8,
