@@ -37,7 +37,8 @@ const registerSchema = z
       .min(8, 'Şifre en az 8 karakter olmalı.')
       .regex(/[A-Z]/, 'En az bir büyük harf içermeli.')
       .regex(/[a-z]/, 'En az bir küçük harf içermeli.')
-      .regex(/[0-9]/, 'En az bir rakam içermeli.'),
+      .regex(/[0-9]/, 'En az bir rakam içermeli.')
+      .regex(/[^a-zA-Z0-9]/, 'En az bir özel karakter içermeli (!@#$%^&* vb.).'),
     confirmPassword: z.string(),
     company: z.string().max(100).optional(),
     phone: z
@@ -114,6 +115,11 @@ const RegisterScreen = () => {
         met: /\d/.test(passwordValue),
         icon: 'keypad-outline' as const
       },
+      { 
+        label: 'En az bir özel karakter (!@#$%^&*)', 
+        met: /[^a-zA-Z0-9]/.test(passwordValue),
+        icon: 'at-outline' as const
+      },
     ],
     [passwordValue]
   );
@@ -121,9 +127,11 @@ const RegisterScreen = () => {
   const passwordStrength = useMemo(() => {
     const metCount = passwordChecks.filter((check) => check.met).length;
     if (!passwordValue) return { label: 'Şifre Gücü: -', color: colors.neutral[600] };
-    if (metCount <= 1) return { label: 'Şifre Gücü: Zayıf', color: colors.semantic.error };
-    if (metCount === 2 || metCount === 3) return { label: 'Şifre Gücü: Orta', color: colors.semantic.warning };
-    return { label: 'Şifre Gücü: Güçlü', color: colors.semantic.success };
+    if (metCount <= 1) return { label: 'Şifre Gücü: Çok Zayıf', color: colors.semantic.error };
+    if (metCount === 2) return { label: 'Şifre Gücü: Zayıf', color: '#ff6b6b' };
+    if (metCount === 3) return { label: 'Şifre Gücü: Orta', color: colors.semantic.warning };
+    if (metCount === 4) return { label: 'Şifre Gücü: İyi', color: '#51cf66' };
+    return { label: 'Şifre Gücü: Mükemmel', color: colors.semantic.success };
   }, [passwordChecks, passwordValue]);
 
   const onSubmit = async (values: RegisterFormValues) => {
