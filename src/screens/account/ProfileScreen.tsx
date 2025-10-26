@@ -102,17 +102,25 @@ const ProfileScreen = () => {
       >
         {/* Header with Avatar */}
         <View style={styles.header}>
-          <Avatar
-            size="xl"
-            initials={initials}
-            source={user?.avatar}
-            showEditButton
-            onEditPress={() => {}}
-          />
+          <View style={styles.avatarWrapper}>
+            <Avatar
+              size="xl"
+              initials={initials}
+              source={user?.avatar}
+              showEditButton
+              onEditPress={() => {}}
+            />
+          </View>
           <Text style={[styles.userName, { color: themeColors.text }]}>
             {user?.firstName} {user?.lastName}
           </Text>
           <Text style={[styles.userEmail, { color: themeColors.textSecondary }]}>{user?.email}</Text>
+          {user?.company && (
+            <View style={styles.companyBadge}>
+              <Ionicons name="business" size={14} color={themeColors.primary} />
+              <Text style={[styles.companyText, { color: themeColors.primary }]}>{user.company}</Text>
+            </View>
+          )}
         </View>
 
         {/* Account Section */}
@@ -122,13 +130,13 @@ const ProfileScreen = () => {
             <MenuItem
               icon="person-outline"
               title={t.profile.personalInformation}
-              onPress={() => navigation.navigate('Account', { screen: 'Profile' })}
+              onPress={() => navigation.navigate('PersonalInfo')}
             />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
             <MenuItem
               icon="lock-closed-outline"
               title={t.profile.security}
-              onPress={() => navigation.navigate('Account', { screen: 'Security' })}
+              onPress={() => navigation.navigate('Security')}
             />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
             <MenuItem
@@ -146,7 +154,7 @@ const ProfileScreen = () => {
             <MenuItem
               icon="notifications-outline"
               title={t.profile.notifications}
-              onPress={() => navigation.navigate('Account', { screen: 'NotificationSettings' })}
+              onPress={() => navigation.navigate('NotificationSettings')}
             />
             <View style={[styles.divider, { backgroundColor: themeColors.border }]} />
             <View style={styles.menuItem}>
@@ -226,6 +234,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[8],
     paddingHorizontal: spacing[5],
   },
+  avatarWrapper: {
+    marginBottom: spacing[1],
+  },
   userName: {
     fontSize: 24,
     fontWeight: '700',
@@ -234,6 +245,20 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: 16,
     marginTop: spacing[1],
+  },
+  companyBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[1],
+    marginTop: spacing[2],
+    paddingHorizontal: spacing[3],
+    paddingVertical: spacing[1],
+    borderRadius: 20,
+    backgroundColor: `${colors.primary[500]}15`,
+  },
+  companyText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
   section: {
     paddingHorizontal: spacing[5],
