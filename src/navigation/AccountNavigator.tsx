@@ -4,12 +4,13 @@ import { colors } from '../styles';
 
 // Import account screens
 import { 
-  SecurityScreen,
-  NotificationSettingsScreen,
   FinanceScreen,
 } from '../screens/PlaceholderScreens';
 import AccountMainScreen from '../screens/account/AccountMainScreen';
 import ProfileScreen from '../screens/account/ProfileScreen';
+import PersonalInfoScreen from '../screens/account/PersonalInfoScreen';
+import SecurityScreen from '../screens/account/SecurityScreen';
+import NotificationSettingsScreen from '../screens/account/NotificationSettingsScreen';
 import InvoiceListScreen from '../screens/finance/InvoiceListScreen';
 import PaymentMethodsScreen from '../screens/finance/PaymentMethodsScreen';
 
@@ -26,6 +27,10 @@ const AccountNavigator = () => {
       <Stack.Screen 
         name="Profile" 
         component={ProfileScreen}
+      />
+      <Stack.Screen 
+        name="PersonalInfo" 
+        component={PersonalInfoScreen}
       />
       <Stack.Screen 
         name="AccountMain" 
