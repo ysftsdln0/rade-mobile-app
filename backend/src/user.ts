@@ -1,98 +1,177 @@
-import { Router, Request, Response } from 'express';
-import { authMiddleware } from './auth.js';
+import { Router, Response } from 'express';
 import { prisma } from './db.js';
 import { ApiResponse } from './types.js';
 import bcrypt from 'bcryptjs';
+import { authMiddleware, AuthRequest } from './middleware/auth.js';
+import { AppError, asyncHandler } from './middleware/errorHandler.js';
+import { validate, validateParams } from './validators/validate.js';
+import { updateProfileSchema, changePasswordSchema, uuidSchema } from './validators/schemas.js';
+import { z } from 'zod';
+import { config } from './config.js';
+
+function toPublicUser(user: any) {
+  const { passwordHash, ...rest } = user;
+  return rest;
+}
 
 export function userRouter(): Router {
   const router = Router();
 
-  router.get('/user/profile', authMiddleware, async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const userId = (req as any).userId as string;
-      const user = await prisma.user.findUnique({ where: { id: userId } });
+  // Get user profile
+  router.get(
+    '/user/profile',
+    authMiddleware,
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const userId = req.userId!;
       
-      if (!user) {
-        return res.status(404).json({ success: false, data: null as any, message: 'User not found' });
-      }
-      
-      const { passwordHash, ...safe } = user;
-      res.json({ success: true, data: safe });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
-
-  router.put('/user/profile', authMiddleware, async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const userId = (req as any).userId as string;
-      const { firstName, lastName, company, phone } = req.body || {};
-      const user = await prisma.user.update({ 
-        where: { id: userId }, 
-        data: { firstName, lastName, company, phone } 
+      const user = await prisma.user.findUnique({ 
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          company: true,
+          phone: true,
+          isVerified: true,
+          createdAt: true,
+          lastLogin: true,
+        },
       });
-      const { passwordHash, ...safe } = user;
-      res.json({ success: true, data: safe });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
-
-  router.put('/user/change-password', authMiddleware, async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const userId = (req as any).userId as string;
-      const { currentPassword, newPassword } = req.body || {};
-      const user = await prisma.user.findUnique({ where: { id: userId } });
       
       if (!user) {
-        return res.status(404).json({ success: false, data: null as any, message: 'Kullanıcı Bulunamadı' });
+        throw new AppError(404, 'User not found');
       }
       
+      res.json({ success: true, data: user });
+    })
+  );
+
+  // Update user profile
+  router.put(
+    '/user/profile',
+    authMiddleware,
+    validate(updateProfileSchema),
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const userId = req.userId!;
+      const { firstName, lastName, company, phone } = req.body;
+      
+      const user = await prisma.user.update({
+        where: { id: userId },
+        data: { firstName, lastName, company, phone },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          company: true,
+          phone: true,
+          isVerified: true,
+          createdAt: true,
+          lastLogin: true,
+        },
+      });
+      
+      res.json({ success: true, data: user });
+    })
+  );
+
+  // Change password
+  router.put(
+    '/user/change-password',
+    authMiddleware,
+    validate(changePasswordSchema),
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const userId = req.userId!;
+      const { currentPassword, newPassword } = req.body;
+      
+      const user = await prisma.user.findUnique({ 
+        where: { id: userId } 
+      });
+      
+      if (!user) {
+        throw new AppError(404, 'User not found');
+      }
+      
+      // Verify current password
       const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
       if (!isValid) {
-        return res.status(401).json({ success: false, data: null as any, message: 'Mevcut şifre hatalı' });
+        throw new AppError(401, 'Current password is incorrect');
       }
       
-      const passwordHash = await bcrypt.hash(newPassword, 10);
-      await prisma.user.update({ where: { id: userId }, data: { passwordHash } });
-      res.json({ success: true, data: { ok: true } });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
-
-  router.get('/hosting/packages', authMiddleware, async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const userId = (req as any).userId as string;
-      const list = await prisma.hostingPackage.findMany({ where: { userId } });
-      res.json({ success: true, data: list });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
-
-  router.get('/hosting/packages/:id/detail', authMiddleware, async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const userId = (req as any).userId as string;
-      const item = await prisma.hostingPackage.findFirst({ where: { id: req.params.id, userId } });
+      // Hash new password
+      const passwordHash = await bcrypt.hash(newPassword, config.BCRYPT_ROUNDS);
       
-      if (!item) {
-        return res.status(404).json({ success: false, data: null, message: 'Hosting bulunamadı' });
-      }
+      // Update password
+      await prisma.user.update({
+        where: { id: userId },
+        data: { passwordHash },
+      });
       
-      res.json({ success: true, data: item });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
+      // Invalidate all refresh tokens for security
+      await prisma.refreshToken.deleteMany({
+        where: { userId },
+      });
+      
+      res.json({ 
+        success: true, 
+        data: { message: 'Password changed successfully' } 
+      });
+    })
+  );
 
-  router.get('/hosting/packages/:id/usage', authMiddleware, async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const userId = (req as any).userId as string;
-      const pkg = await prisma.hostingPackage.findFirst({ where: { id: req.params.id, userId } });
+  // Get hosting packages
+  router.get(
+    '/hosting/packages',
+    authMiddleware,
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const userId = req.userId!;
+      
+      const packages = await prisma.hostingPackage.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+      });
+      
+      res.json({ success: true, data: packages });
+    })
+  );
+
+  // Get hosting package detail
+  router.get(
+    '/hosting/packages/:id/detail',
+    authMiddleware,
+    validateParams(z.object({ id: uuidSchema })),
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const userId = req.userId!;
+      const { id } = req.params;
+      
+      const pkg = await prisma.hostingPackage.findFirst({
+        where: { id, userId },
+      });
       
       if (!pkg) {
-        return res.status(404).json({ success: false, data: null, message: 'Hosting bulunamadı' });
+        throw new AppError(404, 'Hosting package not found');
+      }
+      
+      res.json({ success: true, data: pkg });
+    })
+  );
+
+  // Get hosting package usage
+  router.get(
+    '/hosting/packages/:id/usage',
+    authMiddleware,
+    validateParams(z.object({ id: uuidSchema })),
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const userId = req.userId!;
+      const { id } = req.params;
+      
+      const pkg = await prisma.hostingPackage.findFirst({
+        where: { id, userId },
+      });
+      
+      if (!pkg) {
+        throw new AppError(404, 'Hosting package not found');
       }
       
       const usage = {
@@ -105,118 +184,149 @@ export function userRouter(): Router {
       };
       
       res.json({ success: true, data: usage });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
+    })
+  );
 
-  router.get('/activity/recent', authMiddleware, async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const userId = (req as any).userId as string;
-      const list = await prisma.activityItem.findMany({ 
-        where: { userId }, 
-        orderBy: { createdAt: 'desc' }, 
-        take: 10 
+  // Get recent activity
+  router.get(
+    '/activity/recent',
+    authMiddleware,
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const userId = req.userId!;
+      
+      const activities = await prisma.activityItem.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
       });
-      res.json({ success: true, data: list });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
+      
+      res.json({ success: true, data: activities });
+    })
+  );
 
-  router.get('/finance/invoices', authMiddleware, async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const userId = (req as any).userId as string;
-      const list = await prisma.invoice.findMany({ 
-        where: { userId }, 
-        include: { items: true }, 
-        orderBy: { date: 'desc' } 
+  // Get invoices
+  router.get(
+    '/finance/invoices',
+    authMiddleware,
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const userId = req.userId!;
+      
+      const invoices = await prisma.invoice.findMany({
+        where: { userId },
+        include: { items: true },
+        orderBy: { date: 'desc' },
       });
-      res.json({ success: true, data: list });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
+      
+      res.json({ success: true, data: invoices });
+    })
+  );
 
-  router.get('/finance/payment-methods', authMiddleware, async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const userId = (req as any).userId as string;
-      const list = await prisma.paymentMethod.findMany({ where: { userId } });
-      res.json({ success: true, data: list });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
-
-  router.get('/support/tickets', authMiddleware, async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const userId = (req as any).userId as string;
-      const list = await prisma.supportTicket.findMany({ 
-        where: { userId }, 
-        include: { replies: true }, 
-        orderBy: { createdAt: 'desc' } 
+  // Get payment methods
+  router.get(
+    '/finance/payment-methods',
+    authMiddleware,
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const userId = req.userId!;
+      
+      const methods = await prisma.paymentMethod.findMany({
+        where: { userId },
       });
-      res.json({ success: true, data: list });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
+      
+      res.json({ success: true, data: methods });
+    })
+  );
 
-  router.get('/support/tickets/:id', authMiddleware, async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const userId = (req as any).userId as string;
-      const ticket = await prisma.supportTicket.findFirst({ 
-        where: { id: req.params.id, userId }, 
-        include: { replies: true } 
+  // Get support tickets
+  router.get(
+    '/support/tickets',
+    authMiddleware,
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const userId = req.userId!;
+      
+      const tickets = await prisma.supportTicket.findMany({
+        where: { userId },
+        include: { replies: true },
+        orderBy: { createdAt: 'desc' },
+      });
+      
+      res.json({ success: true, data: tickets });
+    })
+  );
+
+  // Get support ticket detail
+  router.get(
+    '/support/tickets/:id',
+    authMiddleware,
+    validateParams(z.object({ id: uuidSchema })),
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const userId = req.userId!;
+      const { id } = req.params;
+      
+      const ticket = await prisma.supportTicket.findFirst({
+        where: { id, userId },
+        include: { replies: true },
       });
       
       if (!ticket) {
-        return res.status(404).json({ success: false, data: null, message: 'Talep bulunamadı' });
+        throw new AppError(404, 'Support ticket not found');
       }
       
       res.json({ success: true, data: ticket });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
+    })
+  );
 
-  router.get('/domains', authMiddleware, async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const userId = (req as any).userId as string;
-      const list = await prisma.domain.findMany({ where: { userId }, orderBy: { name: 'asc' } });
-      res.json({ success: true, data: list });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
+  // Get domains
+  router.get(
+    '/domains',
+    authMiddleware,
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const userId = req.userId!;
+      
+      const domains = await prisma.domain.findMany({
+        where: { userId },
+        orderBy: { name: 'asc' },
+      });
+      
+      res.json({ success: true, data: domains });
+    })
+  );
 
-  router.get('/domains/:id/dns-records', authMiddleware, async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const userId = (req as any).userId as string;
-      const domain = await prisma.domain.findFirst({ 
-        where: { id: req.params.id, userId }, 
-        include: { dnsRecords: true } 
+  // Get DNS records
+  router.get(
+    '/domains/:id/dns-records',
+    authMiddleware,
+    validateParams(z.object({ id: uuidSchema })),
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const userId = req.userId!;
+      const { id } = req.params;
+      
+      const domain = await prisma.domain.findFirst({
+        where: { id, userId },
+        include: { dnsRecords: true },
       });
       
       if (!domain) {
-        return res.status(404).json({ success: false, data: null as any, message: 'Domain bulunamadı' });
+        throw new AppError(404, 'Domain not found');
       }
       
       res.json({ success: true, data: domain.dnsRecords });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
+    })
+  );
 
-  router.get('/servers', authMiddleware, async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const userId = (req as any).userId as string;
-      const list = await prisma.server.findMany({ where: { userId } });
-      res.json({ success: true, data: list });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
+  // Get servers
+  router.get(
+    '/servers',
+    authMiddleware,
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const userId = req.userId!;
+      
+      const servers = await prisma.server.findMany({
+        where: { userId },
+      });
+      
+      res.json({ success: true, data: servers });
+    })
+  );
 
   return router;
 }

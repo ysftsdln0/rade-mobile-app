@@ -1,25 +1,52 @@
-import { Request, Response, NextFunction, Router } from 'express';
+import { Response, Router } from 'express';
 import { prisma } from './db.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import { ApiResponse, LoginResultData } from './types.js';
-import { z } from 'zod';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
-const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+import { config } from './config.js';
+import { AppError, asyncHandler } from './middleware/errorHandler.js';
+import { validate } from './validators/validate.js';
+import {
+  registerSchema,
+  loginSchema,
+  refreshTokenSchema,
+} from './validators/schemas.js';
+import { AuthRequest } from './middleware/auth.js';
 
 function signAccessToken(user: { id: string; email: string }) {
-  return jwt.sign({ sub: user.id, email: user.email }, JWT_SECRET, { expiresIn: '15m' });
+  return jwt.sign(
+    { sub: user.id, email: user.email },
+    config.JWT_SECRET,
+    { expiresIn: config.JWT_ACCESS_EXPIRES_IN } as jwt.SignOptions
+  );
 }
 
 async function signRefreshToken(userId: string) {
   const token = randomUUID();
-  const expiresAt = new Date(Date.now() + REFRESH_TTL_MS);
+  const expiresAt = new Date(Date.now() + ms(config.JWT_REFRESH_EXPIRES_IN));
+  
   await prisma.refreshToken.create({
     data: { token, userId, expiresAt },
   });
+  
   return token;
+}
+
+// Helper function to convert time strings to milliseconds
+function ms(timeStr: string): number {
+  const units: Record<string, number> = {
+    s: 1000,
+    m: 60 * 1000,
+    h: 60 * 60 * 1000,
+    d: 24 * 60 * 60 * 1000,
+  };
+  
+  const match = timeStr.match(/^(\d+)([smhd])$/);
+  if (!match) throw new Error('Invalid time format');
+  
+  const [, value, unit] = match;
+  return parseInt(value) * units[unit];
 }
 
 function toPublicUser(user: any) {
@@ -30,38 +57,29 @@ function toPublicUser(user: any) {
 export function authRouter(): Router {
   const router = Router();
 
-  const registerSchema = z.object({
-    email: z.string().email(),
-    password: z.string().min(6),
-    firstName: z.string().min(1),
-    lastName: z.string().min(1),
-    company: z.string().optional(),
-    phone: z.string().optional(),
-  });
-
-  router.post('/register', async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const parsed = registerSchema.safeParse(req.body);
-      if (!parsed.success) {
-        return res.status(400).json({ 
-          success: false, 
-          data: null as any, 
-          message: 'Validation error', 
-          errors: parsed.error.errors.map(e => e.message) 
-        });
-      }
+  // Register endpoint
+  router.post(
+    '/register',
+    validate(registerSchema),
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const { email, password, firstName, lastName, company, phone } = req.body;
       
-      const { email, password, firstName, lastName, company, phone } = parsed.data;
-      const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+      // Check if user exists
+      const existing = await prisma.user.findUnique({ 
+        where: { email } 
+      });
       
       if (existing) {
-        return res.status(409).json({ success: false, data: null as any, message: 'Email already registered' });
+        throw new AppError(409, 'Email already registered');
       }
       
-      const passwordHash = await bcrypt.hash(password, 10);
+      // Hash password with configured rounds
+      const passwordHash = await bcrypt.hash(password, config.BCRYPT_ROUNDS);
+      
+      // Create user
       const user = await prisma.user.create({
         data: {
-          email: email.toLowerCase(),
+          email,
           passwordHash,
           firstName,
           lastName,
@@ -71,132 +89,130 @@ export function authRouter(): Router {
         },
       });
       
+      // Generate tokens
       const token = signAccessToken(user);
       const refreshToken = await signRefreshToken(user.id);
       
-      res.status(201).json({ 
-        success: true, 
+      res.status(201).json({
+        success: true,
         data: {
           user: toPublicUser(user),
           token,
           refreshToken,
-        }
+        },
       });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
+    })
+  );
 
-  const loginSchema = z.object({ 
-    email: z.string().email(), 
-    password: z.string().min(1) 
-  });
-  
-  router.post('/login', async (req: Request, res: Response<ApiResponse<LoginResultData>>) => {
-    try {
-      const parsed = loginSchema.safeParse(req.body);
-      if (!parsed.success) {
-        return res.status(400).json({ 
-          success: false, 
-          data: null as any, 
-          message: 'Validation error', 
-          errors: parsed.error.errors.map(e => e.message) 
-        });
-      }
+  // Login endpoint
+  router.post(
+    '/login',
+    validate(loginSchema),
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<LoginResultData>>) => {
+      const { email, password } = req.body;
       
-      const { email, password } = parsed.data;
-      const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+      // Find user
+      const user = await prisma.user.findUnique({ 
+        where: { email } 
+      });
       
       if (!user) {
-        return res.status(401).json({ success: false, data: null as any, message: 'Invalid credentials' });
+        throw new AppError(401, 'Invalid credentials');
       }
       
+      // Verify password
       const isValid = await bcrypt.compare(password, user.passwordHash);
       if (!isValid) {
-        return res.status(401).json({ success: false, data: null as any, message: 'Invalid credentials' });
+        throw new AppError(401, 'Invalid credentials');
       }
       
+      // Update last login
       await prisma.user.update({
         where: { id: user.id },
         data: { lastLogin: new Date() },
       });
       
+      // Generate tokens
       const token = signAccessToken(user);
       const refreshToken = await signRefreshToken(user.id);
       
+      res.json({
+        success: true,
+        data: {
+          user: toPublicUser(user),
+          token,
+          refreshToken,
+        },
+      });
+    })
+  );
+
+  // Logout endpoint
+  router.post(
+    '/logout',
+    validate(refreshTokenSchema),
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<null>>) => {
+      const { refreshToken } = req.body;
+      
+      // Delete refresh token
+      await prisma.refreshToken.deleteMany({ 
+        where: { token: refreshToken } 
+      });
+      
       res.json({ 
         success: true, 
-        data: { 
-          user: toPublicUser(user), 
-          token, 
-          refreshToken 
-        } 
+        data: null, 
+        message: 'Logged out successfully' 
       });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
+    })
+  );
 
-  router.post('/logout', async (req: Request, res: Response<ApiResponse<null>>) => {
-    try {
-      const { refreshToken } = req.body || {};
-      if (refreshToken) {
-        await prisma.refreshToken.deleteMany({ where: { token: refreshToken } });
-      }
-      res.json({ success: true, data: null, message: 'Logged out' });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null, message: 'Internal server error' });
-    }
-  });
-
-  router.post('/refresh', async (req: Request, res: Response<ApiResponse<any>>) => {
-    try {
-      const { refreshToken } = req.body || {};
-      if (!refreshToken) {
-        return res.status(400).json({ success: false, data: null as any, message: 'Missing refresh token' });
-      }
+  // Refresh token endpoint
+  router.post(
+    '/refresh',
+    validate(refreshTokenSchema),
+    asyncHandler(async (req: AuthRequest, res: Response<ApiResponse<any>>) => {
+      const { refreshToken } = req.body;
       
-      const record = await prisma.refreshToken.findUnique({ where: { token: refreshToken } });
+      // Find refresh token
+      const record = await prisma.refreshToken.findUnique({ 
+        where: { token: refreshToken } 
+      });
+      
       if (!record) {
-        return res.status(401).json({ success: false, data: null as any, message: 'Invalid refresh token' });
+        throw new AppError(401, 'Invalid refresh token');
       }
       
+      // Check if expired
       if (record.expiresAt < new Date()) {
         await prisma.refreshToken.delete({ where: { id: record.id } });
-        return res.status(401).json({ success: false, data: null as any, message: 'Expired refresh token' });
+        throw new AppError(401, 'Refresh token expired');
       }
       
-      const user = await prisma.user.findUnique({ where: { id: record.userId } });
+      // Find user
+      const user = await prisma.user.findUnique({ 
+        where: { id: record.userId } 
+      });
+      
       if (!user) {
         await prisma.refreshToken.delete({ where: { id: record.id } });
-        return res.status(401).json({ success: false, data: null as any, message: 'User not found' });
+        throw new AppError(401, 'User not found');
       }
       
+      // Rotate refresh token
       await prisma.refreshToken.delete({ where: { id: record.id } });
       const newRefreshToken = await signRefreshToken(user.id);
       const token = signAccessToken(user);
       
-      res.json({ success: true, data: { token, refreshToken: newRefreshToken } });
-    } catch (error) {
-      res.status(500).json({ success: false, data: null as any, message: 'Internal server error' });
-    }
-  });
+      res.json({ 
+        success: true, 
+        data: { 
+          token, 
+          refreshToken: newRefreshToken 
+        } 
+      });
+    })
+  );
 
   return router;
-}
-
-export function authMiddleware(req: Request, res: Response, next: NextFunction) {
-  const header = req.headers.authorization;
-  if (!header) {
-    return res.status(401).json({ success: false, data: null, message: 'No auth header' });
-  }
-  
-  const token = header.replace('Bearer ', '');
-  try {
-    const payload = jwt.verify(token, JWT_SECRET) as any;
-    (req as any).userId = payload.sub;
-    next();
-  } catch {
-    res.status(401).json({ success: false, data: null, message: 'Invalid token' });
-  }
 }

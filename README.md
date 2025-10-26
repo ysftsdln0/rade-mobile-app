@@ -91,7 +91,7 @@ Modern hosting sağlayıcıları için kapsamlı müşteri yönetim mobil uygula
 ### 💳 Fatura ve Ödeme
 - Fatura listesi ve detay görünümü
 - Ödeme geçmişi
-- Ödeme yöntemi yönetimi (Kredi Kartı, Banka Transferi, PayPal)
+- Bakiye yükleme
 - PDF fatura indirme
 - Otomatik ödeme ayarları
 

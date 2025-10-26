@@ -4,13 +4,12 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  TextInput,
   ScrollView,
   Alert,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
-  ActivityIndicator,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,6 +21,9 @@ import { colors, spacing } from '../../styles';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { registerAsync } from '../../store/authThunks';
 import { useTheme } from '../../utils/ThemeContext';
+import { TextInput } from '../../components/common/TextInput';
+import { Button } from '../../components/common/Button';
+import { useLanguage } from '../../utils/LanguageContext';
 
 const phoneRegex = /^\+?[0-9\s-]{7,}$/;
 
@@ -60,6 +62,7 @@ const RegisterScreen = () => {
   const dispatch = useAppDispatch();
   const { isLoading } = useAppSelector((s) => s.auth);
   const { colors: themeColors, isDark } = useTheme();
+  const { t } = useLanguage();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -91,10 +94,26 @@ const RegisterScreen = () => {
 
   const passwordChecks = useMemo(
     () => [
-      { label: 'En az 8 karakter', met: passwordValue.length >= 8 },
-      { label: 'En az bir büyük harf', met: /[A-Z]/.test(passwordValue) },
-      { label: 'En az bir küçük harf', met: /[a-z]/.test(passwordValue) },
-      { label: 'En az bir rakam', met: /\d/.test(passwordValue) },
+      { 
+        label: 'En az 8 karakter', 
+        met: passwordValue.length >= 8,
+        icon: 'text-outline' as const
+      },
+      { 
+        label: 'En az bir büyük harf', 
+        met: /[A-Z]/.test(passwordValue),
+        icon: 'arrow-up-outline' as const
+      },
+      { 
+        label: 'En az bir küçük harf', 
+        met: /[a-z]/.test(passwordValue),
+        icon: 'arrow-down-outline' as const
+      },
+      { 
+        label: 'En az bir rakam', 
+        met: /\d/.test(passwordValue),
+        icon: 'keypad-outline' as const
+      },
     ],
     [passwordValue]
   );
@@ -130,217 +149,309 @@ const RegisterScreen = () => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-          <Text style={[styles.title, { color: themeColors.text }]}>Hesap Oluştur</Text>
-          <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>Bilgilerinizi doldurun ve hemen başlayın</Text>
-
-          <View style={styles.row}>
-            <View style={[styles.inputGroup, { flex: 1, marginRight: 8 }]}>
-              <Text style={[styles.label, { color: themeColors.textSecondary }]}>Ad</Text>
-              <Controller
-                control={control}
-                name="firstName"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    style={[styles.input, { backgroundColor: themeColors.input, color: themeColors.text }]}
-                    placeholder="Ad"
-                    placeholderTextColor={themeColors.textTertiary}
-                    autoCapitalize="words"
-                  />
-                )}
-              />
-              {errors.firstName ? <Text style={styles.errorText}>{errors.firstName.message}</Text> : null}
-            </View>
-            <View style={[styles.inputGroup, { flex: 1 }]}>
-              <Text style={[styles.label, { color: themeColors.textSecondary }]}>Soyad</Text>
-              <Controller
-                control={control}
-                name="lastName"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    value={value}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    style={[styles.input, { backgroundColor: themeColors.input, color: themeColors.text }]}
-                    placeholder="Soyad"
-                    placeholderTextColor={themeColors.textTertiary}
-                    autoCapitalize="words"
-                  />
-                )}
-              />
-              {errors.lastName ? <Text style={styles.errorText}>{errors.lastName.message}</Text> : null}
-            </View>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: themeColors.textSecondary }]}>E-posta</Text>
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  style={[styles.input, { backgroundColor: themeColors.input, color: themeColors.text }]}
-                  placeholder="ornek@mail.com"
-                  placeholderTextColor={themeColors.textTertiary}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoComplete="email"
-                  textContentType="emailAddress"
-                />
-              )}
-            />
-            {errors.email ? <Text style={styles.errorText}>{errors.email.message}</Text> : null}
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: themeColors.textSecondary }]}>Şifre</Text>
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  style={[styles.input, { backgroundColor: themeColors.input, color: themeColors.text }]}
-                  placeholder="Şifre"
-                  placeholderTextColor={themeColors.textTertiary}
-                  secureTextEntry={!showPassword}
-                  autoComplete="password"
-                  textContentType="newPassword"
-                />
-              )}
-            />
-            <TouchableOpacity style={styles.toggle} onPress={() => setShowPassword((p) => !p)}>
-              <Text style={[styles.toggleText, { color: themeColors.primary }]}>{showPassword ? 'Gizle' : 'Göster'}</Text>
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent} 
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
+            >
+              <Ionicons name="arrow-back" size={24} color={themeColors.text} />
             </TouchableOpacity>
-            {errors.password ? <Text style={styles.errorText}>{errors.password.message}</Text> : null}
-            <Text style={[styles.passwordStrength, { color: passwordStrength.color }]}>
-              {passwordStrength.label}
+            
+            <View style={styles.logoContainer}>
+              <Image 
+                source={require('../../../assets/rade-logo.png')}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
+            </View>
+            
+            <Text style={[styles.title, { color: themeColors.text }]}>Hesap Oluştur</Text>
+            <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>
+              Bilgilerinizi doldurun ve RADE ailesine katılın
             </Text>
-            <View style={[styles.passwordHints, { backgroundColor: themeColors.surfaceAlt }]}>
-              {passwordChecks.map((check) => (
-                <View key={check.label} style={styles.requirementRow}>
-                  <Ionicons
-                    name={check.met ? 'checkmark-circle' : 'ellipse-outline'}
-                    size={16}
-                    color={check.met ? colors.semantic.success : themeColors.textTertiary}
-                    style={{ marginRight: spacing[2] }}
+          </View>
+
+          {/* Form */}
+          <View style={styles.form}>
+            {/* Name Fields Row */}
+            <View style={styles.row}>
+              <View style={[styles.halfInputGroup, { marginRight: spacing[2] }]}>
+                <Text style={[styles.label, { color: themeColors.textSecondary }]}>AD</Text>
+                <Controller
+                  control={control}
+                  name="firstName"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      placeholder="Ad"
+                      autoCapitalize="words"
+                      editable={!isLoading}
+                      error={errors.firstName?.message}
+                      icon={<Ionicons name="person-outline" size={20} color={themeColors.textSecondary} />}
+                    />
+                  )}
+                />
+              </View>
+              
+              <View style={styles.halfInputGroup}>
+                <Text style={[styles.label, { color: themeColors.textSecondary }]}>SOYAD</Text>
+                <Controller
+                  control={control}
+                  name="lastName"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <TextInput
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      placeholder="Soyad"
+                      autoCapitalize="words"
+                      editable={!isLoading}
+                      error={errors.lastName?.message}
+                      icon={<Ionicons name="person-outline" size={20} color={themeColors.textSecondary} />}
+                    />
+                  )}
+                />
+              </View>
+            </View>
+
+            {/* Email */}
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: themeColors.textSecondary }]}>E-POSTA</Text>
+              <Controller
+                control={control}
+                name="email"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    placeholder="ornek@mail.com"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    textContentType="emailAddress"
+                    editable={!isLoading}
+                    error={errors.email?.message}
+                    icon={<Ionicons name="mail-outline" size={20} color={themeColors.textSecondary} />}
                   />
-                  <Text
-                    style={[
-                      styles.requirementText,
-                      { color: themeColors.textSecondary },
-                      check.met && styles.requirementMet,
-                    ]}
-                  >
-                    {check.label}
+                )}
+              />
+            </View>
+
+            {/* Password */}
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: themeColors.textSecondary }]}>ŞİFRE</Text>
+              <Controller
+                control={control}
+                name="password"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <View style={styles.passwordWrapper}>
+                    <TextInput
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      placeholder="Şifrenizi oluşturun"
+                      secureTextEntry={!showPassword}
+                      autoComplete="password"
+                      textContentType="newPassword"
+                      editable={!isLoading}
+                      error={errors.password?.message}
+                      icon={<Ionicons name="lock-closed-outline" size={20} color={themeColors.textSecondary} />}
+                      containerStyle={styles.passwordInputContainer}
+                    />
+                    <TouchableOpacity
+                      style={styles.passwordToggle}
+                      onPress={() => setShowPassword((p) => !p)}
+                      disabled={isLoading}
+                    >
+                      <Ionicons
+                        name={showPassword ? "eye-outline" : "eye-off-outline"}
+                        size={20}
+                        color={themeColors.textSecondary}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                )}
+              />
+              
+              {/* Password Strength Indicator */}
+              {passwordValue && (
+                <View style={styles.passwordStrengthContainer}>
+                  <View style={styles.passwordStrengthBar}>
+                    <View 
+                      style={[
+                        styles.passwordStrengthFill,
+                        { 
+                          width: `${(passwordChecks.filter(c => c.met).length / passwordChecks.length) * 100}%`,
+                          backgroundColor: passwordStrength.color
+                        }
+                      ]} 
+                    />
+                  </View>
+                  <Text style={[styles.passwordStrengthText, { color: passwordStrength.color }]}>
+                    {passwordStrength.label}
                   </Text>
                 </View>
-              ))}
+              )}
+
+              {/* Password Requirements */}
+              <View style={[styles.passwordRequirements, { backgroundColor: themeColors.surfaceAlt }]}>
+                <Text style={[styles.requirementsTitle, { color: themeColors.textSecondary }]}>
+                  Şifre Gereksinimleri:
+                </Text>
+                {passwordChecks.map((check) => (
+                  <View key={check.label} style={styles.requirementRow}>
+                    <Ionicons
+                      name={check.met ? 'checkmark-circle' : 'ellipse-outline'}
+                      size={18}
+                      color={check.met ? colors.semantic.success : themeColors.textTertiary}
+                    />
+                    <Text
+                      style={[
+                        styles.requirementText,
+                        { color: check.met ? colors.semantic.success : themeColors.textSecondary },
+                      ]}
+                    >
+                      {check.label}
+                    </Text>
+                  </View>
+                ))}
+              </View>
             </View>
-          </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: themeColors.textSecondary }]}>Şifre (Tekrar)</Text>
-            <Controller
-              control={control}
-              name="confirmPassword"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  style={[styles.input, { backgroundColor: themeColors.input, color: themeColors.text }]}
-                  placeholder="Şifreyi tekrar"
-                  placeholderTextColor={themeColors.textTertiary}
-                  secureTextEntry={!showConfirmPassword}
-                  autoComplete="password"
-                />
-              )}
-            />
-            <TouchableOpacity style={styles.toggle} onPress={() => setShowConfirmPassword((p) => !p)}>
-              <Text style={[styles.toggleText, { color: themeColors.primary }]}>{showConfirmPassword ? 'Gizle' : 'Göster'}</Text>
+            {/* Confirm Password */}
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: themeColors.textSecondary }]}>ŞİFRE (TEKRAR)</Text>
+              <Controller
+                control={control}
+                name="confirmPassword"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <View style={styles.passwordWrapper}>
+                    <TextInput
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      placeholder="Şifrenizi tekrar girin"
+                      secureTextEntry={!showConfirmPassword}
+                      autoComplete="password"
+                      editable={!isLoading}
+                      error={errors.confirmPassword?.message}
+                      icon={<Ionicons name="lock-closed-outline" size={20} color={themeColors.textSecondary} />}
+                      containerStyle={styles.passwordInputContainer}
+                    />
+                    <TouchableOpacity
+                      style={styles.passwordToggle}
+                      onPress={() => setShowConfirmPassword((p) => !p)}
+                      disabled={isLoading}
+                    >
+                      <Ionicons
+                        name={showConfirmPassword ? "eye-outline" : "eye-off-outline"}
+                        size={20}
+                        color={themeColors.textSecondary}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                )}
+              />
+            </View>
+
+            {/* Company (Optional) */}
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: themeColors.textSecondary }]}>
+                ŞİRKET <Text style={styles.optionalLabel}>(opsiyonel)</Text>
+              </Text>
+              <Controller
+                control={control}
+                name="company"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    placeholder="Şirket adı"
+                    autoCapitalize="words"
+                    editable={!isLoading}
+                    error={errors.company?.message}
+                    icon={<Ionicons name="business-outline" size={20} color={themeColors.textSecondary} />}
+                  />
+                )}
+              />
+            </View>
+
+            {/* Phone (Optional) */}
+            <View style={styles.inputGroup}>
+              <Text style={[styles.label, { color: themeColors.textSecondary }]}>
+                TELEFON <Text style={styles.optionalLabel}>(opsiyonel)</Text>
+              </Text>
+              <Controller
+                control={control}
+                name="phone"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <TextInput
+                    value={value}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    placeholder="+90 5XX XXX XX XX"
+                    keyboardType="phone-pad"
+                    autoComplete="tel"
+                    textContentType="telephoneNumber"
+                    editable={!isLoading}
+                    error={errors.phone?.message}
+                    icon={<Ionicons name="call-outline" size={20} color={themeColors.textSecondary} />}
+                  />
+                )}
+              />
+            </View>
+
+            {/* Terms & Conditions */}
+            <TouchableOpacity
+              style={styles.termsRow}
+              onPress={() => setValue('acceptTerms', !acceptTerms, { shouldValidate: true })}
+              disabled={isLoading}
+            >
+              <Ionicons
+                name={acceptTerms ? "checkbox" : "square-outline"}
+                size={24}
+                color={acceptTerms ? themeColors.primary : themeColors.textSecondary}
+              />
+              <Text style={[styles.termsText, { color: themeColors.textSecondary }]}>
+                <Text style={{ color: themeColors.primary, fontWeight: '600' }}>Kullanım Şartlarını</Text> ve{' '}
+                <Text style={{ color: themeColors.primary, fontWeight: '600' }}>Gizlilik Politikasını</Text> kabul ediyorum
+              </Text>
             </TouchableOpacity>
-            {errors.confirmPassword ? (
-              <Text style={styles.errorText}>{errors.confirmPassword.message}</Text>
-            ) : null}
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: themeColors.textSecondary }]}>Şirket (opsiyonel)</Text>
-            <Controller
-              control={control}
-              name="company"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  style={[styles.input, { backgroundColor: themeColors.input, color: themeColors.text }]}
-                  placeholder="Şirket Adı"
-                  placeholderTextColor={themeColors.textTertiary}
-                  autoCapitalize="words"
-                />
-              )}
-            />
-            {errors.company ? <Text style={styles.errorText}>{errors.company.message}</Text> : null}
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: themeColors.textSecondary }]}>Telefon (opsiyonel)</Text>
-            <Controller
-              control={control}
-              name="phone"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextInput
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  style={[styles.input, { backgroundColor: themeColors.input, color: themeColors.text }]}
-                  placeholder="+90 ..."
-                  placeholderTextColor={themeColors.textTertiary}
-                  keyboardType="phone-pad"
-                  autoComplete="tel"
-                  textContentType="telephoneNumber"
-                />
-              )}
-            />
-            {errors.phone ? <Text style={styles.errorText}>{errors.phone.message}</Text> : null}
-          </View>
-
-          <TouchableOpacity
-            style={styles.termsRow}
-            onPress={() => setValue('acceptTerms', !acceptTerms, { shouldValidate: true })}
-          >
-            <View style={[styles.checkbox, { borderColor: themeColors.primary }, acceptTerms && { backgroundColor: themeColors.primary }]} />
-            <Text style={[styles.termsText, { color: themeColors.textSecondary }]}>Kullanım şartlarını kabul ediyorum</Text>
-          </TouchableOpacity>
-          {errors.acceptTerms ? <Text style={styles.errorText}>{errors.acceptTerms.message}</Text> : null}
-
-          <TouchableOpacity
-            disabled={isLoading || isSubmitting}
-            onPress={handleSubmit(onSubmit)}
-            style={[styles.registerButton, { backgroundColor: themeColors.primary }, (isLoading || isSubmitting) && { opacity: 0.7 }]}
-          >
-            {isLoading || isSubmitting ? (
-              <ActivityIndicator color="#FFF" />
-            ) : (
-              <Text style={styles.registerButtonText}>Kayıt Ol</Text>
+            {errors.acceptTerms && (
+              <Text style={styles.errorText}>{errors.acceptTerms.message}</Text>
             )}
-          </TouchableOpacity>
 
-          <View style={styles.loginLinkRow}>
-            <Text style={[styles.loginText, { color: themeColors.textSecondary }]}>Zaten hesabın var mı? </Text>
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Text style={[styles.loginLink, { color: themeColors.primary }]}>Giriş Yap</Text>
-            </TouchableOpacity>
+            {/* Register Button */}
+            <Button
+              label={isLoading ? 'Kayıt Yapılıyor...' : 'Hesap Oluştur'}
+              variant="gradient"
+              size="lg"
+              onPress={handleSubmit(onSubmit)}
+              disabled={isLoading}
+              loading={isLoading}
+              fullWidth
+              style={{ marginTop: spacing[6], marginBottom: spacing[5] }}
+            />
+
+            {/* Login Link */}
+            <View style={styles.loginLinkRow}>
+              <Text style={[styles.loginText, { color: themeColors.textSecondary }]}>
+                Zaten hesabınız var mı?{' '}
+              </Text>
+              <TouchableOpacity onPress={() => navigation.goBack()} disabled={isLoading}>
+                <Text style={[styles.loginLink, { color: themeColors.primary }]}>Giriş Yapın</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -349,75 +460,158 @@ const RegisterScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  scroll: { padding: spacing[5], paddingBottom: spacing[10] },
-  title: { fontSize: 28, fontWeight: '700', marginBottom: spacing[1] },
-  subtitle: { fontSize: 14, marginBottom: spacing[6] },
-  inputGroup: { marginBottom: spacing[4], position: 'relative' },
+  container: { 
+    flex: 1,
+  },
+  scrollContent: { 
+    flexGrow: 1,
+    paddingHorizontal: spacing[5], 
+    paddingBottom: spacing[10] 
+  },
+  header: {
+    alignItems: 'center',
+    paddingTop: spacing[6],
+    paddingBottom: spacing[6],
+  },
+  backButton: {
+    position: 'absolute',
+    left: 0,
+    top: spacing[6],
+    padding: spacing[2],
+    zIndex: 10,
+  },
+  logoContainer: {
+    width: 140,
+    height: 70,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: spacing[4],
+  },
+  logoImage: {
+    width: '100%',
+    height: '100%',
+  },
+  title: { 
+    fontSize: 32, 
+    fontWeight: '700', 
+    marginBottom: spacing[2],
+    textAlign: 'center',
+  },
+  subtitle: { 
+    fontSize: 15,
+    marginBottom: spacing[2],
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  form: {
+    flex: 1,
+    paddingTop: spacing[4],
+  },
+  row: { 
+    flexDirection: 'row',
+    marginBottom: spacing[4],
+  },
+  halfInputGroup: {
+    flex: 1,
+  },
+  inputGroup: { 
+    marginBottom: spacing[4],
+  },
   label: {
+    fontSize: 12,
+    fontWeight: '700',
+    marginBottom: spacing[2],
+    letterSpacing: 0.8,
+  },
+  optionalLabel: {
+    fontSize: 11,
+    fontWeight: '400',
+    opacity: 0.7,
+    fontStyle: 'italic',
+  },
+  passwordWrapper: {
+    position: 'relative',
+  },
+  passwordInputContainer: {
+    marginBottom: 0,
+  },
+  passwordToggle: {
+    position: 'absolute',
+    right: spacing[3],
+    top: spacing[3],
+    padding: spacing[2],
+    zIndex: 10,
+  },
+  passwordStrengthContainer: {
+    marginTop: spacing[2],
+  },
+  passwordStrengthBar: {
+    height: 4,
+    backgroundColor: colors.neutral[200],
+    borderRadius: 2,
+    overflow: 'hidden',
+    marginBottom: spacing[1],
+  },
+  passwordStrengthFill: {
+    height: '100%',
+    borderRadius: 2,
+  },
+  passwordStrengthText: {
+    fontSize: 12,
+    fontWeight: '600',
+    textAlign: 'right',
+  },
+  passwordRequirements: {
+    marginTop: spacing[3],
+    borderRadius: 12,
+    padding: spacing[4],
+  },
+  requirementsTitle: {
     fontSize: 13,
     fontWeight: '600',
-    marginBottom: 6,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  input: {
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    height: 50,
-    fontSize: 15,
-  },
-  toggle: { position: 'absolute', right: 12, top: 30, padding: spacing[1] },
-  toggleText: { fontSize: 12, fontWeight: '600' },
-  row: { flexDirection: 'row' },
-  termsRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing[2] },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 1.5,
-    marginRight: 10,
-  },
-  termsText: { flex: 1, fontSize: 13 },
-  registerButton: {
-    borderRadius: 12,
-    height: 54,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing[6],
-    marginTop: spacing[3],
-  },
-  registerButtonText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
-  loginLinkRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  loginText: { fontSize: 14 },
-  loginLink: { fontSize: 14, fontWeight: '600' },
-  errorText: {
-    color: colors.semantic.error,
-    fontSize: 12,
-    marginTop: spacing[1],
-  },
-  passwordHints: {
-    marginTop: spacing[2],
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: spacing[3],
+    marginBottom: spacing[2],
   },
   requirementRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: spacing[2],
   },
   requirementText: {
     fontSize: 13,
+    marginLeft: spacing[2],
+    fontWeight: '500',
   },
-  requirementMet: {
-    color: colors.semantic.success,
-    fontWeight: '600',
+  termsRow: { 
+    flexDirection: 'row', 
+    alignItems: 'flex-start', 
+    marginBottom: spacing[2],
+    paddingHorizontal: spacing[1],
   },
-  passwordStrength: {
-    marginTop: 6,
-    fontSize: 13,
-    fontWeight: '600',
+  termsText: { 
+    flex: 1, 
+    fontSize: 14,
+    marginLeft: spacing[3],
+    lineHeight: 20,
+  },
+  loginLinkRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    marginTop: spacing[2],
+  },
+  loginText: { 
+    fontSize: 14,
+  },
+  loginLink: { 
+    fontSize: 14, 
+    fontWeight: '700',
+    textDecorationLine: 'underline',
+  },
+  errorText: {
+    color: colors.semantic.error,
+    fontSize: 12,
+    marginTop: spacing[1],
+    marginLeft: spacing[1],
   },
 });
 
