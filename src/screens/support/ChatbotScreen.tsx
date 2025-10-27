@@ -98,7 +98,7 @@ const ChatbotScreen = ({ navigation }: any) => {
     
     setIsTyping(true);
     setTimeout(() => {
-      let topic = type === 'server' ? 'server status' : type;
+      const topic = type === 'server' ? 'server status' : type;
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: t.chatbot.botResponse.replace('{topic}', topic),
