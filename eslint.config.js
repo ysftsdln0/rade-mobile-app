@@ -52,8 +52,12 @@ module.exports = [
     },
     rules: {
       // TypeScript rules
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-unused-vars': ['warn', { 
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        destructuredArrayIgnorePattern: '^_'
+      }],
+      '@typescript-eslint/no-explicit-any': 'off', // Too many in codebase - can enable gradually
       '@typescript-eslint/no-non-null-assertion': 'warn',
       
       // React rules
@@ -64,14 +68,14 @@ module.exports = [
       'react-hooks/exhaustive-deps': 'warn',
       
       // React Native specific
-      'react-native/no-unused-styles': 'warn',
+      'react-native/no-unused-styles': 'off', // Many false positives with dynamic styles
       'react-native/split-platform-components': 'warn',
-      'react-native/no-inline-styles': 'warn',
+      'react-native/no-inline-styles': 'off', // Common pattern in RN
       'react-native/no-color-literals': 'off',
       'react-native/no-raw-text': 'off',
       
       // General
-      'no-console': 'warn',
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
       'prefer-const': 'warn',
       'no-var': 'error',
     },

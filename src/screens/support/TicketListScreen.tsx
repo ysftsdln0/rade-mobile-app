@@ -88,7 +88,7 @@ const mockTickets: Ticket[] = [
 ];
 
 const TicketListScreen = () => {
-  const navigation = useNavigation<any>();
+  const _navigation = useNavigation<any>();
   const { colors: themeColors } = useTheme();
   const [filterStatus, setFilterStatus] = useState<'all' | 'open' | 'in-progress' | 'resolved' | 'closed'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -262,7 +262,7 @@ const TicketListScreen = () => {
           </Card>
         ) : (
           <>
-            {tickets.map((ticket, index) => {
+            {tickets.map((ticket, _index) => {
               const status = statusConfig[ticket.status];
               const priority = priorityConfig[ticket.priority];
 

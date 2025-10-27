@@ -53,7 +53,7 @@ class ApiService {
                 return this.client(originalRequest);
               }
             }
-          } catch (refreshError) {
+          } catch {
             await storageService.clearAuthTokens();
           }
         }
@@ -81,7 +81,7 @@ class ApiService {
   async logout(): Promise<void> {
     try {
       await this.client.post("/auth/logout");
-    } catch (error) {
+    } catch {
       // Continue with logout even if API call fails
     } finally {
       await storageService.clearAuthTokens();

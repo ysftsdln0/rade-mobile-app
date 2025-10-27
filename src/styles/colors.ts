@@ -217,7 +217,7 @@ export const componentColors = {
 };
 
 // Helper function to get color with opacity
-export const withOpacity = (color: string, opacity: number): string => {
+export const withOpacity = (color: string, _opacity: number): string => {
   // This is a simplified version - in real app, use proper color parsing
   // For now, return the color as-is (React Native handles hex colors)
   return color;

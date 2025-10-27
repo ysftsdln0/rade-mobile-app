@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text, Pressable, ViewStyle, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing, typography } from '../../styles';
+import { colors, spacing } from '../../styles';
 import { useTheme } from '../../utils/ThemeContext';
 
 interface BreadcrumbItem {

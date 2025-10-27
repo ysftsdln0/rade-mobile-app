@@ -24,6 +24,15 @@ const SupportMainScreen: React.FC = () => {
     },
   });
 
+  const tickets = ticketsQuery.data || [];
+
+  const stats = useMemo(() => {
+    const open = tickets.filter((t) => t.status === 'open').length;
+    const pending = tickets.filter((t) => t.status === 'pending').length;
+    const resolved = tickets.filter((t) => t.status === 'resolved').length;
+    return { total: tickets.length, open, pending, resolved };
+  }, [tickets]);
+
   if (ticketsQuery.isLoading) {
     return <LoadingState message="Destek kayıtları yükleniyor..." />;
   }
@@ -37,15 +46,6 @@ const SupportMainScreen: React.FC = () => {
       />
     );
   }
-
-  const tickets = ticketsQuery.data || [];
-
-  const stats = useMemo(() => {
-    const open = tickets.filter((t) => t.status === 'open').length;
-    const pending = tickets.filter((t) => t.status === 'pending').length;
-    const resolved = tickets.filter((t) => t.status === 'resolved').length;
-    return { total: tickets.length, open, pending, resolved };
-  }, [tickets]);
 
   return (
     <View style={{ flex: 1, backgroundColor: themeColors.background }}>

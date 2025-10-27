@@ -24,7 +24,7 @@ interface Message {
   timestamp: Date;
 }
 
-const ChatbotScreen = ({ navigation }: any) => {
+const ChatbotScreen = ({ navigation: _navigation }: any) => {
   const { t } = useLanguage();
   const { colors: themeColors, isDark } = useTheme();
   

@@ -90,7 +90,8 @@ export const darkTheme: Theme = {
 };
 
 // Get theme based on system color scheme
-export const getSystemTheme = (): 'light' | 'dark' => {
+// Note: This should be called from a React component context
+export const useSystemTheme = (): 'light' | 'dark' => {
   const systemScheme = useColorScheme();
   return systemScheme === 'dark' ? 'dark' : 'light';
 };

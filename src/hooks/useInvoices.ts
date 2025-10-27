@@ -15,7 +15,7 @@ export const useInvoices = () => {
     enabled: !!user,
   });
 
-  const invoiceDetailsQuery = (invoiceId: string) => useQuery({
+  const useInvoiceDetails = (invoiceId: string) => useQuery({
     queryKey: ['invoice', invoiceId],
     queryFn: () => {
       if (!user) return null;
@@ -45,7 +45,7 @@ export const useInvoices = () => {
 
   return {
     invoicesQuery,
-    invoiceDetailsQuery,
+    useInvoiceDetails,
     paymentMethodsQuery,
     payInvoice: payInvoiceMutation.mutateAsync,
     paying: payInvoiceMutation.isPending,

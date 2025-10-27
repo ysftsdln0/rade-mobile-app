@@ -96,7 +96,7 @@ const authSlice = createSlice({
       state.refreshToken = action.payload.refreshToken;
       state.isAuthenticated = true;
     });
-    builder.addCase(loadUserFromStorageAsync.rejected, (state) => {
+    builder.addCase(loadUserFromStorageAsync.rejected, (_state) => {
       // ignore
     });
 

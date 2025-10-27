@@ -16,7 +16,7 @@ type Props = {
   navigation?: any;
 };
 
-const BillingMainScreen = ({ navigation }: Props) => {
+const BillingMainScreen = ({ navigation: _navigation }: Props) => {
   const { t } = useLanguage();
   const { colors: themeColors, isDark } = useTheme();
   

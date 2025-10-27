@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing } from '../../styles';
+import { colors } from '../../styles';
 
 interface AvatarProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';

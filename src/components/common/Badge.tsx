@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle } from 'react-native';
-import { colors, spacing } from '../../styles';
+import { colors } from '../../styles';
 
 export type BadgeVariant = 'default' | 'success' | 'warning' | 'error' | 'info' | 'primary';
 

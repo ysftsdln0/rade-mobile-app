@@ -94,7 +94,7 @@ class MockBillingProvider implements IBillingProvider {
   }
 
   async listInvoices(): Promise<InvoiceSummary[]> {
-    return this.invoices.map(({ items, ...rest }) => rest);
+    return this.invoices.map(({ items: _items, ...rest }) => rest);
   }
 
   async getInvoice(_userId: string, invoiceId: string): Promise<InvoiceDetail | null> {

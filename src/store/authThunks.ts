@@ -90,7 +90,7 @@ export const loadUserFromStorageAsync = createAsyncThunk(
       } else {
         return rejectWithValue('No stored authentication data');
       }
-    } catch (error) {
+    } catch {
       return rejectWithValue('Failed to load stored authentication data');
     }
   }

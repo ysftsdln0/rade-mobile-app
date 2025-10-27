@@ -60,7 +60,7 @@ export const Button: React.FC<ButtonProps> = ({
   gradientColors = [colors.primary[500], colors.accent.gradient_end],
 }) => {
   const isDisabledOrLoading = disabled || loading;
-  const { colors: themeColors, isDark } = useTheme();
+  const { colors: themeColors } = useTheme();
 
   const baseStyles = [
     styles.button,

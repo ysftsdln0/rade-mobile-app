@@ -52,7 +52,7 @@ class MockTwoFactorProvider implements ITwoFactorProvider {
     return { success: false, message: 'Geçersiz kod' };
   }
 
-  async resend(userId: string): Promise<void> {
+  async resend(_userId: string): Promise<void> {
     // No-op (mock)
     return;
   }
