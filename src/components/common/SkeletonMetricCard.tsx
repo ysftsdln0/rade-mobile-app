@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { SkeletonCard, SkeletonText, SkeletonCircle } from './SkeletonCard';
-import { colors, spacing, semanticSpacing } from '../../styles';
-import { useTheme } from '../../utils/ThemeContext';
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { SkeletonCard, SkeletonText, SkeletonCircle } from "./SkeletonCard";
+import { colors, spacing, semanticSpacing } from "../../styles";
+import { useTheme } from "../../utils/ThemeContext";
 
 interface SkeletonMetricCardProps {
   style?: any;
@@ -12,7 +12,9 @@ interface SkeletonMetricCardProps {
  * Skeleton loading state for MetricCard component
  * Matches the layout of the actual MetricCard
  */
-export const SkeletonMetricCard: React.FC<SkeletonMetricCardProps> = ({ style }) => {
+export const SkeletonMetricCard: React.FC<SkeletonMetricCardProps> = ({
+  style,
+}) => {
   const { colors: themeColors, isDark } = useTheme();
 
   return (
@@ -20,7 +22,7 @@ export const SkeletonMetricCard: React.FC<SkeletonMetricCardProps> = ({ style })
       style={[
         styles.container,
         {
-          backgroundColor: isDark ? colors.dark.surface : '#FFFFFF',
+          backgroundColor: isDark ? colors.dark.surface : "#FFFFFF",
         },
         style,
       ]}
@@ -45,11 +47,11 @@ export const SkeletonMetricCard: React.FC<SkeletonMetricCardProps> = ({ style })
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: semanticSpacing.padding.md,
     borderRadius: 12,
-    shadowColor: '#000000',
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,

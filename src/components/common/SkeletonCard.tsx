@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import React, { useEffect } from "react";
+import { View, StyleSheet } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -7,9 +7,9 @@ import Animated, {
   withTiming,
   interpolate,
   Easing,
-} from 'react-native-reanimated';
-import { useTheme } from '../../utils/ThemeContext';
-import { colors, spacing } from '../../styles';
+} from "react-native-reanimated";
+import { useTheme } from "../../utils/ThemeContext";
+import { colors, spacing } from "../../styles";
 
 interface SkeletonCardProps {
   width?: number | string;
@@ -23,7 +23,7 @@ interface SkeletonCardProps {
  * Used for loading states to improve perceived performance
  */
 export const SkeletonCard: React.FC<SkeletonCardProps> = ({
-  width = '100%',
+  width = "100%",
   height = 80,
   borderRadius = 12,
   style,
@@ -44,11 +44,7 @@ export const SkeletonCard: React.FC<SkeletonCardProps> = ({
   }, []);
 
   const shimmerStyle = useAnimatedStyle(() => {
-    const translateX = interpolate(
-      shimmerValue.value,
-      [0, 1],
-      [-300, 300]
-    );
+    const translateX = interpolate(shimmerValue.value, [0, 1], [-300, 300]);
 
     return {
       transform: [{ translateX }],
@@ -67,7 +63,7 @@ export const SkeletonCard: React.FC<SkeletonCardProps> = ({
           height,
           borderRadius,
           backgroundColor,
-          overflow: 'hidden',
+          overflow: "hidden",
         },
         style,
       ]}
@@ -97,7 +93,7 @@ interface SkeletonTextProps {
  * Used for single line text loading states
  */
 export const SkeletonText: React.FC<SkeletonTextProps> = ({
-  width = '100%',
+  width = "100%",
   height = 16,
   style,
 }) => {

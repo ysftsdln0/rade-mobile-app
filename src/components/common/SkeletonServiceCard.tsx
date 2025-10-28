@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { SkeletonCard, SkeletonText } from './SkeletonCard';
-import { colors, spacing, semanticSpacing } from '../../styles';
-import { useTheme } from '../../utils/ThemeContext';
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { SkeletonCard, SkeletonText } from "./SkeletonCard";
+import { colors, spacing, semanticSpacing } from "../../styles";
+import { useTheme } from "../../utils/ThemeContext";
 
 interface SkeletonServiceCardProps {
   style?: any;
@@ -12,7 +12,9 @@ interface SkeletonServiceCardProps {
  * Skeleton loading state for ServiceCard component
  * Used in hosting/domain/server lists
  */
-export const SkeletonServiceCard: React.FC<SkeletonServiceCardProps> = ({ style }) => {
+export const SkeletonServiceCard: React.FC<SkeletonServiceCardProps> = ({
+  style,
+}) => {
   const { colors: themeColors, isDark } = useTheme();
 
   return (
@@ -20,7 +22,7 @@ export const SkeletonServiceCard: React.FC<SkeletonServiceCardProps> = ({ style 
       style={[
         styles.container,
         {
-          backgroundColor: isDark ? colors.dark.surface : '#FFFFFF',
+          backgroundColor: isDark ? colors.dark.surface : "#FFFFFF",
         },
         style,
       ]}
@@ -81,7 +83,7 @@ const styles = StyleSheet.create({
   container: {
     borderRadius: 12,
     padding: semanticSpacing.padding.md,
-    shadowColor: '#000000',
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -89,9 +91,9 @@ const styles = StyleSheet.create({
     marginBottom: semanticSpacing.margin.md,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     marginBottom: semanticSpacing.margin.md,
   },
   headerLeft: {
@@ -111,9 +113,9 @@ const styles = StyleSheet.create({
     marginBottom: semanticSpacing.margin.md,
   },
   detailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: semanticSpacing.margin.sm,
   },
   button: {

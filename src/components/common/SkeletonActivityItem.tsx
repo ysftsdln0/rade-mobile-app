@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { SkeletonText, SkeletonCircle } from './SkeletonCard';
-import { colors, spacing, semanticSpacing } from '../../styles';
-import { useTheme } from '../../utils/ThemeContext';
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import { SkeletonText, SkeletonCircle } from "./SkeletonCard";
+import { colors, spacing, semanticSpacing } from "../../styles";
+import { useTheme } from "../../utils/ThemeContext";
 
 interface SkeletonActivityItemProps {
   style?: any;
@@ -12,7 +12,9 @@ interface SkeletonActivityItemProps {
  * Skeleton loading state for Activity timeline items
  * Used in Dashboard recent activity section
  */
-export const SkeletonActivityItem: React.FC<SkeletonActivityItemProps> = ({ style }) => {
+export const SkeletonActivityItem: React.FC<SkeletonActivityItemProps> = ({
+  style,
+}) => {
   const { colors: themeColors, isDark } = useTheme();
 
   return (
@@ -34,8 +36,8 @@ export const SkeletonActivityItem: React.FC<SkeletonActivityItemProps> = ({ styl
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: semanticSpacing.padding.sm,
   },
   icon: {
