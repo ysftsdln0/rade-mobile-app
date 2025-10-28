@@ -1,11 +1,12 @@
-import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-import { ServicesStackParamList } from '../types';
+import React from "react";
+import { createStackNavigator } from "@react-navigation/stack";
+import { ServicesStackParamList } from "../types";
+import { screenTransitions } from "./transitions";
 
 // Import service screens
-import ServicesListScreen from '../screens/services/ServicesListScreen';
-import HostingListScreen from '../screens/hosting/HostingListScreen';
-import HostingDetailsScreen from '../screens/hosting/HostingDetailsScreen';
+import ServicesListScreen from "../screens/services/ServicesListScreen";
+import HostingListScreen from "../screens/hosting/HostingListScreen";
+import HostingDetailsScreen from "../screens/hosting/HostingDetailsScreen";
 import {
   FileManagerScreen,
   DatabaseManagerScreen,
@@ -13,7 +14,7 @@ import {
   DomainDetailsScreen,
   ServerListScreen,
   ServerDetailsScreen,
-} from '../screens/PlaceholderScreens';
+} from "../screens/PlaceholderScreens";
 
 const Stack = createStackNavigator<ServicesStackParamList>();
 
@@ -24,41 +25,46 @@ const ServicesNavigator = () => {
         headerShown: false,
       }}
     >
-      <Stack.Screen 
-        name="ServicesList" 
-        component={ServicesListScreen}
-      />
-      <Stack.Screen 
-        name="HostingList" 
+      <Stack.Screen name="ServicesList" component={ServicesListScreen} />
+      <Stack.Screen
+        name="HostingList"
         component={HostingListScreen}
+        options={screenTransitions.slideFromRight}
       />
-      <Stack.Screen 
-        name="HostingDetails" 
+      <Stack.Screen
+        name="HostingDetails"
         component={HostingDetailsScreen}
+        options={screenTransitions.slideAndFade}
       />
-      <Stack.Screen 
-        name="FileManager" 
+      <Stack.Screen
+        name="FileManager"
         component={FileManagerScreen}
+        options={screenTransitions.slideFromRight}
       />
-      <Stack.Screen 
-        name="DatabaseManager" 
+      <Stack.Screen
+        name="DatabaseManager"
         component={DatabaseManagerScreen}
+        options={screenTransitions.slideFromRight}
       />
-      <Stack.Screen 
-        name="DomainList" 
+      <Stack.Screen
+        name="DomainList"
         component={DomainListScreen}
+        options={screenTransitions.slideFromRight}
       />
-      <Stack.Screen 
-        name="DomainDetails" 
+      <Stack.Screen
+        name="DomainDetails"
         component={DomainDetailsScreen}
+        options={screenTransitions.slideAndFade}
       />
-      <Stack.Screen 
-        name="ServerList" 
+      <Stack.Screen
+        name="ServerList"
         component={ServerListScreen}
+        options={screenTransitions.slideFromRight}
       />
-      <Stack.Screen 
-        name="ServerDetails" 
+      <Stack.Screen
+        name="ServerDetails"
         component={ServerDetailsScreen}
+        options={screenTransitions.slideAndFade}
       />
     </Stack.Navigator>
   );
