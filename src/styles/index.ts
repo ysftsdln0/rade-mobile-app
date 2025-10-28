@@ -23,5 +23,9 @@ export { shadows, semanticShadows, pressableShadows } from './shadows';
 export * from './theme';
 export { lightTheme, darkTheme, getTheme, createThemedStyles, getThemedColor } from './theme';
 
+// Motion System
+export * from './motion';
+export { motion, animationPresets } from './motion';
+
 // Re-export types
 export type { Theme, ThemeMode } from './theme';
