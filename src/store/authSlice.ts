@@ -1,12 +1,12 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AuthState, User } from '../types';
-import { 
-  loginAsync, 
-  registerAsync, 
-  logoutAsync, 
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { AuthState, User } from "../types";
+import {
+  loginAsync,
+  registerAsync,
+  logoutAsync,
   loadUserFromStorageAsync,
-  updateProfileAsync 
-} from './authThunks';
+  updateProfileAsync,
+} from "./authThunks";
 
 const initialState: AuthState = {
   user: null,
@@ -18,13 +18,16 @@ const initialState: AuthState = {
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
-    loginSuccess: (state, action: PayloadAction<{ user: User; token: string; refreshToken: string }>) => {
+    loginSuccess: (
+      state,
+      action: PayloadAction<{ user: User; token: string; refreshToken: string }>
+    ) => {
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.refreshToken = action.payload.refreshToken;
@@ -50,7 +53,10 @@ const authSlice = createSlice({
         state.user = { ...state.user, ...action.payload };
       }
     },
-    setTokens: (state, action: PayloadAction<{ token: string; refreshToken: string }>) => {
+    setTokens: (
+      state,
+      action: PayloadAction<{ token: string; refreshToken: string }>
+    ) => {
       state.token = action.payload.token;
       state.refreshToken = action.payload.refreshToken;
     },
@@ -119,7 +125,7 @@ const authSlice = createSlice({
     builder.addCase(updateProfileAsync.rejected, (state) => {
       state.isLoading = false;
     });
-  }
+  },
 });
 
 export const {
