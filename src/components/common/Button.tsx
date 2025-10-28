@@ -1,13 +1,20 @@
-import React from 'react';
-import { Pressable, StyleSheet, Text, View, ActivityIndicator, ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors, spacing } from '../../styles';
-import { useTheme } from '../../utils/ThemeContext';
+import React from "react";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  ActivityIndicator,
+  ViewStyle,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { colors, spacing } from "../../styles";
+import { useTheme } from "../../utils/ThemeContext";
 
 interface ButtonProps {
   label: string;
-  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'gradient';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "primary" | "secondary" | "danger" | "ghost" | "gradient";
+  size?: "sm" | "md" | "lg";
   loading?: boolean;
   disabled?: boolean;
   onPress: () => void;
@@ -20,27 +27,27 @@ interface ButtonProps {
 
 /**
  * Button Component
- * 
+ *
  * Professional admin dashboard button with multiple variants and sizes.
- * 
+ *
  * Variants:
  * - primary: Professional blue action button (default)
  * - secondary: Light gray secondary button
  * - danger: Red destructive action button
  * - ghost: Transparent outline button
  * - gradient: Blue-to-Purple gradient button
- * 
+ *
  * Sizes:
  * - sm: Small (12x8 px padding)
  * - md: Medium (16x12 px padding) - default
  * - lg: Large (20x14 px padding)
- * 
+ *
  * @example
  * <Button label="Save" onPress={() => console.log('Save')} />
- * 
+ *
  * @example
- * <Button 
- *   label="Login" 
+ * <Button
+ *   label="Login"
  *   variant="gradient"
  *   size="lg"
  *   onPress={() => handleLogin()}
@@ -48,8 +55,8 @@ interface ButtonProps {
  */
 export const Button: React.FC<ButtonProps> = ({
   label,
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   loading = false,
   disabled = false,
   onPress,
@@ -71,13 +78,13 @@ export const Button: React.FC<ButtonProps> = ({
   ];
 
   // Gradient variant uses LinearGradient
-  if (variant === 'gradient') {
+  if (variant === "gradient") {
     return (
       <LinearGradient
         colors={gradientColors as [string, string, ...string[]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={[styles.gradientContainer, fullWidth && { width: '100%' }]}
+        style={[styles.gradientContainer, fullWidth && { width: "100%" }]}
       >
         <Pressable
           onPress={onPress}
@@ -95,7 +102,9 @@ export const Button: React.FC<ButtonProps> = ({
           ) : (
             <View style={styles.buttonContent}>
               {Icon && Icon}
-              <Text style={[styles.buttonText, styles.text_gradient]}>{label}</Text>
+              <Text style={[styles.buttonText, styles.text_gradient]}>
+                {label}
+              </Text>
             </View>
           )}
         </Pressable>
@@ -110,13 +119,13 @@ export const Button: React.FC<ButtonProps> = ({
       disabled={isDisabledOrLoading}
       style={({ pressed }) => [
         ...baseStyles,
-        variant === 'primary' && { backgroundColor: themeColors.primary },
-        variant === 'secondary' && { backgroundColor: themeColors.surfaceAlt },
-        variant === 'danger' && { backgroundColor: themeColors.error },
-        variant === 'ghost' && { 
-          backgroundColor: 'transparent',
+        variant === "primary" && { backgroundColor: themeColors.primary },
+        variant === "secondary" && { backgroundColor: themeColors.surfaceAlt },
+        variant === "danger" && { backgroundColor: themeColors.error },
+        variant === "ghost" && {
+          backgroundColor: "transparent",
           borderWidth: 1.5,
-          borderColor: themeColors.border
+          borderColor: themeColors.border,
         },
         pressed && !isDisabledOrLoading && styles.buttonPressed,
       ]}
@@ -124,19 +133,25 @@ export const Button: React.FC<ButtonProps> = ({
     >
       {loading ? (
         <ActivityIndicator
-          color={variant === 'secondary' ? themeColors.primary : colors.neutral[50]}
+          color={
+            variant === "secondary" ? themeColors.primary : colors.neutral[50]
+          }
           size="small"
         />
       ) : (
         <View style={styles.buttonContent}>
           {Icon && Icon}
-          <Text style={[
-            styles.buttonText,
-            variant === 'primary' && { color: '#FFFFFF' },
-            variant === 'secondary' && { color: themeColors.text },
-            variant === 'danger' && { color: '#FFFFFF' },
-            variant === 'ghost' && { color: themeColors.primary },
-          ]}>{label}</Text>
+          <Text
+            style={[
+              styles.buttonText,
+              variant === "primary" && { color: "#FFFFFF" },
+              variant === "secondary" && { color: themeColors.text },
+              variant === "danger" && { color: "#FFFFFF" },
+              variant === "ghost" && { color: themeColors.primary },
+            ]}
+          >
+            {label}
+          </Text>
         </View>
       )}
     </Pressable>
@@ -146,14 +161,14 @@ export const Button: React.FC<ButtonProps> = ({
 const styles = StyleSheet.create({
   button: {
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
     gap: spacing[2],
   },
   gradientContainer: {
     borderRadius: 12,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   // Sizes
   size_sm: {
@@ -169,16 +184,16 @@ const styles = StyleSheet.create({
     paddingVertical: spacing[3],
   },
   fullWidth: {
-    width: '100%',
+    width: "100%",
   },
   buttonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: spacing[2],
   },
   buttonText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   text_gradient: {
     color: colors.neutral[50],

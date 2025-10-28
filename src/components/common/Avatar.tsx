@@ -1,10 +1,17 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ViewStyle } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../../styles';
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ViewStyle,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { colors } from "../../styles";
 
 interface AvatarProps {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: "sm" | "md" | "lg" | "xl";
   source?: string;
   initials?: string;
   showEditButton?: boolean;
@@ -15,18 +22,18 @@ interface AvatarProps {
 
 /**
  * Avatar Component
- * 
+ *
  * Professional user avatar with initials fallback and edit functionality.
- * 
+ *
  * Features:
  * - Image display with URI source
  * - Initials fallback when no image
  * - Multiple sizes (sm, md, lg, xl)
  * - Optional edit button overlay
  * - Peach/salmon background for initials
- * 
+ *
  * @example
- * <Avatar 
+ * <Avatar
  *   initials="AT"
  *   size="xl"
  *   showEditButton
@@ -34,9 +41,9 @@ interface AvatarProps {
  * />
  */
 export const Avatar: React.FC<AvatarProps> = ({
-  size = 'md',
+  size = "md",
   source,
-  initials = '??',
+  initials = "??",
   showEditButton = false,
   onEditPress,
   containerStyle,
@@ -48,21 +55,29 @@ export const Avatar: React.FC<AvatarProps> = ({
 
   return (
     <View style={[styles.container, containerStyle]} testID={testID}>
-      <View style={[styles.avatar, sizeStyles, !source && styles.avatarPlaceholder]}>
+      <View
+        style={[styles.avatar, sizeStyles, !source && styles.avatarPlaceholder]}
+      >
         {source ? (
           <Image source={{ uri: source }} style={[styles.image, sizeStyles]} />
         ) : (
-          <Text style={[styles.initials, textStyles]}>{initials.toUpperCase()}</Text>
+          <Text style={[styles.initials, textStyles]}>
+            {initials.toUpperCase()}
+          </Text>
         )}
       </View>
-      
+
       {showEditButton && onEditPress && (
         <TouchableOpacity
           style={[styles.editButton, buttonStyles]}
           onPress={onEditPress}
           activeOpacity={0.8}
         >
-          <Ionicons name="pencil" size={size === 'xl' ? 20 : 16} color="#FFFFFF" />
+          <Ionicons
+            name="pencil"
+            size={size === "xl" ? 20 : 16}
+            color="#FFFFFF"
+          />
         </TouchableOpacity>
       )}
     </View>
@@ -71,36 +86,36 @@ export const Avatar: React.FC<AvatarProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    position: 'relative',
+    position: "relative",
   },
   avatar: {
     borderRadius: 9999,
-    overflow: 'hidden',
-    justifyContent: 'center',
-    alignItems: 'center',
+    overflow: "hidden",
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: colors.neutral[200],
   },
   avatarPlaceholder: {
-    backgroundColor: '#E8B4A0', // Peach/Salmon color from Figma
+    backgroundColor: "#E8B4A0", // Peach/Salmon color from Figma
   },
   image: {
-    width: '100%',
-    height: '100%',
+    width: "100%",
+    height: "100%",
   },
   initials: {
-    color: '#FFFFFF',
-    fontWeight: '700',
+    color: "#FFFFFF",
+    fontWeight: "700",
   },
   editButton: {
-    position: 'absolute',
+    position: "absolute",
     backgroundColor: colors.primary[500],
     borderRadius: 9999,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderWidth: 3,
-    borderColor: '#FFFFFF',
+    borderColor: "#FFFFFF",
   },
-  
+
   // Sizes - Avatar
   avatar_sm: {
     width: 40,
@@ -118,7 +133,7 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
   },
-  
+
   // Sizes - Text
   text_sm: {
     fontSize: 16,
@@ -132,7 +147,7 @@ const styles = StyleSheet.create({
   text_xl: {
     fontSize: 48,
   },
-  
+
   // Sizes - Edit Button
   editButton_sm: {
     width: 24,
