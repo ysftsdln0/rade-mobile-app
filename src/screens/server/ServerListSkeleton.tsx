@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
-import { useTheme } from '../../utils/ThemeContext';
-import { SkeletonServiceCard, SkeletonText } from '../../components/common';
-import { semanticSpacing } from '../../styles';
+import React from "react";
+import { View, ScrollView, StyleSheet, SafeAreaView } from "react-native";
+import { useTheme } from "../../utils/ThemeContext";
+import { SkeletonServiceCard, SkeletonText } from "../../components/common";
+import { semanticSpacing } from "../../styles";
 
 /**
  * Skeleton loading screen for Server List
@@ -12,7 +12,9 @@ export const ServerListSkeleton: React.FC = () => {
   const { colors: themeColors } = useTheme();
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: themeColors.background }]}
+    >
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -48,7 +50,7 @@ const styles = StyleSheet.create({
     paddingBottom: semanticSpacing.padding.xl,
   },
   filterContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: semanticSpacing.margin.md,
   },
   filterTab: {
