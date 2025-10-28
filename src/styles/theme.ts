@@ -3,18 +3,18 @@
  * Light/Dark mode support with React Native Paper integration
  */
 
-import { useColorScheme } from 'react-native';
-import { MD3LightTheme, MD3DarkTheme } from 'react-native-paper';
-import { colors } from './colors';
-import { typography } from './typography';
-import { spacing } from './spacing';
-import { shadows } from './shadows';
+import { useColorScheme } from "react-native";
+import { MD3LightTheme, MD3DarkTheme } from "react-native-paper";
+import { colors } from "./colors";
+import { typography } from "./typography";
+import { spacing } from "./spacing";
+import { shadows } from "./shadows";
 
 // Theme Type Definition
-export type ThemeMode = 'light' | 'dark' | 'system';
+export type ThemeMode = "light" | "dark" | "system";
 
 export interface Theme {
-  mode: 'light' | 'dark';
+  mode: "light" | "dark";
   colors: typeof colors;
   typography: typeof typography;
   spacing: typeof spacing;
@@ -28,7 +28,7 @@ export const paperLightTheme = {
   ...MD3LightTheme,
   colors: {
     ...MD3LightTheme.colors,
-    primary: colors.primary[500],        // #135bec
+    primary: colors.primary[500], // #135bec
     primaryContainer: colors.primary[100],
     secondary: colors.accent.gradient_end,
     secondaryContainer: colors.primary[100],
@@ -39,7 +39,7 @@ export const paperLightTheme = {
     warning: colors.semantic.warning,
     info: colors.semantic.info,
     background: colors.neutral[50],
-    surface: '#FFFFFF',
+    surface: "#FFFFFF",
     surfaceVariant: colors.neutral[100],
     outline: colors.neutral[300],
     outlineVariant: colors.neutral[200],
@@ -71,7 +71,7 @@ export const paperDarkTheme = {
 
 // Light Theme
 export const lightTheme: Theme = {
-  mode: 'light',
+  mode: "light",
   colors,
   typography,
   spacing,
@@ -81,7 +81,7 @@ export const lightTheme: Theme = {
 
 // Dark Theme
 export const darkTheme: Theme = {
-  mode: 'dark',
+  mode: "dark",
   colors,
   typography,
   spacing,
@@ -91,14 +91,14 @@ export const darkTheme: Theme = {
 
 // Get theme based on system color scheme
 // Note: This should be called from a React component context
-export const useSystemTheme = (): 'light' | 'dark' => {
+export const useSystemTheme = (): "light" | "dark" => {
   const systemScheme = useColorScheme();
-  return systemScheme === 'dark' ? 'dark' : 'light';
+  return systemScheme === "dark" ? "dark" : "light";
 };
 
 // Get theme object based on mode
-export const getTheme = (mode: 'light' | 'dark'): Theme => {
-  return mode === 'dark' ? darkTheme : lightTheme;
+export const getTheme = (mode: "light" | "dark"): Theme => {
+  return mode === "dark" ? darkTheme : lightTheme;
 };
 
 // Theme CSS-like API (for simpler component styling)
@@ -107,7 +107,7 @@ export const createThemedStyles = (isDark: boolean) => ({
     backgroundColor: isDark ? colors.dark.bg : colors.neutral[50],
   },
   card: {
-    backgroundColor: isDark ? colors.dark.surface : '#FFFFFF',
+    backgroundColor: isDark ? colors.dark.surface : "#FFFFFF",
     borderColor: isDark ? colors.dark.border : colors.neutral[200],
   },
   text: {
@@ -125,7 +125,11 @@ export const createThemedStyles = (isDark: boolean) => ({
 });
 
 // Helper to get themed color
-export const getThemedColor = (lightColor: string, darkColor: string, isDark: boolean): string => {
+export const getThemedColor = (
+  lightColor: string,
+  darkColor: string,
+  isDark: boolean
+): string => {
   return isDark ? darkColor : lightColor;
 };
 
