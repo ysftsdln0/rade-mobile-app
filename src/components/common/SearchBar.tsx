@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, TextInput, StyleSheet, ViewStyle } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { spacing } from '../../styles';
-import { useTheme } from '../../utils/ThemeContext';
+import React from "react";
+import { View, TextInput, StyleSheet, ViewStyle } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { spacing } from "../../styles";
+import { useTheme } from "../../utils/ThemeContext";
 
 interface SearchBarProps {
   placeholder?: string;
@@ -15,24 +15,24 @@ interface SearchBarProps {
 
 /**
  * SearchBar Component
- * 
+ *
  * Professional search input with icon.
- * 
+ *
  * Features:
  * - Search icon (left-aligned)
  * - Clean, minimal design
  * - Rounded corners
  * - Light background
- * 
+ *
  * @example
- * <SearchBar 
+ * <SearchBar
  *   placeholder="Search servers..."
  *   value={searchQuery}
  *   onChangeText={setSearchQuery}
  * />
  */
 export const SearchBar: React.FC<SearchBarProps> = ({
-  placeholder = 'Search...',
+  placeholder = "Search...",
   value,
   onChangeText,
   onSubmit,
@@ -40,20 +40,25 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   testID,
 }) => {
   const { colors: themeColors } = useTheme();
-  
+
   return (
-    <View 
+    <View
       style={[
-        styles.container, 
+        styles.container,
         {
           backgroundColor: themeColors.input,
-          borderColor: themeColors.inputBorder
+          borderColor: themeColors.inputBorder,
         },
-        containerStyle
-      ]} 
+        containerStyle,
+      ]}
       testID={testID}
     >
-      <Ionicons name="search" size={20} color={themeColors.textTertiary} style={styles.icon} />
+      <Ionicons
+        name="search"
+        size={20}
+        color={themeColors.textTertiary}
+        style={styles.icon}
+      />
       <TextInput
         style={[styles.input, { color: themeColors.text }]}
         placeholder={placeholder}
@@ -70,8 +75,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderRadius: 12,
     paddingHorizontal: spacing[4],
     height: 48,

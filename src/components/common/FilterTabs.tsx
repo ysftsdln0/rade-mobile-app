@@ -1,6 +1,12 @@
-import React from 'react';
-import { Text, TouchableOpacity, StyleSheet, ScrollView, ViewStyle } from 'react-native';
-import { colors, spacing } from '../../styles';
+import React from "react";
+import {
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  ViewStyle,
+} from "react-native";
+import { colors, spacing } from "../../styles";
 
 export interface FilterTab {
   id: string;
@@ -18,15 +24,15 @@ interface FilterTabsProps {
 
 /**
  * FilterTabs Component
- * 
+ *
  * Horizontal scrollable tab filter for lists.
- * 
+ *
  * Features:
  * - Active/inactive states
  * - Optional count badges
  * - Smooth scrolling
  * - Clean pill design
- * 
+ *
  * @example
  * <FilterTabs
  *   tabs={[
@@ -74,7 +80,7 @@ export const FilterTabs: React.FC<FilterTabsProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: spacing[2],
     paddingVertical: spacing[2],
   },
@@ -84,7 +90,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     backgroundColor: colors.neutral[100],
     borderWidth: 1,
-    borderColor: 'transparent',
+    borderColor: "transparent",
   },
   tabActive: {
     backgroundColor: colors.primary[500],
@@ -92,10 +98,10 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.neutral[700],
   },
   tabTextActive: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
   },
 });

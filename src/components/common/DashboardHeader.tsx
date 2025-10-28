@@ -1,8 +1,15 @@
-import React from 'react';
-import { View, StyleSheet, Text, Pressable, ViewStyle, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { colors, spacing } from '../../styles';
-import { useTheme } from '../../utils/ThemeContext';
+import React from "react";
+import {
+  View,
+  StyleSheet,
+  Text,
+  Pressable,
+  ViewStyle,
+  TouchableOpacity,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { colors, spacing } from "../../styles";
+import { useTheme } from "../../utils/ThemeContext";
 
 interface BreadcrumbItem {
   label: string;
@@ -28,21 +35,21 @@ interface DashboardHeaderProps {
 
 /**
  * DashboardHeader Component
- * 
+ *
  * Professional page header for dashboard screens.
- * 
+ *
  * Features:
  * - Large page title
  * - Optional subtitle
  * - Breadcrumb navigation
  * - Action buttons
- * 
+ *
  * @example
  * <DashboardHeader
  *   title="Dashboard"
  *   subtitle="Welcome back, Admin"
  * />
- * 
+ *
  * @example
  * <DashboardHeader
  *   title="Servers"
@@ -52,10 +59,10 @@ interface DashboardHeaderProps {
  *     { label: 'Servers' }
  *   ]}
  *   actions={[
- *     { 
- *       label: 'Add Server', 
+ *     {
+ *       label: 'Add Server',
  *       icon: <PlusIcon size={20} />,
- *       onPress: () => navigate('AddServer') 
+ *       onPress: () => navigate('AddServer')
  *     }
  *   ]}
  * />
@@ -71,26 +78,23 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   testID,
 }) => {
   const { colors: themeColors } = useTheme();
-  
+
   return (
     <View
       style={[
-        styles.container, 
-        { 
+        styles.container,
+        {
           backgroundColor: themeColors.surface,
-          borderBottomColor: themeColors.border
+          borderBottomColor: themeColors.border,
         },
-        style
+        style,
       ]}
       testID={testID}
     >
       {/* Back Button + Title Row */}
       {showBackButton && (
         <View style={styles.backButtonRow}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={onBackPress}
-          >
+          <TouchableOpacity style={styles.backButton} onPress={onBackPress}>
             <Ionicons name="arrow-back" size={24} color={themeColors.text} />
           </TouchableOpacity>
         </View>
@@ -102,13 +106,34 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <View key={index} style={styles.breadcrumbItem}>
               {crumb.onPress ? (
                 <Pressable onPress={crumb.onPress}>
-                  <Text style={[styles.breadcrumbLinkText, { color: themeColors.primary }]}>{crumb.label}</Text>
+                  <Text
+                    style={[
+                      styles.breadcrumbLinkText,
+                      { color: themeColors.primary },
+                    ]}
+                  >
+                    {crumb.label}
+                  </Text>
                 </Pressable>
               ) : (
-                <Text style={[styles.breadcrumbCurrentText, { color: themeColors.textSecondary }]}>{crumb.label}</Text>
+                <Text
+                  style={[
+                    styles.breadcrumbCurrentText,
+                    { color: themeColors.textSecondary },
+                  ]}
+                >
+                  {crumb.label}
+                </Text>
               )}
               {index < breadcrumbs.length - 1 && (
-                <Text style={[styles.breadcrumbSeparator, { color: themeColors.textTertiary }]}>/</Text>
+                <Text
+                  style={[
+                    styles.breadcrumbSeparator,
+                    { color: themeColors.textTertiary },
+                  ]}
+                >
+                  /
+                </Text>
               )}
             </View>
           ))}
@@ -118,8 +143,16 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       {/* Header with title and actions */}
       <View style={styles.headerWrapper}>
         <View style={styles.titleSection}>
-          <Text style={[styles.title, { color: themeColors.text }]}>{title}</Text>
-          {subtitle && <Text style={[styles.subtitle, { color: themeColors.textSecondary }]}>{subtitle}</Text>}
+          <Text style={[styles.title, { color: themeColors.text }]}>
+            {title}
+          </Text>
+          {subtitle && (
+            <Text
+              style={[styles.subtitle, { color: themeColors.textSecondary }]}
+            >
+              {subtitle}
+            </Text>
+          )}
         </View>
 
         {/* Action buttons */}
@@ -136,9 +169,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                 ]}
               >
                 {action.icon && (
-                  <View style={styles.actionIcon}>
-                    {action.icon}
-                  </View>
+                  <View style={styles.actionIcon}>{action.icon}</View>
                 )}
                 <Text style={styles.actionLabel}>{action.label}</Text>
               </Pressable>
@@ -162,34 +193,34 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: spacing[2],
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
   breadcrumbContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: spacing[3],
   },
   breadcrumbItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: spacing[1],
   },
   breadcrumbLinkText: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   breadcrumbCurrentText: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   breadcrumbSeparator: {
     fontSize: 12,
     marginHorizontal: spacing[1],
   },
   headerWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     gap: spacing[4],
   },
   titleSection: {
@@ -198,21 +229,21 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: '700',
+    fontWeight: "700",
     lineHeight: 34,
   },
   subtitle: {
     fontSize: 14,
-    fontWeight: '400',
+    fontWeight: "400",
     lineHeight: 20,
   },
   actionsContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: spacing[2],
   },
   actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: spacing[2],
     paddingHorizontal: spacing[4],
     paddingVertical: spacing[3],
@@ -224,12 +255,12 @@ const styles = StyleSheet.create({
   actionIcon: {
     width: 20,
     height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   actionLabel: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.neutral[50],
   },
 });
