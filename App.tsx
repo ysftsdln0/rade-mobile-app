@@ -5,6 +5,7 @@ import store from './src/store';
 import { ReactQueryProvider } from './src/utils/ReactQueryProvider';
 import { LanguageProvider } from './src/utils/LanguageContext';
 import { ThemeProvider } from './src/utils/ThemeContext';
+import { ToastProvider } from './src/utils/ToastContext';
 import RootNavigator from './src/navigation/RootNavigator';
 import { ThemedStatusBar } from './src/components/ThemedStatusBar';
 
@@ -15,8 +16,10 @@ export default function App() {
         <ThemeProvider>
           <LanguageProvider>
             <ReactQueryProvider>
-              <ThemedStatusBar />
-              <RootNavigator />
+              <ToastProvider>
+                <ThemedStatusBar />
+                <RootNavigator />
+              </ToastProvider>
             </ReactQueryProvider>
           </LanguageProvider>
         </ThemeProvider>
