@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import AppCard from '../../components/common/AppCard';
 import { LoadingState } from '../../components/common/LoadingState';
 import { EmptyState } from '../../components/common/EmptyState';
+import { HostingListSkeleton } from './HostingListSkeleton';
 import { apiService } from '../../services/api';
 import { HostingPackage } from '../../types';
 import { COLORS, FONT_SIZES, SPACING } from '../../constants';
@@ -36,7 +37,7 @@ const HostingListScreen: React.FC = () => {
 	});
 
 	if (hostingQuery.isLoading) {
-		return <LoadingState message="Hosting paketleri yükleniyor..." />;
+		return <HostingListSkeleton />;
 	}
 
 	if (hostingQuery.isError) {
