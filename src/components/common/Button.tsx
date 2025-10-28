@@ -7,9 +7,18 @@ import {
   ActivityIndicator,
   ViewStyle,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { LinearGradient } from "expo-linear-gradient";
 import { colors, spacing } from "../../styles";
+import { motion } from "../../styles/motion";
 import { useTheme } from "../../utils/ThemeContext";
+import { haptics } from "../../utils/haptics";
 
 interface ButtonProps {
   label: string;
@@ -68,6 +77,41 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const isDisabledOrLoading = disabled || loading;
   const { colors: themeColors } = useTheme();
+  
+  // Animation values
+  const scale = useSharedValue(1);
+  const opacity = useSharedValue(1);
+
+  // Animated styles
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: opacity.value,
+  }));
+
+  // Press handlers with haptic feedback
+  const handlePressIn = () => {
+    if (!isDisabledOrLoading) {
+      scale.value = withSpring(0.95, motion.spring.snappy);
+      haptics.light();
+    }
+  };
+
+  const handlePressOut = () => {
+    if (!isDisabledOrLoading) {
+      scale.value = withSpring(1, motion.spring.bouncy);
+    }
+  };
+
+  const handlePress = () => {
+    if (!isDisabledOrLoading) {
+      // Success flash animation
+      opacity.value = withSequence(
+        withTiming(0.7, { duration: 100 }),
+        withTiming(1, { duration: 150 })
+      );
+      onPress();
+    }
+  };
 
   const baseStyles = [
     styles.button,
@@ -80,81 +124,87 @@ export const Button: React.FC<ButtonProps> = ({
   // Gradient variant uses LinearGradient
   if (variant === "gradient") {
     return (
-      <LinearGradient
-        colors={gradientColors as [string, string, ...string[]]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[styles.gradientContainer, fullWidth && { width: "100%" }]}
-      >
-        <Pressable
-          onPress={onPress}
-          disabled={isDisabledOrLoading}
-          style={({ pressed }) => [
-            styles.button,
-            styles[`size_${size}`],
-            isDisabledOrLoading && styles.disabled,
-            pressed && !isDisabledOrLoading && styles.buttonPressed,
-          ]}
-          testID={testID}
+      <Animated.View style={animatedStyle}>
+        <LinearGradient
+          colors={gradientColors as [string, string, ...string[]]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={[styles.gradientContainer, fullWidth && { width: "100%" }]}
         >
-          {loading ? (
-            <ActivityIndicator color="#FFFFFF" size="small" />
-          ) : (
-            <View style={styles.buttonContent}>
-              {Icon && Icon}
-              <Text style={[styles.buttonText, styles.text_gradient]}>
-                {label}
-              </Text>
-            </View>
-          )}
-        </Pressable>
-      </LinearGradient>
+          <Pressable
+            onPress={handlePress}
+            onPressIn={handlePressIn}
+            onPressOut={handlePressOut}
+            disabled={isDisabledOrLoading}
+            style={[
+              styles.button,
+              styles[`size_${size}`],
+              isDisabledOrLoading && styles.disabled,
+            ]}
+            testID={testID}
+          >
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <View style={styles.buttonContent}>
+                {Icon && Icon}
+                <Text style={[styles.buttonText, styles.text_gradient]}>
+                  {label}
+                </Text>
+              </View>
+            )}
+          </Pressable>
+        </LinearGradient>
+      </Animated.View>
     );
   }
 
   // Other variants
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={isDisabledOrLoading}
-      style={({ pressed }) => [
-        ...baseStyles,
-        variant === "primary" && { backgroundColor: themeColors.primary },
-        variant === "secondary" && { backgroundColor: themeColors.surfaceAlt },
-        variant === "danger" && { backgroundColor: themeColors.error },
-        variant === "ghost" && {
-          backgroundColor: "transparent",
-          borderWidth: 1.5,
-          borderColor: themeColors.border,
-        },
-        pressed && !isDisabledOrLoading && styles.buttonPressed,
-      ]}
-      testID={testID}
-    >
-      {loading ? (
-        <ActivityIndicator
-          color={
-            variant === "secondary" ? themeColors.primary : colors.neutral[50]
-          }
-          size="small"
-        />
-      ) : (
-        <View style={styles.buttonContent}>
-          {Icon && Icon}
-          <Text
-            style={[
-              styles.buttonText,
-              variant === "primary" && { color: "#FFFFFF" },
-              variant === "secondary" && { color: themeColors.text },
-              variant === "danger" && { color: "#FFFFFF" },
-              variant === "ghost" && { color: themeColors.primary },
-            ]}
-          >
-            {label}
-          </Text>
-        </View>
-      )}
-    </Pressable>
+    <Animated.View style={animatedStyle}>
+      <Pressable
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={isDisabledOrLoading}
+        style={[
+          ...baseStyles,
+          variant === "primary" && { backgroundColor: themeColors.primary },
+          variant === "secondary" && { backgroundColor: themeColors.surfaceAlt },
+          variant === "danger" && { backgroundColor: themeColors.error },
+          variant === "ghost" && {
+            backgroundColor: "transparent",
+            borderWidth: 1.5,
+            borderColor: themeColors.border,
+          },
+        ]}
+        testID={testID}
+      >
+        {loading ? (
+          <ActivityIndicator
+            color={
+              variant === "secondary" ? themeColors.primary : colors.neutral[50]
+            }
+            size="small"
+          />
+        ) : (
+          <View style={styles.buttonContent}>
+            {Icon && Icon}
+            <Text
+              style={[
+                styles.buttonText,
+                variant === "primary" && { color: "#FFFFFF" },
+                variant === "secondary" && { color: themeColors.text },
+                variant === "danger" && { color: "#FFFFFF" },
+                variant === "ghost" && { color: themeColors.primary },
+              ]}
+            >
+              {label}
+            </Text>
+          </View>
+        )}
+      </Pressable>
+    </Animated.View>
   );
 };
 
@@ -200,8 +250,5 @@ const styles = StyleSheet.create({
   },
   disabled: {
     opacity: 0.5,
-  },
-  buttonPressed: {
-    opacity: 0.9,
   },
 });

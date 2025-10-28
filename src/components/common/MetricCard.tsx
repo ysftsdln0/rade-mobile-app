@@ -1,7 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, Text, ViewStyle } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  useAnimatedProps,
+  Easing,
+} from 'react-native-reanimated';
 import { colors, spacing, shadows } from '../../styles';
+import { motion } from '../../styles/motion';
 import { useTheme } from '../../utils/ThemeContext';
+
+// Animated Text component for counter
+const AnimatedText = Animated.createAnimatedComponent(Text);
 
 interface MetricCardProps {
   label: string;
@@ -12,6 +23,10 @@ interface MetricCardProps {
   status?: 'online' | 'offline' | 'warning' | 'neutral';
   style?: ViewStyle;
   testID?: string;
+  /** Enable animated counter (only for numeric values) */
+  animateValue?: boolean;
+  /** Animation duration in milliseconds (default: 1000ms) */
+  animationDuration?: number;
 }
 
 /**
@@ -56,10 +71,46 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   status = 'neutral',
   style,
   testID,
+  animateValue = true,
+  animationDuration = 1000,
 }) => {
   const isPositive = change !== undefined && change > 0;
   const changeText = change !== undefined ? `${isPositive ? '↑' : '↓'} ${Math.abs(change)}%` : '';
   const { colors: themeColors } = useTheme();
+
+  // Animated counter for numeric values
+  const isNumeric = typeof value === 'number';
+  const numericValue = isNumeric ? value : 0;
+  const animatedValue = useSharedValue(0);
+
+  useEffect(() => {
+    if (isNumeric && animateValue) {
+      // Animate from 0 to target value
+      animatedValue.value = withTiming(numericValue, {
+        duration: animationDuration,
+        easing: motion.easing.emphasized,
+      });
+    } else {
+      // Set immediately without animation
+      animatedValue.value = numericValue;
+    }
+  }, [numericValue, animateValue, animationDuration]);
+
+  // Animated text props for counter
+  const animatedTextProps = useAnimatedProps(() => {
+    if (!isNumeric || !animateValue) {
+      return { text: String(value) };
+    }
+
+    // Round to integer for whole numbers, keep decimals for floats
+    const displayValue = Number.isInteger(numericValue)
+      ? Math.round(animatedValue.value)
+      : animatedValue.value.toFixed(1);
+
+    return {
+      text: String(displayValue),
+    };
+  });
 
   return (
     <View
@@ -89,7 +140,15 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
       {/* Main metric value */}
       <View style={styles.metricValue}>
-        <Text style={[styles.value, { color: themeColors.text }]}>{value}</Text>
+        {isNumeric && animateValue ? (
+          <AnimatedText
+            // @ts-ignore - animatedProps typing issue
+            animatedProps={animatedTextProps}
+            style={[styles.value, { color: themeColors.text }]}
+          />
+        ) : (
+          <Text style={[styles.value, { color: themeColors.text }]}>{value}</Text>
+        )}
         {unit && <Text style={[styles.unit, { color: themeColors.textSecondary }]}>{unit}</Text>}
       </View>
 
