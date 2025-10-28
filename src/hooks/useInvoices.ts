@@ -1,13 +1,13 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { billingProvider } from '../services/external';
-import { useAppSelector } from '../store';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { billingProvider } from "../services/external";
+import { useAppSelector } from "../store";
 
 export const useInvoices = () => {
   const user = useAppSelector((s) => s.auth.user);
   const queryClient = useQueryClient();
 
   const invoicesQuery = useQuery({
-    queryKey: ['invoices'],
+    queryKey: ["invoices"],
     queryFn: () => {
       if (!user) return [];
       return billingProvider.listInvoices(user.id);
@@ -15,17 +15,18 @@ export const useInvoices = () => {
     enabled: !!user,
   });
 
-  const useInvoiceDetails = (invoiceId: string) => useQuery({
-    queryKey: ['invoice', invoiceId],
-    queryFn: () => {
-      if (!user) return null;
-      return billingProvider.getInvoice(user.id, invoiceId);
-    },
-    enabled: !!user && !!invoiceId,
-  });
+  const useInvoiceDetails = (invoiceId: string) =>
+    useQuery({
+      queryKey: ["invoice", invoiceId],
+      queryFn: () => {
+        if (!user) return null;
+        return billingProvider.getInvoice(user.id, invoiceId);
+      },
+      enabled: !!user && !!invoiceId,
+    });
 
   const paymentMethodsQuery = useQuery({
-    queryKey: ['paymentMethods'],
+    queryKey: ["paymentMethods"],
     queryFn: () => {
       if (!user) return [];
       return billingProvider.listPaymentMethods(user.id);
@@ -35,11 +36,11 @@ export const useInvoices = () => {
 
   const payInvoiceMutation = useMutation({
     mutationFn: async (params: { invoiceId: string; methodId: string }) => {
-      if (!user) throw new Error('User not found');
+      if (!user) throw new Error("User not found");
       return billingProvider.createPayment(user.id, params);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
     },
   });
 
