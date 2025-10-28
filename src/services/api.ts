@@ -42,8 +42,9 @@ class ApiService {
             const refreshToken = await storageService.getRefreshToken();
             if (refreshToken) {
               const response = await this.refreshAuthToken(refreshToken);
-              const { token, refreshToken: newRefreshToken } = response.data || {};
-              
+              const { token, refreshToken: newRefreshToken } =
+                response.data || {};
+
               if (token) {
                 await storageService.setAuthTokens(
                   token,
@@ -108,7 +109,10 @@ class ApiService {
     return response.data;
   }
 
-  async changePassword(currentPassword: string, newPassword: string): Promise<ApiResponse<any>> {
+  async changePassword(
+    currentPassword: string,
+    newPassword: string
+  ): Promise<ApiResponse<any>> {
     const response = await this.client.put("/user/change-password", {
       currentPassword,
       newPassword,
@@ -122,31 +126,49 @@ class ApiService {
   }
 
   async getHostingDetails(hostingId: string): Promise<ApiResponse<any>> {
-    const response = await this.client.get(`/hosting/packages/${hostingId}/detail`);
+    const response = await this.client.get(
+      `/hosting/packages/${hostingId}/detail`
+    );
     return response.data;
   }
 
   async getHostingUsage(hostingId: string): Promise<ApiResponse<any>> {
-    const response = await this.client.get(`/hosting/packages/${hostingId}/usage`);
+    const response = await this.client.get(
+      `/hosting/packages/${hostingId}/usage`
+    );
     return response.data;
   }
 
-  async getFiles(hostingId: string, path: string = "/"): Promise<ApiResponse<any[]>> {
+  async getFiles(
+    hostingId: string,
+    path: string = "/"
+  ): Promise<ApiResponse<any[]>> {
     const response = await this.client.get(`/hosting/${hostingId}/files`, {
       params: { path },
     });
     return response.data;
   }
 
-  async uploadFile(hostingId: string, path: string, file: FormData): Promise<ApiResponse<any>> {
-    const response = await this.client.post(`/hosting/${hostingId}/files/upload`, file, {
-      params: { path },
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+  async uploadFile(
+    hostingId: string,
+    path: string,
+    file: FormData
+  ): Promise<ApiResponse<any>> {
+    const response = await this.client.post(
+      `/hosting/${hostingId}/files/upload`,
+      file,
+      {
+        params: { path },
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
     return response.data;
   }
 
-  async deleteFile(hostingId: string, filePath: string): Promise<ApiResponse<any>> {
+  async deleteFile(
+    hostingId: string,
+    filePath: string
+  ): Promise<ApiResponse<any>> {
     const response = await this.client.delete(`/hosting/${hostingId}/files`, {
       data: { path: filePath },
     });
@@ -158,13 +180,24 @@ class ApiService {
     return response.data;
   }
 
-  async createDatabase(hostingId: string, databaseData: any): Promise<ApiResponse<any>> {
-    const response = await this.client.post(`/hosting/${hostingId}/databases`, databaseData);
+  async createDatabase(
+    hostingId: string,
+    databaseData: any
+  ): Promise<ApiResponse<any>> {
+    const response = await this.client.post(
+      `/hosting/${hostingId}/databases`,
+      databaseData
+    );
     return response.data;
   }
 
-  async deleteDatabase(hostingId: string, databaseId: string): Promise<ApiResponse<any>> {
-    const response = await this.client.delete(`/hosting/${hostingId}/databases/${databaseId}`);
+  async deleteDatabase(
+    hostingId: string,
+    databaseId: string
+  ): Promise<ApiResponse<any>> {
+    const response = await this.client.delete(
+      `/hosting/${hostingId}/databases/${databaseId}`
+    );
     return response.data;
   }
 
@@ -184,8 +217,14 @@ class ApiService {
     return response.data;
   }
 
-  async updateDnsRecord(domainId: string, recordData: any): Promise<ApiResponse<any>> {
-    const response = await this.client.put(`/domains/${domainId}/dns`, recordData);
+  async updateDnsRecord(
+    domainId: string,
+    recordData: any
+  ): Promise<ApiResponse<any>> {
+    const response = await this.client.put(
+      `/domains/${domainId}/dns`,
+      recordData
+    );
     return response.data;
   }
 
@@ -204,8 +243,13 @@ class ApiService {
     return response.data;
   }
 
-  async controlServer(serverId: string, action: string): Promise<ApiResponse<any>> {
-    const response = await this.client.post(`/servers/${serverId}/control`, { action });
+  async controlServer(
+    serverId: string,
+    action: string
+  ): Promise<ApiResponse<any>> {
+    const response = await this.client.post(`/servers/${serverId}/control`, {
+      action,
+    });
     return response.data;
   }
 
@@ -244,8 +288,14 @@ class ApiService {
     return response.data;
   }
 
-  async replyToTicket(ticketId: string, message: string): Promise<ApiResponse<any>> {
-    const response = await this.client.post(`/support/tickets/${ticketId}/replies`, { message });
+  async replyToTicket(
+    ticketId: string,
+    message: string
+  ): Promise<ApiResponse<any>> {
+    const response = await this.client.post(
+      `/support/tickets/${ticketId}/replies`,
+      { message }
+    );
     return response.data;
   }
 

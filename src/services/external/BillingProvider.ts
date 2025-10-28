@@ -7,7 +7,7 @@ export interface InvoiceSummary {
   number: string;
   amount: number;
   currency: string;
-  status: 'paid' | 'unpaid' | 'overdue' | 'cancelled';
+  status: "paid" | "unpaid" | "overdue" | "cancelled";
   date: string;
   dueDate: string;
 }
@@ -24,7 +24,7 @@ export interface InvoiceDetail extends InvoiceSummary {
 
 export interface PaymentMethodSummary {
   id: string;
-  type: 'credit_card' | 'bank_transfer' | 'paypal';
+  type: "credit_card" | "bank_transfer" | "paypal";
   lastFour?: string;
   expiryDate?: string;
   cardType?: string;
@@ -46,7 +46,10 @@ export interface IBillingProvider {
   listInvoices(userId: string): Promise<InvoiceSummary[]>;
   getInvoice(userId: string, invoiceId: string): Promise<InvoiceDetail | null>;
   listPaymentMethods(userId: string): Promise<PaymentMethodSummary[]>;
-  createPayment(userId: string, input: CreatePaymentInput): Promise<PaymentResult>;
+  createPayment(
+    userId: string,
+    input: CreatePaymentInput
+  ): Promise<PaymentResult>;
 }
 
 class MockBillingProvider implements IBillingProvider {
@@ -60,8 +63,8 @@ class MockBillingProvider implements IBillingProvider {
         id: `inv-${i}`,
         number: `INV-2025-00${i}`,
         amount: 100 * i,
-        currency: 'USD',
-        status: i % 2 === 0 ? 'paid' : 'unpaid',
+        currency: "USD",
+        status: i % 2 === 0 ? "paid" : "unpaid",
         date: new Date(Date.now() - i * 86400000).toISOString(),
         dueDate: new Date(Date.now() + i * 86400000).toISOString(),
         items: [
@@ -78,16 +81,16 @@ class MockBillingProvider implements IBillingProvider {
 
     this.paymentMethods = [
       {
-        id: 'pm-1',
-        type: 'credit_card',
-        lastFour: '4242',
-        expiryDate: '12/28',
-        cardType: 'VISA',
+        id: "pm-1",
+        type: "credit_card",
+        lastFour: "4242",
+        expiryDate: "12/28",
+        cardType: "VISA",
         isDefault: true,
       },
       {
-        id: 'pm-2',
-        type: 'paypal',
+        id: "pm-2",
+        type: "paypal",
         isDefault: false,
       },
     ];
@@ -97,7 +100,10 @@ class MockBillingProvider implements IBillingProvider {
     return this.invoices.map(({ items: _items, ...rest }) => rest);
   }
 
-  async getInvoice(_userId: string, invoiceId: string): Promise<InvoiceDetail | null> {
+  async getInvoice(
+    _userId: string,
+    invoiceId: string
+  ): Promise<InvoiceDetail | null> {
     return this.invoices.find((i) => i.id === invoiceId) || null;
   }
 
@@ -105,11 +111,14 @@ class MockBillingProvider implements IBillingProvider {
     return this.paymentMethods;
   }
 
-  async createPayment(_userId: string, input: CreatePaymentInput): Promise<PaymentResult> {
+  async createPayment(
+    _userId: string,
+    input: CreatePaymentInput
+  ): Promise<PaymentResult> {
     const invoice = this.invoices.find((i) => i.id === input.invoiceId);
-    if (!invoice) return { success: false, message: 'Invoice not found' };
+    if (!invoice) return { success: false, message: "Invoice not found" };
     // Mock: invoice'u paid yap
-    invoice.status = 'paid';
+    invoice.status = "paid";
     return { success: true };
   }
 }

@@ -31,9 +31,12 @@ class MockTwoFactorProvider implements ITwoFactorProvider {
   }
 
   async enable(userId: string): Promise<TwoFactorSetupResult> {
-    const secret = 'MOCKSECRET-' + userId.slice(0, 6);
-    const qrCodeDataUrl = 'data:image/png;base64,MOCKQRCODE==' ;
-    const recoveryCodes = Array.from({ length: 5 }, (_, i) => `RC-${i + 1}-${userId.slice(0,4)}`);
+    const secret = "MOCKSECRET-" + userId.slice(0, 6);
+    const qrCodeDataUrl = "data:image/png;base64,MOCKQRCODE==";
+    const recoveryCodes = Array.from(
+      { length: 5 },
+      (_, i) => `RC-${i + 1}-${userId.slice(0, 4)}`
+    );
     this.tempSecrets[userId] = secret;
     return { secret, qrCodeDataUrl, recoveryCodes };
   }
@@ -49,7 +52,7 @@ class MockTwoFactorProvider implements ITwoFactorProvider {
       this.enabledUsers.add(userId);
       return { success: true };
     }
-    return { success: false, message: 'Geçersiz kod' };
+    return { success: false, message: "Geçersiz kod" };
   }
 
   async resend(_userId: string): Promise<void> {
@@ -58,4 +61,5 @@ class MockTwoFactorProvider implements ITwoFactorProvider {
   }
 }
 
-export const twoFactorProvider: ITwoFactorProvider = new MockTwoFactorProvider();
+export const twoFactorProvider: ITwoFactorProvider =
+  new MockTwoFactorProvider();
