@@ -3,11 +3,11 @@
  * Global toast notification system
  */
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Toast } from '../components/common/Toast';
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { View, StyleSheet } from "react-native";
+import { Toast } from "../components/common/Toast";
 
-type ToastType = 'success' | 'error' | 'warning' | 'info';
+type ToastType = "success" | "error" | "warning" | "info";
 
 interface ToastData {
   id: number;
@@ -26,7 +26,9 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const ToastProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
   const showToast = (message: string, type: ToastType, duration = 3000) => {
@@ -39,19 +41,19 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   const success = (message: string, duration?: number) => {
-    showToast(message, 'success', duration);
+    showToast(message, "success", duration);
   };
 
   const error = (message: string, duration?: number) => {
-    showToast(message, 'error', duration);
+    showToast(message, "error", duration);
   };
 
   const warning = (message: string, duration?: number) => {
-    showToast(message, 'warning', duration);
+    showToast(message, "warning", duration);
   };
 
   const info = (message: string, duration?: number) => {
-    showToast(message, 'info', duration);
+    showToast(message, "info", duration);
   };
 
   const value: ToastContextType = {
@@ -84,14 +86,14 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 export const useToast = (): ToastContextType => {
   const context = useContext(ToastContext);
   if (!context) {
-    throw new Error('useToast must be used within ToastProvider');
+    throw new Error("useToast must be used within ToastProvider");
   }
   return context;
 };
 
 const styles = StyleSheet.create({
   toastContainer: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,

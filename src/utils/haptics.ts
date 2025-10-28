@@ -3,7 +3,7 @@
  * Centralized haptic feedback management for consistent tactile feedback
  */
 
-import * as Haptics from 'expo-haptics';
+import * as Haptics from "expo-haptics";
 
 /**
  * Light impact feedback
