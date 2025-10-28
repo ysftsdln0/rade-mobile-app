@@ -13,7 +13,7 @@ import Animated, {
   withSpring,
   withSequence,
   withTiming,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors, spacing } from "../../styles";
 import { motion } from "../../styles/motion";
@@ -77,7 +77,7 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   const isDisabledOrLoading = disabled || loading;
   const { colors: themeColors } = useTheme();
-  
+
   // Animation values
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
@@ -170,7 +170,9 @@ export const Button: React.FC<ButtonProps> = ({
         style={[
           ...baseStyles,
           variant === "primary" && { backgroundColor: themeColors.primary },
-          variant === "secondary" && { backgroundColor: themeColors.surfaceAlt },
+          variant === "secondary" && {
+            backgroundColor: themeColors.surfaceAlt,
+          },
           variant === "danger" && { backgroundColor: themeColors.error },
           variant === "ghost" && {
             backgroundColor: "transparent",

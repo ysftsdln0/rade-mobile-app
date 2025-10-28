@@ -1,14 +1,14 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, Text, ViewStyle } from 'react-native';
+import React, { useEffect } from "react";
+import { View, StyleSheet, Text, ViewStyle } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   useAnimatedProps,
   Easing,
-} from 'react-native-reanimated';
-import { colors, spacing, shadows } from '../../styles';
-import { useTheme } from '../../utils/ThemeContext';
+} from "react-native-reanimated";
+import { colors, spacing, shadows } from "../../styles";
+import { useTheme } from "../../utils/ThemeContext";
 
 // Animated Text component for counter
 const AnimatedText = Animated.createAnimatedComponent(Text);
@@ -19,7 +19,7 @@ interface MetricCardProps {
   unit?: string;
   change?: number;
   icon?: React.ReactNode;
-  status?: 'online' | 'offline' | 'warning' | 'neutral';
+  status?: "online" | "offline" | "warning" | "neutral";
   style?: ViewStyle;
   testID?: string;
   /** Enable animated counter (only for numeric values) */
@@ -30,19 +30,19 @@ interface MetricCardProps {
 
 /**
  * MetricCard Component
- * 
+ *
  * Dashboard metric card displaying key performance indicators with:
  * - Large numeric value with optional unit
  * - Trend indicator (percentage change)
  * - Status indicator bar
  * - Optional icon
- * 
+ *
  * Status colors:
  * - online: Green (#10B981)
  * - offline: Gray (#6B7280)
  * - warning: Amber (#F59E0B)
  * - neutral: Gray (#E5E7EB)
- * 
+ *
  * @example
  * <MetricCard
  *   label="Total Users"
@@ -51,7 +51,7 @@ interface MetricCardProps {
  *   status="online"
  *   icon={<UsersIcon size={20} />}
  * />
- * 
+ *
  * @example
  * <MetricCard
  *   label="CPU Usage"
@@ -67,18 +67,21 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   unit,
   change,
   icon: Icon,
-  status = 'neutral',
+  status = "neutral",
   style,
   testID,
   animateValue = true,
   animationDuration = 1000,
 }) => {
   const isPositive = change !== undefined && change > 0;
-  const changeText = change !== undefined ? `${isPositive ? '↑' : '↓'} ${Math.abs(change)}%` : '';
+  const changeText =
+    change !== undefined
+      ? `${isPositive ? "↑" : "↓"} ${Math.abs(change)}%`
+      : "";
   const { colors: themeColors } = useTheme();
 
   // Animated counter for numeric values
-  const isNumeric = typeof value === 'number';
+  const isNumeric = typeof value === "number";
   const numericValue = isNumeric ? value : 0;
   const animatedValue = useSharedValue(0);
 
@@ -116,9 +119,9 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     <View
       style={[
         styles.metricCard,
-        { 
+        {
           backgroundColor: themeColors.card,
-          borderColor: themeColors.cardBorder
+          borderColor: themeColors.cardBorder,
         },
         shadows.subtle,
         style,
@@ -130,9 +133,18 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
       {/* Header with label and icon */}
       <View style={styles.metricHeader}>
-        <Text style={[styles.metricLabel, { color: themeColors.textSecondary }]}>{label}</Text>
+        <Text
+          style={[styles.metricLabel, { color: themeColors.textSecondary }]}
+        >
+          {label}
+        </Text>
         {Icon && (
-          <View style={[styles.iconContainer, { backgroundColor: themeColors.surfaceAlt }]}>
+          <View
+            style={[
+              styles.iconContainer,
+              { backgroundColor: themeColors.surfaceAlt },
+            ]}
+          >
             {Icon}
           </View>
         )}
@@ -147,9 +159,15 @@ export const MetricCard: React.FC<MetricCardProps> = ({
             style={[styles.value, { color: themeColors.text }]}
           />
         ) : (
-          <Text style={[styles.value, { color: themeColors.text }]}>{value}</Text>
+          <Text style={[styles.value, { color: themeColors.text }]}>
+            {value}
+          </Text>
         )}
-        {unit && <Text style={[styles.unit, { color: themeColors.textSecondary }]}>{unit}</Text>}
+        {unit && (
+          <Text style={[styles.unit, { color: themeColors.textSecondary }]}>
+            {unit}
+          </Text>
+        )}
       </View>
 
       {/* Change indicator */}
@@ -172,11 +190,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     padding: spacing[4],
-    position: 'relative',
-    overflow: 'hidden',
+    position: "relative",
+    overflow: "hidden",
   },
   statusBar: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
@@ -197,42 +215,42 @@ const styles = StyleSheet.create({
     backgroundColor: colors.neutral[300],
   },
   metricHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: spacing[3],
     marginTop: spacing[1],
   },
   metricLabel: {
     fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
+    fontWeight: "600",
+    textTransform: "uppercase",
     letterSpacing: 0.5,
   },
   iconContainer: {
     width: 24,
     height: 24,
     borderRadius: 6,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   metricValue: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
+    flexDirection: "row",
+    alignItems: "baseline",
     gap: spacing[2],
     marginBottom: spacing[3],
   },
   value: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   unit: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   change: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   positive: {
     color: colors.semantic.success,
