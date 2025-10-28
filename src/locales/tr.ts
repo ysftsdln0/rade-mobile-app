@@ -17,6 +17,15 @@ export const tr: TranslationKeys = {
     filter: 'Filtrele',
     apply: 'Uygula',
     reset: 'Sıfırla',
+    // Toast mesajları
+    saveSuccess: 'Değişiklikler başarıyla kaydedildi',
+    saveError: 'Değişiklikler kaydedilemedi',
+    deleteSuccess: 'Öğe başarıyla silindi',
+    deleteError: 'Öğe silinemedi',
+    updateSuccess: 'Başarıyla güncellendi',
+    updateError: 'Güncelleme başarısız',
+    networkError: 'Ağ bağlantı hatası',
+    genericError: 'Bir şeyler yanlış gitti',
   },
 
   // Auth

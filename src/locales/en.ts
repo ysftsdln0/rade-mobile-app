@@ -15,6 +15,15 @@ export const en = {
     filter: 'Filter',
     apply: 'Apply',
     reset: 'Reset',
+    // Toast messages
+    saveSuccess: 'Changes saved successfully',
+    saveError: 'Failed to save changes',
+    deleteSuccess: 'Item deleted successfully',
+    deleteError: 'Failed to delete item',
+    updateSuccess: 'Updated successfully',
+    updateError: 'Update failed',
+    networkError: 'Network connection error',
+    genericError: 'Something went wrong',
   },
 
   // Auth
