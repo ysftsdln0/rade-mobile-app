@@ -8,7 +8,6 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { colors, spacing, shadows } from '../../styles';
-import { motion } from '../../styles/motion';
 import { useTheme } from '../../utils/ThemeContext';
 
 // Animated Text component for counter
@@ -85,10 +84,11 @@ export const MetricCard: React.FC<MetricCardProps> = ({
 
   useEffect(() => {
     if (isNumeric && animateValue) {
-      // Animate from 0 to target value
+      // Animate from 0 to target value with emphasized easing
+      // Using Reanimated's Easing for worklet compatibility
       animatedValue.value = withTiming(numericValue, {
         duration: animationDuration,
-        easing: motion.easing.emphasized,
+        easing: Easing.bezier(0.4, 0.0, 0.2, 1), // Material Design emphasized curve
       });
     } else {
       // Set immediately without animation

@@ -19,6 +19,7 @@ import {
   Badge,
   Progress,
 } from "../../components/common";
+import { DashboardSkeleton } from "./DashboardSkeleton";
 import { colors, spacing } from "../../styles";
 import { HostingPackage, ActivityItem } from "../../types";
 
@@ -61,6 +62,11 @@ const DashboardScreen = () => {
     if (hour < 18) return t.dashboard.goodAfternoon;
     return t.dashboard.goodEvening;
   };
+
+  // Show skeleton while loading
+  if (hostingQuery.isLoading || activityQuery.isLoading) {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
