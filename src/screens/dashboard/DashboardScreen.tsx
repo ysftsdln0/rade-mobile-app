@@ -69,7 +69,9 @@ const DashboardScreen = () => {
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: themeColors.background }]}
+    >
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -80,17 +82,25 @@ const DashboardScreen = () => {
           <Text style={[styles.greetingText, { color: themeColors.text }]}>
             {getGreeting()}, {user?.firstName || t.dashboard.user}!
           </Text>
-          <Text style={[styles.overviewText, { color: themeColors.textSecondary }]}>
+          <Text
+            style={[styles.overviewText, { color: themeColors.textSecondary }]}
+          >
             {t.dashboard.accountOverview}
           </Text>
         </View>
 
         <View style={styles.metricsRow}>
-          <View style={[styles.metricBox, { backgroundColor: themeColors.card }]}>
+          <View
+            style={[styles.metricBox, { backgroundColor: themeColors.card }]}
+          >
             <View
               style={[
                 styles.metricIcon,
-                { backgroundColor: isDark ? themeColors.surfaceAlt : colors.primary[100] },
+                {
+                  backgroundColor: isDark
+                    ? themeColors.surfaceAlt
+                    : colors.primary[100],
+                },
               ]}
             >
               <Ionicons
@@ -99,28 +109,58 @@ const DashboardScreen = () => {
                 color={themeColors.primary}
               />
             </View>
-            <Text style={[styles.metricValue, { color: themeColors.text }]}>{hostingCount + 12}</Text>
-            <Text style={[styles.metricLabel, { color: themeColors.textSecondary }]}>
+            <Text style={[styles.metricValue, { color: themeColors.text }]}>
+              {hostingCount + 12}
+            </Text>
+            <Text
+              style={[styles.metricLabel, { color: themeColors.textSecondary }]}
+            >
               {t.dashboard.totalWebsites}
             </Text>
           </View>
 
-          <View style={[styles.metricBox, { backgroundColor: themeColors.card }]}>
-            <View style={[styles.metricIcon, { backgroundColor: isDark ? themeColors.surfaceAlt : "#E8F5E9" }]}>
+          <View
+            style={[styles.metricBox, { backgroundColor: themeColors.card }]}
+          >
+            <View
+              style={[
+                styles.metricIcon,
+                {
+                  backgroundColor: isDark ? themeColors.surfaceAlt : "#E8F5E9",
+                },
+              ]}
+            >
               <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
             </View>
-            <Text style={[styles.metricValue, { color: themeColors.text }]}>99.9%</Text>
-            <Text style={[styles.metricLabel, { color: themeColors.textSecondary }]}>
+            <Text style={[styles.metricValue, { color: themeColors.text }]}>
+              99.9%
+            </Text>
+            <Text
+              style={[styles.metricLabel, { color: themeColors.textSecondary }]}
+            >
               {t.dashboard.uptime}
             </Text>
           </View>
 
-          <View style={[styles.metricBox, { backgroundColor: themeColors.card }]}>
-            <View style={[styles.metricIcon, { backgroundColor: isDark ? themeColors.surfaceAlt : "#FFF3E0" }]}>
+          <View
+            style={[styles.metricBox, { backgroundColor: themeColors.card }]}
+          >
+            <View
+              style={[
+                styles.metricIcon,
+                {
+                  backgroundColor: isDark ? themeColors.surfaceAlt : "#FFF3E0",
+                },
+              ]}
+            >
               <Ionicons name="help-circle-outline" size={24} color="#FF9800" />
             </View>
-            <Text style={[styles.metricValue, { color: themeColors.text }]}>2</Text>
-            <Text style={[styles.metricLabel, { color: themeColors.textSecondary }]}>
+            <Text style={[styles.metricValue, { color: themeColors.text }]}>
+              2
+            </Text>
+            <Text
+              style={[styles.metricLabel, { color: themeColors.textSecondary }]}
+            >
               {t.dashboard.supportTickets}
             </Text>
           </View>
@@ -185,7 +225,10 @@ const DashboardScreen = () => {
             ))}
             {hostingCount > 3 && (
               <Button
-                label={t.dashboard.viewAllServices.replace('{count}', hostingCount.toString())}
+                label={t.dashboard.viewAllServices.replace(
+                  "{count}",
+                  hostingCount.toString()
+                )}
                 variant="secondary"
                 size="sm"
                 onPress={() => navigation.navigate("Services")}
@@ -195,43 +238,55 @@ const DashboardScreen = () => {
         )}
 
         <View style={styles.systemHealthContainer}>
-          <Card 
-            title={t.dashboard.systemHealth} 
+          <Card
+            title={t.dashboard.systemHealth}
             variant="elevated"
             style={styles.compactCard}
           >
             <View style={styles.healthSection}>
-            <View style={styles.healthRow}>
-              <View style={styles.healthLabel}>
-                <Text style={[styles.healthText, { color: themeColors.textSecondary }]}>
-                  {t.dashboard.serverStatus}
-                </Text>
+              <View style={styles.healthRow}>
+                <View style={styles.healthLabel}>
+                  <Text
+                    style={[
+                      styles.healthText,
+                      { color: themeColors.textSecondary },
+                    ]}
+                  >
+                    {t.dashboard.serverStatus}
+                  </Text>
+                </View>
+                <Badge label={t.dashboard.operational} variant="success" />
               </View>
-              <Badge 
-                label={t.dashboard.operational} 
-                variant="success" 
+              <View style={styles.healthMetric}>
+                <Text
+                  style={[
+                    styles.healthMetricLabel,
+                    { color: themeColors.textSecondary },
+                  ]}
+                >
+                  {t.dashboard.systemLoad}
+                </Text>
+                <Progress progress={65} showLabel variant="linear" />
+              </View>
+              <View style={styles.healthMetric}>
+                <Text
+                  style={[
+                    styles.healthMetricLabel,
+                    { color: themeColors.textSecondary },
+                  ]}
+                >
+                  {t.dashboard.diskUsage}
+                </Text>
+                <Progress progress={45} showLabel variant="linear" />
+              </View>
+              <DataRow
+                label={t.dashboard.servicesRunning}
+                value={`${hostingCount + 2}`}
+                secondary={t.dashboard.allServicesOperational}
+                divider={false}
               />
             </View>
-            <View style={styles.healthMetric}>
-              <Text style={[styles.healthMetricLabel, { color: themeColors.textSecondary }]}>
-                {t.dashboard.systemLoad}
-              </Text>
-              <Progress progress={65} showLabel variant="linear" />
-            </View>
-            <View style={styles.healthMetric}>
-              <Text style={[styles.healthMetricLabel, { color: themeColors.textSecondary }]}>
-                {t.dashboard.diskUsage}
-              </Text>
-              <Progress progress={45} showLabel variant="linear" />
-            </View>
-            <DataRow
-              label={t.dashboard.servicesRunning}
-              value={`${hostingCount + 2}`}
-              secondary={t.dashboard.allServicesOperational}
-              divider={false}
-            />
-          </View>
-        </Card>
+          </Card>
         </View>
 
         {timelineEvents.length > 0 && (
