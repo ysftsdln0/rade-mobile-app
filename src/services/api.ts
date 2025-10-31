@@ -24,6 +24,14 @@ class ApiService {
         const token = await storageService.getAuthToken();
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
+          console.log(
+            "🔑 Token added to request:",
+            config.url,
+            "Token:",
+            token.substring(0, 20) + "..."
+          );
+        } else {
+          console.log("⚠️ No token found for request:", config.url);
         }
         return config;
       },
@@ -36,16 +44,21 @@ class ApiService {
         const originalRequest = error.config;
 
         if (error.response?.status === 401 && !originalRequest._retry) {
+          console.log("🔄 401 Error - Attempting token refresh...");
           originalRequest._retry = true;
 
           try {
             const refreshToken = await storageService.getRefreshToken();
+            console.log("🔑 Refresh token found:", refreshToken ? "Yes" : "No");
+
             if (refreshToken) {
+              console.log("🔄 Calling refresh endpoint...");
               const response = await this.refreshAuthToken(refreshToken);
               const { token, refreshToken: newRefreshToken } =
                 response.data || {};
 
               if (token) {
+                console.log("✅ New tokens received, retrying request...");
                 await storageService.setAuthTokens(
                   token,
                   newRefreshToken || refreshToken
@@ -53,8 +66,12 @@ class ApiService {
                 originalRequest.headers.Authorization = `Bearer ${token}`;
                 return this.client(originalRequest);
               }
+            } else {
+              console.log("❌ No refresh token - clearing storage");
+              await storageService.clearAuthTokens();
             }
-          } catch {
+          } catch (refreshError) {
+            console.log("❌ Refresh failed:", refreshError);
             await storageService.clearAuthTokens();
           }
         }
@@ -81,8 +98,10 @@ class ApiService {
 
   async logout(): Promise<void> {
     try {
-      await this.client.post("/auth/logout");
-    } catch {
+      const refreshToken = await storageService.getRefreshToken();
+      await this.client.post("/auth/logout", { refreshToken });
+    } catch (error) {
+      console.log("Logout API call failed:", error);
       // Continue with logout even if API call fails
     } finally {
       await storageService.clearAuthTokens();

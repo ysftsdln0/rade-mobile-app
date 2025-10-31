@@ -1,5 +1,5 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { STORAGE_KEYS } from '../constants';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { STORAGE_KEYS } from "../constants";
 
 class StorageService {
   // Generic storage methods
@@ -8,7 +8,7 @@ class StorageService {
       const serializedValue = JSON.stringify(value);
       await AsyncStorage.setItem(key, serializedValue);
     } catch (error) {
-      console.error('Error saving to AsyncStorage:', error);
+      console.error("Error saving to AsyncStorage:", error);
       throw error;
     }
   }
@@ -18,7 +18,7 @@ class StorageService {
       const serializedValue = await AsyncStorage.getItem(key);
       return serializedValue ? JSON.parse(serializedValue) : null;
     } catch (error) {
-      console.error('Error reading from AsyncStorage:', error);
+      console.error("Error reading from AsyncStorage:", error);
       return null;
     }
   }
@@ -27,7 +27,7 @@ class StorageService {
     try {
       await AsyncStorage.removeItem(key);
     } catch (error) {
-      console.error('Error removing from AsyncStorage:', error);
+      console.error("Error removing from AsyncStorage:", error);
       throw error;
     }
   }
@@ -36,25 +36,41 @@ class StorageService {
     try {
       await AsyncStorage.clear();
     } catch (error) {
-      console.error('Error clearing AsyncStorage:', error);
+      console.error("Error clearing AsyncStorage:", error);
       throw error;
     }
   }
 
   // Auth specific methods
   async setAuthTokens(token: string, refreshToken: string): Promise<void> {
+    console.log("💾 Storing auth tokens...");
+    console.log("Token length:", token?.length || 0);
+    console.log("RefreshToken length:", refreshToken?.length || 0);
+
     await Promise.all([
       this.setItem(STORAGE_KEYS.AUTH_TOKEN, token),
       this.setItem(STORAGE_KEYS.REFRESH_TOKEN, refreshToken),
     ]);
+
+    console.log("✅ Auth tokens stored");
   }
 
   async getAuthToken(): Promise<string | null> {
-    return this.getItem<string>(STORAGE_KEYS.AUTH_TOKEN);
+    const token = await this.getItem<string>(STORAGE_KEYS.AUTH_TOKEN);
+    console.log(
+      "📖 Reading auth token:",
+      token ? `Found (${token.length} chars)` : "Not found"
+    );
+    return token;
   }
 
   async getRefreshToken(): Promise<string | null> {
-    return this.getItem<string>(STORAGE_KEYS.REFRESH_TOKEN);
+    const token = await this.getItem<string>(STORAGE_KEYS.REFRESH_TOKEN);
+    console.log(
+      "📖 Reading refresh token:",
+      token ? `Found (${token.length} chars)` : "Not found"
+    );
+    return token;
   }
 
   async clearAuthTokens(): Promise<void> {
@@ -93,7 +109,7 @@ class StorageService {
 
   async getLanguage(): Promise<string> {
     const language = await this.getItem<string>(STORAGE_KEYS.LANGUAGE);
-    return language ?? 'tr';
+    return language ?? "tr";
   }
 
   async setFirstLaunch(isFirstLaunch: boolean): Promise<void> {
@@ -101,7 +117,9 @@ class StorageService {
   }
 
   async getFirstLaunch(): Promise<boolean> {
-    const isFirstLaunch = await this.getItem<boolean>(STORAGE_KEYS.FIRST_LAUNCH);
+    const isFirstLaunch = await this.getItem<boolean>(
+      STORAGE_KEYS.FIRST_LAUNCH
+    );
     return isFirstLaunch ?? true;
   }
 }
