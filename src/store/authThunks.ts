@@ -16,9 +16,15 @@ export const loginAsync = createAsyncThunk(
       if (response.success) {
         const { user, token, refreshToken } = response.data;
 
+        console.log("✅ Login successful - Storing tokens...");
+        console.log("Token:", token?.substring(0, 20) + "...");
+        console.log("RefreshToken:", refreshToken?.substring(0, 20) + "...");
+
         // Store tokens and user data
         await storageService.setAuthTokens(token, refreshToken);
         await storageService.setUserData(user);
+
+        console.log("✅ Tokens stored successfully");
 
         return { user, token, refreshToken };
       } else {
